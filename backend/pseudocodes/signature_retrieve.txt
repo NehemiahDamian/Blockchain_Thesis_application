@@ -1,0 +1,45 @@
+
+Backend
+API
+get request from the front end to get the esig and store to the ui in the react
+
+import dean 
+id = req.Id dean = User.findbyid(id) 
+
+if !dean res(404) not found
+
+//nextline
+
+deanSig = dean.esignature
+ 
+if ! deansig res(404) 
+
+if dean deanSig
+
+res.status(200).json({sample:"sample(true or "message")", data:deansig})
+
+FrontEnd
+
+zutand 
+signature:
+
+getsignanature:{
+data = axios request to /dean/signature
+
+// maybe axios will handle this
+res = await data to json to esignature
+update state using set now the signature variable have the esignature
+
+}
+
+component file:
+update ui 
+
+
+Batch esignature
+button calls the api above and the process ->
+
+
+
+
+
