@@ -1,17 +1,16 @@
-// import express from "express"
-// import { protectRoute } from "../middlewares/auth.middleware.js";
-// import { getDiplomaByDepartment, getEsignature, addEsignature,getDigitallySigned } from "../controllers/dean.controller.js";
+import express from "express"
+import { protectRoute } from "../middlewares/auth.middleware.js";
+import { getDiplomaByDepartment, getEsignature, addEsignature } from "../controllers/dean.controller.js";
+const router = express.Router();
 
-// const router = express.Router();
+router.get("/getEsignature",protectRoute,getEsignature)
 
-// router.get("/getEsignature",protectRoute,getEsignature)
+router.get("/getdiploma", getDiplomaByDepartment)
 
-// router.get("/getdiploma", protectRoute, getDiplomaByDepartment)
+router.put("/addEsignature",protectRoute, addEsignature)
 
-// router.put("/addEsignature",protectRoute, addEsignature)
-
-// router.post("/digitallySignedDiplomas/dean", protectRoute,getDigitallySigned)
-
+// router.post("/digitallySignedDiplomas/dean", protectRoute, getDigitallySigned)
 
 
-// export default router;
+
+export default router;

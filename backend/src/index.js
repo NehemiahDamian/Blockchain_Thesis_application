@@ -6,8 +6,8 @@ import cors from "cors"
 
 import { connectDB } from "./lib/db.js";
 import cookieParser from "cookie-parser"
-// import registrarRoute from "./routes/registrar.route.js"
-// import deanRoute from "./routes/dean.routes.js"
+import adminRoute from "./routes/admin.route.js"
+import deanRoute from "./routes/dean.routes.js"
 
 const app = express();
 dotenv.config();
@@ -24,8 +24,8 @@ app.use(cookieParser());
 
 app.use("/api/auth",authRoutes)
 app.use("/api/student", studentRoute)
-// app.use("/api/registrar", registrarRoute )
-// app.use("/api/dean", deanRoute)
+app.use("/api/admin", adminRoute )
+app.use("/api/dean", deanRoute)
 
 
 
