@@ -1,65 +1,81 @@
-// import User from "../models/user.model.js";
-// import crypto from "crypto"
+import User from "../models/user.model.js";
+import crypto from "crypto"
+import { DiplomaSession } from "../models/diploma.session.model.js";
 // import DiplomaNewDb from "../models/SignedDiploma.js"; 
 
-// export const getEsignature = async (req,res) =>{
-//   const id = req.user._id
+export const getEsignature = async (req,res) =>{
+  const id = req.user._id
 
-//   try {
-//     const dean = await User.findById(id)
-//     if(!dean){
-//       return res.status(400).json({message:"user not found"})
-//     }
-//     const signature = dean.esignature
-//     const fullName = dean.fullName
+  try {
+    const dean = await User.findById(id)
+    if(!dean){
+      return res.status(400).json({message:"user not found"})
+    }
+    const signature = dean.esignature
+    const fullName = dean.fullName
 
-//     if(!signature || !fullName){
-//       return res.status(200).json({ message: "Success", data: { signature, fullName } });
+    if(!signature || !fullName){
+      return res.status(200).json({ message: "Success", data: { signature, fullName } });
 
-//     }
-//     res.status(200).json({message:"success",data:{signature,fullName}})
-//   } catch (error) {
-//     console.log(error)
-//     return res.status(500).json({message:"Internal server error"})
-//   }
-// }
+    }
+    res.status(200).json({message:"success",data:{signature,fullName}})
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({message:"Internal server error"})
+  }
+}
 
-// export const getDiplomaByDepartment = async(req,res) =>{
-//   const id = req.user._id
-//   try {
-//     const dean = await User.findById(id)
-//     if(!dean){
-//       return res.status(400).json({ message: "cant find"});
+export const getDiplomaByDepartment = async (req, res) => {
+  const { department } = req.query;
 
-//     }
-//     const students = await User.find({role:"student", department:dean.department})
+  try {
+    const session = await DiplomaSession.findOne({ department: department })
+      .populate("students"); 
 
-//     res.status(200).json({students});
-//   } catch (error) {
-//     res.status(500).json({ message: "Server error", error });
-//   }
-// };
+    if (!session) {
+      return res.status(404).json({ message: "No diploma session found for this department." });
+    }
 
-// export const addEsignature =  async (req,res) =>{
-//   const {eSignature} = req.body
-//   const userId = req.user._id
-
-//   if(!userId){
-//     return res.status(400).json({message:"E Signature is required"})
-//   }
-//   // cloudinary
-
-//   const updatedUser = await User.findByIdAndUpdate(userId, 
-//     {esignature:eSignature},
-//     {new:true})
-
-//     res.status(200).json(updatedUser)
+    res.status(200).json({
+      message: "Session found",
+      data: {
+        sessionId: session._id,
+        sessionName: session.sessionName,
+        students: session.students, 
+        department: session.department,
+        year: session.year,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching session:", error);
+    res.status(500).json({ message: "Server error while fetching session." });
+  }
+};
 
 
-// }
+
+export const addEsignature =  async (req,res) =>{
+  const {eSignature} = req.body
+  const userId = req.user._id
+
+  if(!userId){
+    return res.status(400).json({message:"E Signature is required"})
+  }
+  // cloudinary
+
+  const updatedUser = await User.findByIdAndUpdate(userId, 
+    {esignature:eSignature},
+    {new:true})
+
+    res.status(200).json(updatedUser)
+
+
+}
 
 // export const getDigitallySigned = async (req, res) => {
 //   const id = req.user._id;
+  
+//   // attributes of the diploma with e-signature
 //   const { signedDiplomas } = req.body;
 
 //   try {

@@ -16,6 +16,7 @@ const StudentSignup = () => {
     idNumber:"",
     department:"",
     program:"",
+    expectedYearToGraduate: "",
 
     role: "student", // Hardcoded role for testing
   });
@@ -102,6 +103,16 @@ const StudentSignup = () => {
           />
         </div>
 
+        <div>
+        <input
+            type="email"
+            className="w-full p-2 border rounded"
+            placeholder="you@example.com"
+            value={formData.expectedYearToGraduate}
+            onChange={(e) => setFormData({ ...formData, expectedYearToGraduate: e.target.value })}
+          />
+        </div>
+
 
         <button type="submit" className="w-full p-2 bg-blue-600 text-white rounded">
           Sign Up
@@ -109,5 +120,6 @@ const StudentSignup = () => {
       </form>
     </div>
   );
+
 };
 export default StudentSignup;

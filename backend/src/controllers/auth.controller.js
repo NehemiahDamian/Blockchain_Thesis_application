@@ -6,7 +6,7 @@ import { generateToken } from "../lib/utils.js"
 import { v4 as uuidv4 } from 'uuid';
 
 export const signup = async(req,res) =>{
-  const{fullName, email, password, role, idNumber,department, program} = req.body
+  const{fullName, email, password, role, idNumber,department, program,  expectedYearToGraduate} = req.body
 
   try {
     const existingUser = await User.findOne({email})
@@ -44,7 +44,8 @@ export const signup = async(req,res) =>{
         privateKey,
         uniqueToken:sToken ,
         department,
-        program
+        program,
+        expectedYearToGraduate
       });
 
     if(newUser){
@@ -54,9 +55,13 @@ export const signup = async(req,res) =>{
         _id:newUser._id,
         fullName, 
         email, 
+        role: newUser.role, // ✅ this is important!
+        
         uniqueToken:sToken,
         department,
-        program
+        program,
+        expectedYearToGraduate,
+        idNumber: newUser.idNumber, // 🔥 Add this
 
       });
       
@@ -72,21 +77,23 @@ export const signup = async(req,res) =>{
 export const login = async (req,res) =>{
   const{fullName, email, password, role, idNumber,department} = req.body
   try {
-    const user = await User.find({email})
+    const user = await User.findOne({email})
     if(!user){return res.status(400).json({message:"error error error"})}
 
-    const hashedPassword = await bcrypt.compareSync(password, user.password)
+    const hashedPassword = await bcrypt.compare(password, user.password)
 
     if(!hashedPassword){return res.status(400).json({message:"error error error"})}
 
     generateToken(user._id,res)
 
     return res.status(200).json({
-      _id:user._id,
-      fullName:user.fullName, 
-      email:user.email, 
-      uniqueToken:user.uniqueToken,
-      department:user.department,
+      _id: user._id,
+      fullName: user.fullName,
+      email: user.email,
+      role: user.role, // ✅ this is also important!
+      uniqueToken: user.uniqueToken,
+      department: user.department,
+      idNumber:user.idNumber
      })
   
   } catch (error) {

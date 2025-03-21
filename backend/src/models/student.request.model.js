@@ -2,9 +2,10 @@ import mongoose from "mongoose";
 
 const studentRequestSchema = new mongoose.Schema(
   {
-    idNumber: {
-      type: String,
+    student: {
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
     numberofRequest: {
       type: Number,

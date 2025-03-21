@@ -60,6 +60,11 @@ const userSchema = new mongoose.Schema(
 
   },
 
+  expectedYearToGraduate:{
+    type: String,
+    required: function () { return this.role === "student" }
+  },
+
   privateKey: 
   { type: String, 
     sparse: true, 

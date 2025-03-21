@@ -1,0 +1,21 @@
+{
+  "name": "thesis_main",
+  "version": "1.0.0",
+  "description": "A thesis application incorporating Full-Stack with MERN and solidity for smart contracts",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "hardhat": "^2.22.19"
+  },
+  "dependencies": {
+    "@chakra-ui/react": "^2.10.7",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "framer-motion": "^12.5.0"
+  }
+}

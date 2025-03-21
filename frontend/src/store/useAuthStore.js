@@ -7,12 +7,14 @@ export const useAuthStore = create((set) => ({
   authUser: null,
   isSigningUp: false,
   isCheckingAuth: false, // Added missing state
+  isLoggingIn: false,
+
 
   checkAuth: async () => {
     set({ isCheckingAuth: true }); // Set loading state
 
     try {
-      const res = await axiosInstances.get("/auth/check"); // Added `await`
+      const res = await axiosInstances.get("/auth/checkUser"); // Added `await`
       set({ authUser: res.data });
     } catch (error) {
       console.log("Error in checkAuth:", error);
@@ -34,4 +36,28 @@ export const useAuthStore = create((set) => ({
       set({ isSigningUp: false });
     }
   },
+  login: async (data) => {
+    set({ isLoggingIn: true });
+    try {
+      const res = await axiosInstances.post("/auth/login", data);
+      set({ authUser: res.data });
+      // toast.success("Logged in successfully");
+
+      // get().connectSocket();
+    } catch (error) {
+      console.log(error.response.data.message);
+    } finally {
+      set({ isLoggingIn: false });
+    }
+  },
+
+  logout: async()=>{
+    try {
+       await axiosInstances.post("/auth/logout")
+       set({authUser:null})
+       toast.success("loggedout")
+    } catch (error) {
+      toast.error(error.response.data.message)
+    }
+  }
 }));
