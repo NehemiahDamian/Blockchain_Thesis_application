@@ -45,6 +45,8 @@ const userSchema = new mongoose.Schema(
   },
   esignature: { 
     type:String, 
+    default:""
+
   },
 
   program: {

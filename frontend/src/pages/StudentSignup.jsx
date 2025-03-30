@@ -17,8 +17,7 @@ const StudentSignup = () => {
     department:"",
     program:"",
     expectedYearToGraduate: "",
-
-    role: "student", // Hardcoded role for testing
+     role: "student"
   });
 
   const {signup} = useAuthStore()
@@ -71,7 +70,7 @@ const StudentSignup = () => {
         </div>
 
         <div>
-          <label className="block font-medium">Password</label>
+          <label className="block font-medium">idNumber</label>
           <input
             type="text"
             className="w-full p-2 border rounded"
@@ -83,7 +82,7 @@ const StudentSignup = () => {
 
 
         <div>
-          <label className="block font-medium">Password</label>
+          <label className="block font-medium">Department</label>
           <input
             type="text"
             className="w-full p-2 border rounded"
@@ -93,11 +92,11 @@ const StudentSignup = () => {
           />
         </div>
         <div>
-          <label className="block font-medium">Password</label>
+          <label className="block font-medium">Program</label>
           <input
             type="text"
             className="w-full p-2 border rounded"
-            placeholder="idNumber"
+            placeholder="Program"
             value={formData.program}
             onChange={(e) => setFormData({ ...formData, program: e.target.value })}
           />
@@ -105,9 +104,9 @@ const StudentSignup = () => {
 
         <div>
         <input
-            type="email"
+            type="text"
             className="w-full p-2 border rounded"
-            placeholder="you@example.com"
+            placeholder="2024-2025"
             value={formData.expectedYearToGraduate}
             onChange={(e) => setFormData({ ...formData, expectedYearToGraduate: e.target.value })}
           />

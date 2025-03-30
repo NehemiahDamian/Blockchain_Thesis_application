@@ -35,7 +35,7 @@ function StudentLoginPage() {
         <button type="submit">Login</button>
       </form>
 
-      <Link to="/StudentSignup" className="link link-primary">
+      <Link to="/student/signup" className="link link-primary">
         Create account
       </Link>
     </div>

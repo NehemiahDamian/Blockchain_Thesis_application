@@ -12,8 +12,8 @@ return(
     <div>
     <Navbar/>
 
-        <p>{authUser.fullName}</p>
-        <p>{authUser.idNumber}</p>
+        <p>{authUser?.fullName}</p>
+        <p>{authUser?.idNumber}</p>
 
     </div>
 
