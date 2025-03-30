@@ -3,7 +3,7 @@
 const diplomaSessionSchema = new mongoose.Schema({
   students: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   sessionName: String,
-  department: String, // 🔥 Add this
+  department: String, 
   year: String, 
   createdAt: { type: Date, default: Date.now },
 });

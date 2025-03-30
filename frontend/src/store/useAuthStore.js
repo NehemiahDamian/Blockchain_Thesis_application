@@ -26,16 +26,18 @@ export const useAuthStore = create((set) => ({
 
   signup: async (data) => {
     set({ isSigningUp: true });
-
+  
     try {
       const res = await axiosInstances.post("/auth/signup", data);
-      set({ authUser: res.data });
+      set({ authUser: res.data }); // Fixed typo here
+      console.log("Fetched user:", res.data);
     } catch (error) {
       console.log(error);
     } finally {
       set({ isSigningUp: false });
     }
   },
+  
   login: async (data) => {
     set({ isLoggingIn: true });
     try {

@@ -55,8 +55,7 @@ export const signup = async(req,res) =>{
         _id:newUser._id,
         fullName, 
         email, 
-        role: newUser.role, // ✅ this is important!
-        
+        role: newUser.role, 
         uniqueToken:sToken,
         department,
         program,
