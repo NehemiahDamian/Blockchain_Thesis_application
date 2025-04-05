@@ -58,6 +58,7 @@ export const useDeanStore = create((set) => ({
         students, 
         esignatures 
       });  // ✅ Send both as an object
+      console.log("thestudents",students)
       console.log(res.data);
       console.log("the esig", esignatures);
     } catch (error) {
