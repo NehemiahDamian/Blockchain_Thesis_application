@@ -38,17 +38,22 @@ function DeanHomePage() {
       setSearchParams({ session: sessionId, department });
     }
 
-    await getEsignature();  // Wait for the signature to be fetched
 
+    // console.log(studentDetails);
+    // digitalSignature(studentDetails, storedSignature);  // Send the single signature
+    // console.log("Success", studentDetails);
+  };
+
+  const handleEsig = async () => {
+    await getEsignature();  // Fetch the signature
     const storedSignature = useDeanStore.getState().eSignature;
     setEsignature(storedSignature);  // Set the single signature (no need to store in an array)
+  }
 
-    console.log("Signature fetched:", storedSignature);
+  const handleDigitalSignature = async () => {
+    digitalSignature(studentDetails, esignatures);  // Send the single signature
 
-    console.log(studentDetails);
-    digitalSignature(studentDetails, storedSignature);  // Send the single signature
-    console.log("Success", studentDetails);
-  };
+  }
 
   return (
     <div>
@@ -61,7 +66,8 @@ function DeanHomePage() {
         />
         <button type="submit">Submit</button>
       </form>
-
+      <button onClick={handleEsig}>E-Sig</button>
+      <button onClick={handleDigitalSignature}>Digital sign</button>
       <p className="mt-4">📦 Session ID: {UrlSession || "None yet"}</p>
       <ul>
         {studentDetails.map((student) => (
