@@ -8,7 +8,6 @@ import { connectDB } from "./lib/db.js";
 import cookieParser from "cookie-parser"
 import adminRoute from "./routes/admin.route.js"
 import deanRoute from "./routes/dean.routes.js"
-import registrarRoute from "./routes/registrar.route.js"
 
 const app = express();
 dotenv.config();
@@ -27,7 +26,6 @@ app.use("/api/auth",authRoutes)
 app.use("/api/student", studentRoute)
 app.use("/api/admin", adminRoute )
 app.use("/api/dean", deanRoute)
-app.use("/api/registrar",  registrarRoute)
 
 
 

@@ -85,7 +85,7 @@ function AdminPage() {
           setSession({ ...session, year: e.target.value })
         }
       />
-      <button type="submit">Send to Deans</button>
+      <button type="submit">Send to Dean</button>
   </form>
 
       {diplomas.length > 0 ? (
@@ -94,7 +94,7 @@ function AdminPage() {
           <ul>
             {diplomas.map((student) => (
               <li key={student._id}>
-                {student.fullName} - {student.program} - {student.uniqueToken} -{student.email}
+                {student.fullName} - {student.program} - {student.uniqueToken}
               </li>
             ))}
           </ul>

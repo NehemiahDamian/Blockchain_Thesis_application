@@ -14,10 +14,6 @@ const signedDiplomaSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
-    expectedYearToGraduate: {
-      type: String,
-      required: false,
-    },
     dateOfGraduation: {
       type: String,
       required: false,

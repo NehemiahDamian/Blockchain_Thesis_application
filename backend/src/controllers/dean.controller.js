@@ -96,7 +96,7 @@ export const digitalSignature = async (req, res) => {
   }
 
   try {
-    const data = students.map((element) => {
+    const data = students.map((element, index) => {
       const sign = crypto.createSign("SHA256");
 
       // Only sign essential fields for stability
@@ -110,7 +110,7 @@ export const digitalSignature = async (req, res) => {
         ...element,
         signedByDean: req.user.fullName,
         deanDigitalSignature: digitalSignature,
-        deanESignature: esignatures,  // Use the single signature
+        deanESignature: Array.isArray(esignatures) ? esignatures[index] || null : esignatures,
         signedAt: new Date(),
       };
     });
@@ -146,3 +146,52 @@ export const addEsignature =  async (req,res) =>{
 
 }
 
+// export const getDigitallySigned = async (req, res) => {
+//   const id = req.user._id;
+  
+//   // attributes of the diploma with e-signature
+//   const { signedDiplomas } = req.body;
+
+//   try {
+//     const dean = await User.findById(id);
+//     if (!dean) {
+//       return res.status(400).json({ message: "Dean not found" });
+//     }
+
+//     const deanPrivateKey = dean.privateKey.trim(); //  no extra spaces
+
+//     const unsignedDiplomas = signedDiplomas.filter(
+//       (diploma) => !diploma.signedByDean
+//     );
+
+//     if (unsignedDiplomas.length === 0) {
+//       return res
+//         .status(400)
+//         .json({ message: "No unsigned diplomas found to sign." });
+//     }
+
+
+//     // Digitally sign each diploma using the dean's private key
+//     const digitallySignedDiplomas = unsignedDiplomas.map((diploma) => {
+//       const sign = crypto.createSign("SHA256"); // Use SHA256 for signing
+//       sign.update(JSON.stringify(diploma)); // Convert diploma to string before signing
+//       sign.end(); // Finish signing process
+
+//       const digitalSignature = sign.sign(deanPrivateKey, "hex"); // Sign and convert to hex
+
+//       return {
+//         ...diploma,
+//         signedByDean: dean.name, 
+//         digitalSignature, 
+//         signedAt: new Date(), 
+//       };
+//     });
+
+//     await DiplomaNewDb.insertMany(digitallySignedDiplomas);
+
+//     return res.status(200).json({ message: "Diplomas digitally signed successfully!" });
+//   } catch (error) {
+//     console.error("Error signing diplomas:", error);
+//     return res.status(500).json({ message: "Server error" });
+//   }
+// };

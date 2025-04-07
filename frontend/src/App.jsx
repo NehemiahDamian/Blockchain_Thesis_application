@@ -8,7 +8,7 @@ import StudentLoginPage from "./pages/StudentLoginPage.jsx";
 import StudentPage from "./pages/StudentPage.jsx";
 import AdminPage from "./pages/AdminPage.jsx";
 import AdminDeanSignUp from "./pages/AdminDeanSignUp.jsx";
-import DeanHomePage from "./pages/DeanHomePage.jsx";
+import DeanHomePage from "./pages/testingPage.jsx";
 import DeanEsig from "./pages/deanEsig.jsx";
 import DeanLogin from "./pages/DeanLogin.jsx";
 
@@ -64,7 +64,7 @@ function App() {
     
       {/* Dean routes  */}
       
-      <Route
+      <Route 
         path="/dean/login" 
         element={!authUser ? <DeanLogin /> : <Navigate to={location.state?.from || "/dean/homepage"} />} 
       />
