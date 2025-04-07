@@ -4,41 +4,36 @@ import { axiosInstances } from "../lib/axios";
 
 // deanStore.js
 export const useDeanStore = create((set) => ({
-  UrlSession: localStorage.getItem("UrlSession") || "",
-  studentDetails: JSON.parse(localStorage.getItem("studentDetails") || "[]"),
+  UrlSession: sessionStorage.getItem("deanSession") || "",
+  studentDetails: JSON.parse(sessionStorage.getItem("studentDetails") || "[]"),
 
   setUrlSession: (id) => {
-    localStorage.setItem("UrlSession", id);
+    sessionStorage.setItem("deanSession", id);
     set({ UrlSession: id });
   },
-  eSignature: "",
-  deanName:"",
 
   getSession: async (department) => {
     try {
-      const res = await axiosInstances.get("/dean/getdiploma", {
-        params: { department },
+      const res = await axiosInstances.get("/dean/getdiploma", { 
+        params: { department } 
       });
 
-      const sessionId = res.data.data.sessionId;
-      const students = res.data.data.students;
-
-      // Persist in localStorage
-      localStorage.setItem("UrlSession", sessionId);
-      localStorage.setItem("studentDetails", JSON.stringify(students));
-      localStorage.setItem("department", department);
-
-      set({ UrlSession: sessionId });
-      set({ studentDetails: students });
+      const { sessionId, students } = res.data.data;
+      
+      // Store in sessionStorage
+      sessionStorage.setItem("studentDetails", JSON.stringify(students));
+      
+      set({ 
+        UrlSession: sessionId,
+        studentDetails: students
+      });
 
       return sessionId;
     } catch (err) {
-      console.log("❌ Error getting session:", err);
+      console.error("Error getting session:", err);
       return null;
     }
   },
-
-
 
 
   addEsignature: async (data) => {

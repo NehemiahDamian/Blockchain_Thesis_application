@@ -1,91 +1,35 @@
-import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+/* eslint-disable no-unused-vars */
+
 import { useDeanStore } from "../store/useDeanStore";
+import { useAuthStore } from "../store/useAuthStore";
+import { useNavigate } from "react-router-dom";
 
 function DeanHomePage() {
-  const [department, setDepartment] = useState("");
-  const [searchParams, setSearchParams] = useSearchParams();
 
-  const { getSession, UrlSession, setUrlSession, studentDetails, getEsignature ,digitalSignature, eSignature } = useDeanStore();
-  const [esignatures, setEsignature] = useState(null); // Storing just one signature
+  const authUser = useAuthStore(state => state.authUser); // Get authUser inside component
 
-  useEffect(() => {
-    const sessionIdFromUrl = searchParams.get("session");
-    const departmentFromUrl = searchParams.get("department");
+  const { getSession, UrlSession, setUrlSession, studentDetails, getEsignature, digitalSignature, eSignature } = useDeanStore();
+ 
 
-    if (sessionIdFromUrl && departmentFromUrl) {
-      setUrlSession(sessionIdFromUrl);
-      getSession(departmentFromUrl);
-    } else {
-      const storedSession = localStorage.getItem("sessionId");
-      const storedDept = localStorage.getItem("department");
+  const navigate = useNavigate();
 
-      if (storedSession && storedDept) {
-        setUrlSession(storedSession);
-        getSession(storedDept);
-        setSearchParams({ session: storedSession, department: storedDept });
-      }
-    }
-    console.log(studentDetails);
-  }, []);
-
-  //TODO will hati hati this functionalities
-  const handleSubmit = async (e) => {
+  const getDeanDepartment = async (e) => {
     e.preventDefault();
-
-    const sessionId = await getSession(department);
+    if (!authUser?.department) return;
+  
+    const sessionId = await getSession(authUser.department);
     if (sessionId) {
-      setSearchParams({ session: sessionId, department });
+      // setSearchParams({ session: sessionId, department: authUser.department });
+      sessionStorage.setItem("deanSession", sessionId);
+      sessionStorage.setItem("department", authUser.department);
+      navigate(`/view-diplomas?session=${sessionId}&department=${authUser.department}`);
+
     }
-
-
-    // console.log(studentDetails);
-    // digitalSignature(studentDetails, storedSignature);  // Send the single signature
-    // console.log("Success", studentDetails);
   };
-
-  const handleEsig = async () => {
-    await getEsignature();  // Fetch the signature
-    const storedSignature = useDeanStore.getState().eSignature;
-    setEsignature(storedSignature);  // Set the single signature (no need to store in an array)
-  }
-
-  const handleDigitalSignature = async () => {
-    digitalSignature(studentDetails, esignatures);  // Send the single signature
-
-  }
 
   return (
     <div>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Enter department"
-          value={department}
-          onChange={(e) => setDepartment(e.target.value)}
-        />
-        <button type="submit">Submit</button>
-      </form>
-      <button onClick={handleEsig}>E-Sig</button>
-      <button onClick={handleDigitalSignature}>Digital sign</button>
-      <p className="mt-4">📦 Session ID: {UrlSession || "None yet"}</p>
-      <ul>
-        {studentDetails.map((student) => (
-          <li key={student._id}>
-            {esignatures ? (
-              <img
-                src={eSignature}
-                alt="Profile"
-                className="size-32 rounded-full object-cover border-4 "
-              />
-            ) : (
-              <p>Upload signature please</p>
-            )}
-            <strong>{student.fullName}</strong> ({student.idNumber}) - {student.email} - {student.department} - {student.expectedYearToGraduate
-            }
-          </li>
-        ))}
-      </ul>
+      <button onClick={getDeanDepartment}>Submit</button>
     </div>
   );
 }
