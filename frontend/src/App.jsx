@@ -3,6 +3,10 @@ import { useEffect } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "./store/useAuthStore.js";
 import { Loader } from "lucide-react";
+/* Navigation bar */
+import RootLayout from './layout/RootLayout.jsx'
+
+
 import StudentSignup from "./pages/StudentSignup.jsx";
 import StudentLoginPage from "./pages/StudentLoginPage.jsx";
 import StudentPage from "./pages/StudentPage.jsx";
@@ -37,6 +41,7 @@ function App() {
     <div>
   
      <Routes>
+     <Route element={<RootLayout />}>
       {/* STUDENT ROUTES */}
       <Route 
         path="/student/homepage" 
@@ -78,6 +83,7 @@ function App() {
         path="/dean/homepage" 
         element={authUser ? <DeanHomePage /> : <Navigate to="/dean/login" state={{ from: "/dean/homepage" }} />} 
       />
+      </Route>
     </Routes>
     </div>
   );
