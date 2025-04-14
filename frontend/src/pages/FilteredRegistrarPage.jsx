@@ -33,7 +33,7 @@ function ViewDiplomasPage() {
   return (
     <div>
       <h2>Students</h2>
-      <button onClick={handleEsig}>Upload E signature</button>
+      <button onClick={handleEsig}>Upload Esigggg signature</button>
       <button onClick={handleDigitalSignature}>D-Sign</button>
       <ul>
         {studentDetails.map((student) => (
