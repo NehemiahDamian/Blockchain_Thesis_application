@@ -1,8 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import {  useState } from "react";
 import { useDeanStore } from "../store/useDeanStore";
-// import { useAuthStore } from "../store/useAuthStore";
 
 function ViewDiplomasPage() {
   // const [department, setDepartment] = useState("");

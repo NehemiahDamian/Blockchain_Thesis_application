@@ -6,17 +6,40 @@ import { SignedDiploma } from "../models/signedDiploma.model.js"; // import Sign
 
 
 export const getSignedDiploma = async (req, res) => {
-  // const user = req.user._id
   try {
-    // if (!user) {
-    //   return res.status(400).json({ message: "You cannot make this request" });
-    // }
-    const departments = await SignedDiploma.distinct("department");
-    const years = await SignedDiploma.distinct("expectedYearToGraduate");    
-     return res.status(200).json({ departments, years });
+    const result = await SignedDiploma.aggregate([
+      {
+        $group: {
+          _id: {
+            department: "$department",
+            year: "$expectedYearToGraduate"
+          }
+        }
+      },
+      {
+        $group: {
+          _id: "$_id.department",
+          years: { $push: "$_id.year" }
+        }
+      },
+      {
+        $project: {
+          department: "$_id",
+          years: 1,
+          _id: 0
+        }
+      }
+    ]);
+
+    // Convert array to object format for easier frontend consumption
+    const formattedResult = {};
+    result.forEach(item => {
+      formattedResult[item.department] = item.years;
+    });
+
+    res.json(formattedResult);
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -26,10 +49,10 @@ export const getSignedDiplomaByDepartment = async (req, res) => {
   try {
     const signedDiplomas = await SignedDiploma.find({ department, expectedYearToGraduate });
 
-    // Check if the array is empty
-    if (signedDiplomas.length === 0) {
+    if (!signedDiplomas || signedDiplomas.length === 0) {
       return res.status(404).json({ message: "No signed diplomas found" });
     }
+
 
     return res.status(200).json(signedDiplomas);
   } catch (error) {
@@ -38,16 +61,95 @@ export const getSignedDiplomaByDepartment = async (req, res) => {
   }
 };
 
+export const addEsignature = async (req, res) => {
+   const {esignature} = req.body
+    const userId = req.user._id
+  
+    try {
+      if(!userId){
+        return res.status(400).json({message:"E Signature is required"})
+      }
+      // cloudinary
+      const uploadResponse = await cloudinary.uploader.upload(esignature);
+      const updatedUser = await User.findByIdAndUpdate(userId, 
+        {esignature:uploadResponse.secure_url},
+        {new:true})
+    
+        res.status(200).json(updatedUser)
+      
+    } catch (error) {
+      console.log("error in update profile:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+export const getEsignature = async (req, res) =>{
+  const userId = req.user._id
+
+  try {
+    const registrar = await User.findById(userId)
+    if(!registrar){
+      return res.status(400).json({message:"user not found"})
+    }
+    const signature  = registrar.esignature
+    const fullname = registrar.fullName
+    res.status(200).json({ message: "Success", data: { signature, fullname } });
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({message:"Internal Server error"})
+  }
+}
 
 
+export const digitalSignature = async (req, res) => {
+  const { students, esignatures } = req.body;
+  const privateKey = req.user.privateKey;
 
+  if (!students || students.length === 0) {
+    return res.status(400).json({ message: "No students found" });
+  }
 
+  if (!privateKey) {
+    return res.status(401).json({ message: "Dean's private key is missing." });
+  }
 
+  try {
+    const updateOperations = students.map((element) => {
+      const sign = crypto.createSign("SHA256");
+      const contentToSign = `${element.fullName}-${element.idNumber}-${element.email}`;
+      sign.update(contentToSign);
+      sign.end();
+      const digitalSignature = sign.sign(privateKey, "hex");
 
-//show signed diplomas in a department section 
-// steps to follow
-// 1. get all department in the db
-//
+      // Create update operation for each student
+      return {
+        updateOne: {
+          filter: { _id: element._id }, // Assuming each student object has an _id
+          update: {
+            $set: {
+              registrarDigitalSignature: digitalSignature,
+              registrarESignature: esignatures,
+              signedAt: new Date()
+            }
+          }
+        }
+      };
+    });
+
+    // Perform bulk update
+    const result = await SignedDiploma.bulkWrite(updateOperations);
+
+    res.status(200).json({
+      message: "Diplomas updated with signatures successfully",
+      data: result
+    });
+  } catch (error) {
+    console.error("Signing error:", error.message);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+
+}
+
 
 
 

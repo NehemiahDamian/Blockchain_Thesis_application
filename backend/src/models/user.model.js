@@ -57,7 +57,6 @@ const userSchema = new mongoose.Schema(
 
   department:{
     type:String,
-    required:true,
     sparse: true, // ✅ Allows multiple null values
 
   },
@@ -82,12 +81,6 @@ const userSchema = new mongoose.Schema(
 }
 );
 
-userSchema.pre("save", function (next) {
-  if ((this.role === "dean" || this.role === "registrar") && !this.isNew && !this.esignature) {
-    return next(new Error("Dean and Registrar must upload a document before updating!"));
-  }
-  next();
-});
 
 const User = mongoose.model("User",userSchema)
 
