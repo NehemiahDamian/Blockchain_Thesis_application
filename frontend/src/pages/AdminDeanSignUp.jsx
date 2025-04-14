@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Input, Button, VStack, Box, Heading, Flex, Select } from "@chakra-ui/react";
-import AdminNavbar from "../components/AdminNavbar";
 import Header from "../components/Header";
 import { useAuthStore } from "../store/useAuthStore.js";
 
@@ -30,7 +29,6 @@ const AdminSignUpDean = () => {
 
   return (
     <Box minH="100vh" bg="gray.50">
-      <AdminNavbar />
       <Header title="Dean Registration" />
       <Flex minH="calc(100vh - 100px)" align="center" justify="center" p={4}>
         <Box

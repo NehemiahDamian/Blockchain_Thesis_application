@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "./store/useAuthStore.js";
 import { Loader } from "lucide-react";
+import RootLayout from "./components/RootLayout.jsx"; // imported Navbars root layout
 import StudentSignup from "./pages/StudentSignup.jsx";
 import StudentLoginPage from "./pages/StudentLoginPage.jsx";
 import StudentPage from "./pages/StudentPage.jsx";
@@ -44,6 +45,8 @@ function App() {
     <div>
   
      <Routes>
+      <Route element={<RootLayout />}>
+
       {/* STUDENT ROUTES */}
       <Route 
         path="/student/homepage" 
@@ -63,7 +66,7 @@ function App() {
       {/* Admin routes */}
 
       <Route path ="/admin/dashboard" element= {<AdminPage/>}/>
-      <Route path ="/admin/signupdean" element= {<AdminDeanSignUp/>}/>
+      <Route path ="/admin/signupdn" element= {<AdminDeanSignUp/>}/>
       <Route path ="/admin/signupregistrar" element= {<AdminSignUpRegistrar/>}/>
 
       {/* <Route path="/admin/login" element={!authUser ? <AdminLogin /> : <Navigate to="/admin/dashboard" />}/> */}
@@ -89,8 +92,8 @@ function App() {
       />
 
        <Route 
-        path="/view-diplomas" 
-        element={authUser ? <ViewDiplomasPage/> : <Navigate to="/dean/login" state={{ from: "/view-diplomas" }} />} 
+        path="/dean/view-diplomas" 
+        element={authUser ? <ViewDiplomasPage/> : <Navigate to="/dean/login" state={{ from: "/dean/view-diplomas" }} />} 
       />
 
       {/* registrar route */}
@@ -108,8 +111,7 @@ function App() {
         path="/registrar/view-diplomas" 
         element={authUser ? <RegistrarFilteredPage/> : <Navigate to="/dean/login" state={{ from: "/view-diplomas" }} />} 
       />
-
-      <Route path = "/tae" element={<Tae/>}/>
+      </Route>
     </Routes>
     </div>
   );

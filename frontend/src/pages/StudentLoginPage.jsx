@@ -1,7 +1,10 @@
 /* eslint-disable no-unused-vars */
 import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
+import { Button, Text } from '@chakra-ui/react';
 import { Link } from "react-router-dom";
+import LoginForm from '../components/LoginForms';
+
 
 function StudentLoginPage() {
   const [data, setData] = useState({
@@ -9,36 +12,52 @@ function StudentLoginPage() {
     email: "",
     role: "student", // Hardcoded role
   });
+  const [errorMessage, setErrorMessage] = useState(null);
+  
 
-  const { login } = useAuthStore(); // ✅ You forgot the ()
+  const { login } = useAuthStore(); //
 
-  const handleSubmit = (e) => {
-    e.preventDefault(); // ✅ You forgot the parentheses here too
-    login(data);
+  const handleSubmit = async(e) => {
+    e.preventDefault(); // 
+    
+    //added user validation
+    try {
+      const success = await login(data);
+      
+      if (success) {
+        setErrorMessage(null); // Clear any previous errors
+      } else {
+        setErrorMessage('Invalid email or password');
+      }
+    } catch (error) {
+      setErrorMessage('Login failed. Please try again.');
+    }
   };
 
-  return (
-    <div>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          placeholder="email"
-          value={data.email}
-          onChange={(e) => setData({ ...data, email: e.target.value })}
-        />
-        <input
-          type="password"
-          placeholder="password"
-          value={data.password}
-          onChange={(e) => setData({ ...data, password: e.target.value })}
-        />
-        <button type="submit">Login</button>
-      </form>
-
-      <Link to="/student/signup" className="link link-primary">
+  // for Signup button
+  const additionalElements = (
+    <Link to="/student/signup">
+      <Button 
+        variant="link" 
+        textColor="#8b0e0e"
+        size="md"
+        mt={2}
+      >
         Create account
-      </Link>
-    </div>
+      </Button>
+    </Link>
+  );
+
+  return (
+    <LoginForm
+      userType="Student"
+      data={data}
+      setData={setData}
+      handleSubmit={handleSubmit}
+      additionalElements={additionalElements}
+      errorMessage={errorMessage}
+
+    />
   );
 }
 
