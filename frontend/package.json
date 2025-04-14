@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@web3-storage/w3up-client": "^17.2.0",
     "axios": "^1.7.9",
     "html2pdf.js": "^0.10.1",
     "lucide-react": "^0.477.0",

@@ -17,6 +17,7 @@ import RegistrarFilteredPage from "./pages/FilteredRegistrarPage.jsx";
 import RegistrarEsig from "./pages/RegistrarEsig.jsx";
 import AdminSignUpRegistrar from "./pages/RegsitrarSignup.jsx";
 import RegistrarLogin from "./pages/RegsitrarLogin.jsx";
+import Tae from "./pages/Tae.jsx";
 
 
 function App() {
@@ -108,6 +109,7 @@ function App() {
         element={authUser ? <RegistrarFilteredPage/> : <Navigate to="/dean/login" state={{ from: "/view-diplomas" }} />} 
       />
 
+      <Route path = "/tae" element={<Tae/>}/>
     </Routes>
     </div>
   );
