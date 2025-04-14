@@ -1,39 +1,42 @@
 import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore.js";
+import LoginForm from '../components/LoginForms';
+
 function RegistrarLogin() {
   const [data, setData] = useState({  
-    emaail:"",
+    email:"",
     password:"",
     role:"registrar"
   });
+  const [errorMessage, setErrorMessage] = useState(null);
+
 
   const { login } = useAuthStore();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    login(data)
+
+    //added user validation
+    try {
+      const success = await login(data);
+      
+      if (success) {
+        setErrorMessage(null); // Clear any previous errors
+      } else {
+        setErrorMessage('Invalid email or password');
+      }
+    } catch (error) {
+      setErrorMessage('Login failed. Please try again.');
+    }
   };
   return (
-
-    <div>
-      <form onSubmit={handleSubmit}>
-        <input type="email"
-        placeholder="Email"
-        value={data.email} 
-        onChange={(e) => setData({...data, email: e.target.value})} 
-        />
-
-        <input type="password"
-        placeholder="password"
-        value={data.password} 
-        onChange={(e) => setData({...data, password: e.target.value})} 
-        />
-
-        <button onSubmit={handleSubmit}>
-          Login
-        </button>
-      </form>
-    </div>
+    <LoginForm
+      userType="Registrar"
+      data={data}
+      setData={setData}
+      handleSubmit={handleSubmit}
+      errorMessage={errorMessage}
+    />
   );
 }
 
