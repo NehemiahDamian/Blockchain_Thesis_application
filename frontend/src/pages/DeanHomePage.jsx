@@ -32,7 +32,7 @@ function DeanHomePage() {
     if (sessionId) {
       sessionStorage.setItem("deanSession", sessionId);
       sessionStorage.setItem("department", authUser.department);
-      navigate(`/view-diplomas?session=${sessionId}&department=${authUser.department}`);
+      navigate(`/dean/view-diplomas?session=${sessionId}&department=${authUser.department}`);
     } else {
       console.warn("No session ID received!");
     }
