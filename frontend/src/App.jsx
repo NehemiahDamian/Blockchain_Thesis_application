@@ -12,6 +12,11 @@ import DeanHomePage from "./pages/DeanHomePage.jsx";
 import DeanEsig from "./pages/deanEsig.jsx";
 import DeanLogin from "./pages/DeanLogin.jsx";
 import ViewDiplomasPage from "./pages/DeanFilteredpage.jsx";
+import RegistrarDboard from "./pages/RegistrarDboard.jsx";
+import RegistrarFilteredPage from "./pages/FilteredRegistrarPage.jsx";
+import RegistrarEsig from "./pages/RegistrarEsig.jsx";
+import AdminSignUpRegistrar from "./pages/RegsitrarSignup.jsx";
+import RegistrarLogin from "./pages/RegsitrarLogin.jsx";
 
 
 function App() {
@@ -58,6 +63,8 @@ function App() {
 
       <Route path ="/admin/dashboard" element= {<AdminPage/>}/>
       <Route path ="/admin/signupdean" element= {<AdminDeanSignUp/>}/>
+      <Route path ="/admin/signupregistrar" element= {<AdminSignUpRegistrar/>}/>
+
       {/* <Route path="/admin/login" element={!authUser ? <AdminLogin /> : <Navigate to="/admin/dashboard" />}/> */}
       
       {/* Registrar routes (devy) */}
@@ -85,7 +92,21 @@ function App() {
         element={authUser ? <ViewDiplomasPage/> : <Navigate to="/dean/login" state={{ from: "/view-diplomas" }} />} 
       />
 
+      {/* registrar route */}
 
+      <Route path = "/registrar/login" element = {!authUser ? <RegistrarLogin/> : <Navigate to={location.state?.from || "/registrar/dboard" } />}/>
+
+
+      <Route path="/registrar/dboard" element={authUser?.role==="registrar" ? <RegistrarDboard/> : <Navigate to = "/registrar/login" state={{from: "/registrar/dboard"}}/>} />
+      
+      <Route path="/registrar/profile" element={authUser?.role === "registrar"? <RegistrarEsig/> : <Navigate to = "/registrar/login" state = {{from:"/registrar/profile"}} />} />
+
+
+      
+      <Route 
+        path="/registrar/view-diplomas" 
+        element={authUser ? <RegistrarFilteredPage/> : <Navigate to="/dean/login" state={{ from: "/view-diplomas" }} />} 
+      />
 
     </Routes>
     </div>
