@@ -13,7 +13,6 @@ const theme = extendTheme({
         overflow: "auto", 
         margin: 0,
         padding: 0,
-        bg: "#f7faff"
       },
     },
   },
