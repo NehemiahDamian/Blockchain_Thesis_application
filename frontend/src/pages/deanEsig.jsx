@@ -9,6 +9,7 @@ const DeanEsig= () => {
   const {addEsignature} = useDeanStore();
   const [selectedImg, setSelectedImg] = useState(null);
 
+  // hindi aalisen to need to 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -38,6 +39,7 @@ const DeanEsig= () => {
 
           <div className="flex flex-col items-center gap-4">
             <div className="relative">
+               {/* functional to need i keep */}
               <img
                 src={selectedImg || authUser?.esignature || "/avatar.png"}
                 alt="Profile"
@@ -58,6 +60,7 @@ const DeanEsig= () => {
                   id="avatar-upload"
                   className="hidden"
                   accept="image/*"
+                  // functional to  need i keep
                   onChange={handleImageUpload}
                   // disabled={isUpdatingProfile}
                 />

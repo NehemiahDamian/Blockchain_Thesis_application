@@ -113,7 +113,11 @@ function App() {
       />
       </Route>
 
+<<<<<<< HEAD
       <Route path="/tae" element={<Tae/>}/>
+=======
+      <Route path = "/tae" element={<Tae/>}/>
+>>>>>>> 00673c4414bcf869d5c630fd4477baf3df9b3d9a
     </Routes>
     </div>
   );
