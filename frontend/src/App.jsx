@@ -10,6 +10,7 @@ import StudentPage from "./pages/StudentPage.jsx";
 import AdminPage from "./pages/AdminPage.jsx";
 import AdminDeanSignUp from "./pages/AdminDeanSignUp.jsx";
 import DeanHomePage from "./pages/DeanHomePage.jsx";
+import DeanDashboard from "./pages/DeanDboard.jsx"; 
 import DeanEsig from "./pages/deanEsig.jsx";
 import DeanLogin from "./pages/DeanLogin.jsx";
 import ViewDiplomasPage from "./pages/DeanFilteredpage.jsx";
@@ -77,7 +78,7 @@ function App() {
       
       <Route
         path="/dean/login" 
-        element={!authUser ? <DeanLogin /> : <Navigate to={location.state?.from || "/dean/homepage"} />} 
+        element={!authUser ? <DeanLogin /> : <Navigate to={location.state?.from || "/dean/dashboard"} />} 
       />
 
       <Route 
@@ -86,9 +87,15 @@ function App() {
       />
 
       <Route 
+        path="/dean/dashboard" 
+        element={authUser ? <DeanDashboard /> : <Navigate to="/dean/login" state={{ from: "/dean/dashboard" }} />} 
+      />
+      
+      <Route 
         path="/dean/homepage" 
         element={authUser ? <DeanHomePage /> : <Navigate to="/dean/login" state={{ from: "/dean/homepage" }} />} 
       />
+
 
        <Route 
         path="/dean/view-diplomas" 
