@@ -1,0 +1,6 @@
+admin store:
+creations:
+  store database for archving
+  store inputs on smart contract one
+  store inputs on smart contract two
+

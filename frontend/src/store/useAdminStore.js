@@ -25,6 +25,8 @@ export const useAdminStore = create((set) => ({
     } catch (error) {
       console.log(error);
     }
-  }
+  },
+
+  
   
 }));

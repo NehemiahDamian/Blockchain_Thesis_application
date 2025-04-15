@@ -1,22 +1,22 @@
-import bcrypt from "bcryptjs";
+async function hashAndCompare(input, targetHash) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(input);
 
-const inputDetails = {
-  name: "Alice Johnson",
-  course: "Computer Science",
-  token: "token123"
-};
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
-const storedHash = "$2b$10$TEUJArdlCtSbzNk0OLiIpOQG15KHk45OCCXsxo01UpwkYdyeQZsBW";
+  console.log("Hashed input:", hashHex);
 
-const verifyStudentDetails = async () => {
-  const inputString = `${inputDetails.name}${inputDetails.course}${inputDetails.token}`;
-  const match = await bcrypt.compare(inputString, storedHash);
-  
-  if (match) {
-    console.log("✅ Verification successful!");
+  if (hashHex === targetHash) {
+    console.log("✅ It matches!");
   } else {
-    console.log("❌ Verification failed!");
+    console.log("❌ No match.");
   }
-};
+}
 
-verifyStudentDetails();
+// Use the actual string used for generating the hash
+const input = "token123Alice JohnsonComputer Science";
+const givenHash = "352b99e677918cc337cfe9d942ec4d7fb25040293a43d8c8243e1792facb4276";
+
+hashAndCompare(input, givenHash);

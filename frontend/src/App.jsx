@@ -112,6 +112,8 @@ function App() {
         element={authUser ? <RegistrarFilteredPage/> : <Navigate to="/dean/login" state={{ from: "/view-diplomas" }} />} 
       />
       </Route>
+
+      <Route path="/tae" element={<Tae/>}/>
     </Routes>
     </div>
   );

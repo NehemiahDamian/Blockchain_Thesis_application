@@ -1,7 +1,19 @@
 import axios from "axios";
 import html2pdf from "html2pdf.js";
 import { useState } from "react";
-import bcrypt from "bcryptjs";
+
+// Convert string to SHA-256 hash
+async function hashMetadata(metadata) {
+  const metadataString = `${metadata.token}${metadata.name}${metadata.course}`;
+  const encoder = new TextEncoder();
+  const data = encoder.encode(metadataString);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+
+  // Convert buffer to hex string
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+  return hashHex;
+}
 
 function Tae() {
   const [file, setFile] = useState("");
@@ -15,20 +27,11 @@ function Tae() {
     return await html2pdf().from(htmlElement).outputPdf("blob");
   };
 
-  // Hash metadata using bcrypt
-  function hashMetadata(metadata) {
-    const metadataString = `${metadata.studentToken}${metadata.name}${metadata.department}${metadata.graduationYear}`;
-    
-    // Use bcrypt to hash metadata
-    const salt = bcrypt.genSaltSync(10);  // 10 rounds of salting
-    const hash = bcrypt.hashSync(metadataString, salt);
-    
-    return hash;
-  }
-
   // Upload each diploma to Pinata
   const uploadDiplomas = async (students) => {
-    const results = [];
+    const smartContractOne = [];
+    const smartContractTwo =[]
+
 
     for (const student of students) {
       // 1. Create a temporary diploma HTML element
@@ -63,30 +66,36 @@ function Tae() {
           }
         );
 
-        const studentData = hashMetadata(student);
-
+        const studentHash = await hashMetadata(student);
         const ipfsHash = response.data.IpfsHash;
         const fileUrl = "https://gateway.pinata.cloud/ipfs/" + ipfsHash;
-        
-        // Store result with the IPFS hash and student token
-        results.push({
-          student:student.name,
-          studentHash: studentData,
+
+        smartContractOne.push({
+          student: student.name,
+          studentHash,
           ipfsHash,
           studentToken: student.token,
           URL: fileUrl,
         });
+
+        smartContractTwo.push({
+          ipfsHash,
+          studentToken:student.token
+        })
+
+        //database push
 
       } catch (err) {
         console.error("Upload failed for", student.name, err);
       }
     }
 
-    console.log("All metadata:", results);
-    return results;
+    console.log("All metadata:", smartContractOne);
+    console.log("All metadata:", smartContractTwo);
+
+    return smartContractOne;
   };
 
-  // Handle file upload (no need to handle file since it's not part of this process)
   const handleSubmit = (e) => {
     e.preventDefault();
     uploadDiplomas(students);
