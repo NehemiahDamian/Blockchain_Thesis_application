@@ -6,14 +6,19 @@ import { useNavigate } from "react-router-dom";
 
 function DeanHomePage() {
 
+  // need den to for functionalities
   const authUser = useAuthStore(state => state.authUser); // Get authUser inside component
 
+  // need to dito manggaling yung functionalities
   const { getSession, UrlSession, setUrlSession, studentDetails, getEsignature, digitalSignature, eSignature } = useDeanStore();
  
-
+  // for filtering the page
   const navigate = useNavigate();
 
+  // eto yung function nayon need den to mahalaga to no 
+  // hinde pede tanggalen
   const getDeanDepartment = async (e) => {
+    // need to for not doing the default things ng React medyo magulo hirap iexplain
     e.preventDefault();
   
     console.log("authUser:", authUser);
@@ -40,7 +45,10 @@ function DeanHomePage() {
   
   return (
     <div>
-      <button onClick={getDeanDepartment}>Submit</button>
+      {/* for anoto like filtered page like need to to fecth coressponding diploma ng mga dean like
+      COT diplomas -> dean ng COT */}
+        {/* // hinde pede tanggalen */}
+       <button onClick={getDeanDepartment}>Submit</button>
     </div>
   );
 }
