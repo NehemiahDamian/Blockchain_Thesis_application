@@ -1,7 +1,7 @@
 import axios from "axios";
 import html2pdf from "html2pdf.js";
 import { useState } from "react";
-import bcrypt from "bcryptjs";
+/*import bcrypt from "bcryptjs";*/
 
 function Tae() {
   const [file, setFile] = useState("");
