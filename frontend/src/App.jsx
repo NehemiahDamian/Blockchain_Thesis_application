@@ -7,8 +7,10 @@ import RootLayout from "./components/RootLayout.jsx"; // imported Navbars root l
 import StudentSignup from "./pages/StudentSignup.jsx";
 import StudentLoginPage from "./pages/StudentLoginPage.jsx";
 import StudentPage from "./pages/StudentPage.jsx";
+import StudentSettings from "./pages/StudentSettings.jsx";
 import AdminPage from "./pages/AdminPage.jsx";
 import AdminDeanSignUp from "./pages/AdminDeanSignUp.jsx";
+import DeanDashboard from "./pages/DeanDashboard.jsx";
 import DeanHomePage from "./pages/DeanHomePage.jsx";
 import DeanEsig from "./pages/deanEsig.jsx";
 import DeanLogin from "./pages/DeanLogin.jsx";
@@ -63,6 +65,11 @@ function App() {
       element={!authUser ? <StudentLoginPage /> : <Navigate to="/student/homepage" />} 
       />
 
+      <Route 
+      path="/student/settings" 
+      element={authUser?.role === "student" ? <StudentSettings /> : <Navigate to="/student/login" />} 
+      />
+
       {/* Admin routes */}
 
       <Route path ="/admin/dashboard" element= {<AdminPage/>}/>
@@ -78,12 +85,17 @@ function App() {
       
       <Route
         path="/dean/login" 
-        element={!authUser ? <DeanLogin /> : <Navigate to={location.state?.from || "/dean/homepage"} />} 
+        element={!authUser ? <DeanLogin /> : <Navigate to={location.state?.from || "/dean/dashboard"} />} 
       />
 
       <Route 
         path="/dean/profile" 
         element={authUser?.role === "dean" ? <DeanEsig /> : <Navigate to="/dean/login" state={{ from: "/dean/profile" }} />} 
+      />
+
+      <Route 
+        path="/dean/dashboard" 
+        element={authUser?.role === "dean" ? <DeanDashboard /> : <Navigate to="/dean/login" state={{ from: "/dean/dashboard" }} />} 
       />
 
       <Route 

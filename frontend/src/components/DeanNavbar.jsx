@@ -45,7 +45,7 @@ const Navbar = () => {
   
   // Main navigation items
   const navItems = [
-    { name: 'Dashboard', icon: FaHouseUser, href: '/dean/homepage', hasSubmenu: false },
+    { name: 'Dashboard', icon: FaHouseUser, href: '/dean/dashboard', hasSubmenu: false },
     { 
       name: 'Settings', 
       icon: FaCog, 

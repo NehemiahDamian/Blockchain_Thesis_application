@@ -9,7 +9,7 @@ export default function RootLayout() {
   const currentPath = location.pathname;
 
   const loginPages = ['/student/login', '/student/signup', '/dean/login', '/admin/login', '/registrar/login', '/studentdb', 'studentsettings', '/verifierdashboard'];
-  const nonLoginPages = ['/student/homepage'];
+  const nonLoginPages = ['/student/homepage', '/student/settings'];
 
   const isLoginPage = loginPages.some(page => currentPath.includes(page));
   const isNonLoginPage = nonLoginPages.some(page => currentPath.includes(page));
