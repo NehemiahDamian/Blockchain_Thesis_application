@@ -1,19 +1,16 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useRegistrarStore } from "../store/useRegistrarStore";
 import { 
   Box, Heading, Text, Button, Flex, Menu, MenuButton, MenuList, MenuItem, 
   Container, useDisclosure, useBreakpointValue 
 } from '@chakra-ui/react';
 import { FaRegFileAlt, FaRegFileExcel, FaChevronDown } from 'react-icons/fa';
 
-
-function RegistrarDboard() {
+function AdminDashboard() {
   const navigate = useNavigate();
-  const { departmentYears, fetchDepartmentYears, fetchStudentDetails } = useRegistrarStore();
-
+  
   // for the buttons
-  const [viewMode, setViewMode] = useState(null); // null, 'sign', 'view-signed'
+  const [viewMode, setViewMode] = useState(null); // null, 'view-signed'
   const [filterValue, setFilterValue] = useState('All');
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -21,26 +18,13 @@ function RegistrarDboard() {
   const iconSize = useBreakpointValue({ base: '0em', xl: '130px', lg: '100px', md: '0px', sm: '0px' });
   const iconFontSize = useBreakpointValue({ base: '30px', xl: '65px', lg: '55px', md: '45px' });
 
+  // Just navigate directly to /admin/page
   const handleSignClick = () => {
-    setViewMode(viewMode === 'sign' ? null : 'sign');
+    navigate('/admin/page');
   };
 
   const handleViewClick = () => {
     setViewMode(viewMode === 'view-signed' ? null : 'view-signed');
-  };
-
-  // Fetch department-year pairs on component mount
-  useEffect(() => {
-    fetchDepartmentYears();
-  }, [fetchDepartmentYears]);
-
-  const handleViewDiplomas = async (department, year) => {
-    try {
-      await fetchStudentDetails(department, year);
-      navigate(`/registrar/view-diplomas?department=${department}&year=${year}`);
-    } catch (error) {
-      console.error("Error fetching student details:", error);
-    }
   };
 
   // Common styles for reuse
@@ -103,7 +87,7 @@ function RegistrarDboard() {
     _hover: { bg: "white", transform: "translateY(-2px)", textDecoration: "none" }
   };
 
-  // College data for rendering (Eto yung mock data for View Signed or Declined)
+  // College data for rendering (mock data for View Signed or Declined)
   const collegeContainers = [
     { name: "COT", year: "2026-2027", status: "Signed", diplomaCount: "18/20" },
     { name: "COT", year: "2025-2026", status: "Declined" },
@@ -145,17 +129,18 @@ function RegistrarDboard() {
 
   return (
     <Box display="flex" flexDirection="column" gap="20px" p="20px" h="100vh" overflow="hidden">
-     {/* Header */}
-     <Box 
+      {/* Header */}
+      <Box 
         bgGradient="linear(to-l, #be1010, #8C0001)" 
         color="white" 
         p="20px" 
         borderRadius="10px"
       >
-        <Heading as="h1" fontSize="24px">Welcome, Ms. Devy!</Heading>
+        <Heading as="h1" fontSize="24px">Welcome, Admin!</Heading>
       </Box>
-       {/* Card Container */}
-       <Container 
+      
+      {/* Card Container */}
+      <Container 
         maxW="container.xl" 
         bg="white" 
         borderRadius="10px" 
@@ -200,30 +185,6 @@ function RegistrarDboard() {
         </Flex>
       </Container>
 
-      {/* Sign Diplomas - Department/Year List */}
-      {viewMode === 'sign' && (
-        <Box width="100%" display="flex" flexDirection="column" gap="15px" sx={fadeInAnimation}>
-          <Box sx={scrollableContainerStyle}>
-            {/* Dito ko nalagay previous codes mo */}
-            {departmentYears.map(({ department, year }, index) => (
-              <Flex 
-                key={`${department}-${year}-${index}`}
-                {...collegeCardStyles}
-              >
-                <Box flex="1">
-                  <Heading as="h2" fontSize="30px">{department}, {year}</Heading>
-                </Box>
-                <Button 
-                  onClick={() => handleViewDiplomas(department, year)}
-                  {...collegeButtonStyles}
-                >
-                  View
-                </Button>
-              </Flex>
-            ))}
-          </Box>
-        </Box>
-      )}
       {/* View Signed/Declined Diplomas */}
       {viewMode === 'view-signed' && (
         <Box width="100%" display="flex" flexDirection="column" gap="15px" sx={fadeInAnimation}>
@@ -273,32 +234,13 @@ function RegistrarDboard() {
                     </Text>
                   )}
                   <Button 
-                    onClick={() => navigate(`/registrar/${college.status.toLowerCase()}-diplomas?department=${college.name}&year=${college.year}`)}
+                    onClick={() => navigate(`/admin/${college.status.toLowerCase()}-diplomas?department=${college.name}&year=${college.year}`)}
                     {...collegeButtonStyles}
                   >
                     View
                   </Button>
                 </Flex>
               ))}
-            {/* <div className="space-y-2">
-                {departmentYears.map(({ department, year }, index) => (
-                  <div 
-                    key={`${department}-${year}-${index}`}
-                    className="flex items-center p-3 border rounded-lg hover:bg-gray-50"
-                  >
-                    <span className="font-medium">{department}</span>
-                    <span className="mx-2">-</span>
-                    <span>{year}</span>
-                    <button
-                      onClick={() => handleViewDiplomas(department, year)}
-                      className="ml-auto bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                    >
-                      View
-                    </button>
-                  </div>
-                ))}
-              </div>
-            */}
           </Box>
         </Box>
       )}
@@ -306,4 +248,4 @@ function RegistrarDboard() {
   );
 }
 
-export default RegistrarDboard;
+export default AdminDashboard;

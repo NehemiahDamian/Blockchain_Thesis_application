@@ -6,8 +6,37 @@ function DiplomaTemplate({
   studentId = "",
   department = "", 
   graduationYear = "",
-  signature = null
+  signature = null,
+  signerRole = "dean" //default
 }) {
+
+const getSignaturePosition = () => {
+  if (signerRole === "dean") {
+      return {
+        bottom: "0",
+        left: "20%",
+        top: "70%",
+        transform: "translateX(-50%)"
+      };
+    } else if (signerRole === "registrar") {
+      return {
+        bottom: "0",
+        left: "50%", 
+        top: "76%",
+        transform: "translateX(-50%)"
+      };
+    } else {
+      // Default position if role is not specified
+      return {
+        bottom: "0",
+        left: "20%",
+        top: "70%",
+        transform: "translateX(-50%)"
+      };
+    }
+  };
+const signaturePosition = getSignaturePosition();
+
 
   return (
     <Box
@@ -119,12 +148,9 @@ function DiplomaTemplate({
                 src={signature} 
                 alt="Signature" 
                 position="absolute"
-                bottom="0"
-                left="20%"
-                top="70%"
-                transform="translateX(-50%)"
+                {...signaturePosition}
                 maxH="90px"
-                maxW="150px"
+                maxW="100px"
                 objectFit="contain"
               />
             )}
@@ -138,6 +164,17 @@ function DiplomaTemplate({
 
         <Box textAlign="center" my="25px">
         <Box w="175px" mx="auto" borderBottom="1px solid #000000" mb="5px" />
+        {signature && signerRole === "registrar" && (
+            <Image 
+              src={signature} 
+              alt="Registrar Signature" 
+              position="absolute"
+              {...signaturePosition}
+              maxH="90px"
+              maxW="100px"
+              objectFit="contain"
+            />
+          )}
         <Text fontSize="13px" color="#000000" mt="5px">
             Ms. Devy Galang
           </Text>

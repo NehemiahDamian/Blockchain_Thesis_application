@@ -8,6 +8,7 @@ import StudentSignup from "./pages/StudentSignup.jsx";
 import StudentLoginPage from "./pages/StudentLoginPage.jsx";
 import StudentPage from "./pages/StudentPage.jsx";
 import StudentSettings from "./pages/StudentSettings.jsx";
+import AdminDashboard from "./pages/AdminDashboard.jsx";
 import AdminPage from "./pages/AdminPage.jsx";
 import AdminDeanSignUp from "./pages/AdminDeanSignUp.jsx";
 import DeanDashboard from "./pages/DeanDashboard.jsx";
@@ -15,11 +16,12 @@ import DeanHomePage from "./pages/DeanHomePage.jsx";
 import DeanEsig from "./pages/deanEsig.jsx";
 import DeanLogin from "./pages/DeanLogin.jsx";
 import ViewDiplomasPage from "./pages/DeanFilteredpage.jsx";
-import RegistrarDboard from "./pages/RegistrarDboard.jsx";
+import RegistrarDboard from "./pages/RegistrarDboard.jsx"; 
 import RegistrarFilteredPage from "./pages/FilteredRegistrarPage.jsx";
 import RegistrarEsig from "./pages/RegistrarEsig.jsx";
 import AdminSignUpRegistrar from "./pages/RegsitrarSignup.jsx";
 import RegistrarLogin from "./pages/RegsitrarLogin.jsx";
+import VerifierPage from "./pages/VerifierPage.jsx";
 import Tae from "./pages/Tae.jsx";
 
 
@@ -72,9 +74,13 @@ function App() {
 
       {/* Admin routes */}
 
-      <Route path ="/admin/dashboard" element= {<AdminPage/>}/>
+      <Route path ="/admin/dashboard" element= {<AdminDashboard/>}/>
+      <Route path ="/admin/page" element= {<AdminPage/>}/> 
       <Route path ="/admin/signupdn" element= {<AdminDeanSignUp/>}/>
       <Route path ="/admin/signupregistrar" element= {<AdminSignUpRegistrar/>}/>
+
+      {/* Verifier routes */}
+      <Route path ="/verifier/dboard" element= {<VerifierPage/>}/>
 
       {/* <Route path="/admin/login" element={!authUser ? <AdminLogin /> : <Navigate to="/admin/dashboard" />}/> */}
       
@@ -112,8 +118,7 @@ function App() {
 
       <Route path = "/registrar/login" element = {!authUser ? <RegistrarLogin/> : <Navigate to={location.state?.from || "/registrar/dboard" } />}/>
 
-
-      <Route path="/registrar/dboard" element={authUser?.role==="registrar" ? <RegistrarDboard/> : <Navigate to = "/registrar/login" state={{from: "/registrar/dboard"}}/>} />
+      <Route path="/registrar/dboard" element={authUser?.role==="registrar" ? <RegistrarDboard/> : <Navigate to = "/registrar/login" state={{from: "/registrar/dboard"}}/>} /> 
       
       <Route path="/registrar/profile" element={authUser?.role === "registrar"? <RegistrarEsig/> : <Navigate to = "/registrar/login" state = {{from:"/registrar/profile"}} />} />
 

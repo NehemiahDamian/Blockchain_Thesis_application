@@ -15,13 +15,37 @@ const Navbar = () => {
   // Updated paths to match your routing structure
   const navItems = [
     { name: 'Dashboard', icon: FaHouseUser, href: '/admin/dashboard' },
-    { name: 'Send Diplomas to Signatories', icon: FaFileInvoice, href: '/adminProcess' },
     { name: 'Archives', icon: FaFolderOpen, href: '/archives' },
     { name: 'Sign up Dean', icon: FaUserPlus, href: '/admin/signupdn' },
     { name: 'Blockchain Diploma Upload', icon: FaCloudUploadAlt, href: '/upload-bchain' },
     { name: 'Diploma Requests', icon: FaFile, href: '/diplomarequests' },
     { name: 'Logout', icon: FaSignOutAlt, href: '/login', isLogout: true }
   ];
+
+  const handleLogout = () => {
+    let redirectPath = '/registrar/login'; 
+    
+    if (authUser) {
+      if (authUser.role === 'registrar') {
+        redirectPath = '/registrar/login';
+      } else if (authUser.role === 'student') {
+        redirectPath = '/student/login';
+      } else if (authUser.role === 'dean') {
+        redirectPath = '/dean/login';
+      }
+    }
+    
+    logout();
+    
+    toast({
+      title: "Logged out successfully",
+      status: "success",
+      duration: 3000,
+      isClosable: true,
+    });
+    
+    navigate(redirectPath);
+  };
 
   return (
     <Box
