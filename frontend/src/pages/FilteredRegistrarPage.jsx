@@ -198,9 +198,11 @@ function ViewDiplomasPage() {
                     _hover={{ transform: "scale(1.02)" }}
                   >
                     <DiplomaTemplate 
+
                       studentName={student.fullName}
                       studentId={student.idNumber}
                       department={student.department}
+                      deanSignature={student.deanESignature}
                       graduationYear={student.expectedYearToGraduate}
                       signature={signatureUploaded ? esignatures : null}
                       signerRole="registrar"

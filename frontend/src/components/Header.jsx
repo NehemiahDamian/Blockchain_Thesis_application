@@ -10,7 +10,7 @@ function Header({ title }) {
         borderRadius="20px" 
         padding={8} pb={20} align="start">
         <Heading as="h2" size="2xl">
-          <Text fontSize={"44px"}>{title}</Text>
+          <Text fontSize={"44px"}>{title.sessionName}</Text>
         </Heading>
       </VStack>
     </Center>

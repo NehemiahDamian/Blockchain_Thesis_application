@@ -20,11 +20,14 @@ export const useDeanStore = create((set) => ({
       const cachedData = sessionStorage.getItem(studentDepartment);
       const cachedTimestamp = sessionStorage.getItem(`${studentDepartment}-timestamp`);
       const session = sessionStorage.getItem("deanSession");
+      const sessioName = sessionStorage.getItem("sessionName")
 
-      if (cachedData && cachedTimestamp && isFresh(Number(cachedTimestamp)) && session) {
+      if (cachedData && cachedTimestamp && isFresh(Number(cachedTimestamp)&& sessioName) && session) {
         set({
           studentDetails: JSON.parse(cachedData),
-          UrlSession: session  
+          UrlSession: session ,
+          sessionName:sessioName
+
         });
         return session;
       }
@@ -33,17 +36,20 @@ export const useDeanStore = create((set) => ({
         params: { department } 
       });
 
-      const { sessionId, students } = res.data.data;
-
+      const { sessionId, students, sessionName  } = res.data.data;
       // Save to sessionStorage
       const now = Date.now();
       sessionStorage.setItem(studentDepartment, JSON.stringify(students));
+      session
       sessionStorage.setItem(`${studentDepartment}-timestamp`, now.toString());
       sessionStorage.setItem("deanSession", sessionId);
+      sessionStorage.setItem("sessionName", sessionName);
+
 
       set({ 
         UrlSession: sessionId,
-        studentDetails: students
+        studentDetails: students,
+        sessionName:sessionName
       });
 
       return sessionId;

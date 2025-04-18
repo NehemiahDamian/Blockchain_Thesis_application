@@ -78,6 +78,9 @@ export const login = async (req,res) =>{
   try {
     const user = await User.findOne({email})
     if(!user){return res.status(400).json({message:"error error error"})}
+    if(user.role !== role){
+      return res.status(400).json({message:"you are not allowed to access this page"})
+    }
 
     const hashedPassword = await bcrypt.compare(password, user.password)
 
