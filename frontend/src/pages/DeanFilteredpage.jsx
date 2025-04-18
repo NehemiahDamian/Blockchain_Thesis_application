@@ -17,7 +17,7 @@ function ViewDiplomasPage() {
   const [signatureUploaded, setSignatureUploaded] = useState(false);
   const [showDigitalSignBtn, setShowDigitalSignBtn] = useState(false);
   // signatures states
-  const {  UrlSession, studentDetails, getEsignature, digitalSignature, eSignature } = useDeanStore();
+  const {  UrlSession, studentDetails, getEsignature, digitalSignature, eSignature, sessionName } = useDeanStore();
   const [esignatures, setEsignature] = useState(null);
   const [handleEsigbtn, setHandleEsigbtn] = useState(false);
   // Search and filter states
@@ -158,7 +158,7 @@ function ViewDiplomasPage() {
               borderBottom="1px"
               borderColor="gray.200"
             >
-              <Heading size="md">Diplomas {new Date().getFullYear()}-{new Date().getFullYear() + 1}</Heading>
+              <Heading size="md">{sessionName}</Heading>
               
               <Flex 
                 mt={{ base: 4, md: 0 }}

@@ -106,12 +106,12 @@ function App() {
 
       <Route 
         path="/dean/homepage" 
-        element={authUser ? <DeanHomePage /> : <Navigate to="/dean/login" state={{ from: "/dean/homepage" }} />} 
+        element={authUser?.role=== "dean" ? <DeanHomePage /> : <Navigate to="/dean/login" state={{ from: "/dean/homepage" }} />} 
       />
 
        <Route 
         path="/dean/view-diplomas" 
-        element={authUser ? <ViewDiplomasPage/> : <Navigate to="/dean/login" state={{ from: "/dean/view-diplomas" }} />} 
+        element={authUser?.role=== "dean" ? <ViewDiplomasPage/> : <Navigate to="/dean/login" state={{ from: "/dean/view-diplomas" }} />} 
       />
 
       {/* registrar route */}
@@ -126,7 +126,7 @@ function App() {
       
       <Route 
         path="/registrar/view-diplomas" 
-        element={authUser ? <RegistrarFilteredPage/> : <Navigate to="/dean/login" state={{ from: "/view-diplomas" }} />} 
+        element={authUser?.role === "registrar" ? <RegistrarFilteredPage/> : <Navigate to="/registrar/login" state={{ from: "/registrar/view-diplomas" }} />} 
       />
       </Route>
 
