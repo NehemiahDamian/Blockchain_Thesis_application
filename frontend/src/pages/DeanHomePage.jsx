@@ -100,7 +100,7 @@ function DeanHomePage() {
             borderBottom="1px"
             borderColor="gray.200"
           >
-            <Heading size="md">COT 2025-2026</Heading>
+            <Heading size="md">{authUser?.department} Diplomas</Heading>
             
             <Flex 
               mt={{ base: 4, md: 0 }}

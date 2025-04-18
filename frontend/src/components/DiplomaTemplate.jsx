@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/prop-types */
 import React from "react";
 import { Box, Text, Flex, Image, Center } from "@chakra-ui/react";
 
@@ -6,8 +8,38 @@ function DiplomaTemplate({
   studentId = "",
   department = "", 
   graduationYear = "",
-  signature = null
+  signature = null,
+  signerRole = "dean", //default
+  deanSignature = null
 }) {
+
+const getSignaturePosition = () => {
+  if (signerRole === "dean") {
+      return {
+        bottom: "0",
+        left: "20%",
+        top: "70%",
+        transform: "translateX(-50%)"
+      };
+    } else if (signerRole === "registrar") {
+      return {
+        bottom: "0",
+        left: "50%", 
+        top: "76%",
+        transform: "translateX(-50%)"
+      };
+    } else {
+      // Default position if role is not specified
+      return {
+        bottom: "0",
+        left: "20%",
+        top: "70%",
+        transform: "translateX(-50%)"
+      };
+    }
+  };
+const signaturePosition = getSignaturePosition();
+
 
   return (
     <Box
@@ -114,20 +146,33 @@ function DiplomaTemplate({
       <Flex justify="space-between" mt="10px" px="30px">
         <Box textAlign="center" my="25px">
           <Box w="175px" mx="auto" borderBottom="1px solid #000000" mb="5px" />
-          {signature && (
+          {deanSignature ? (
+            <Image 
+              src={deanSignature} 
+              alt="Dean Signature" 
+              position="absolute"
+              left="20%"
+              top="70%"
+              transform="translateX(-50%)"
+              maxH="90px"
+              maxW="100px"
+              objectFit="contain"
+            />
+          ) : (
+            signature && signerRole === "dean" && (
               <Image 
                 src={signature} 
                 alt="Signature" 
                 position="absolute"
-                bottom="0"
                 left="20%"
                 top="70%"
                 transform="translateX(-50%)"
                 maxH="90px"
-                maxW="150px"
+                maxW="100px"
                 objectFit="contain"
               />
-            )}
+            )
+          )}
           <Text fontSize="13px" color="#000000" mt="5px">
             Name of Dean
           </Text>
@@ -137,8 +182,21 @@ function DiplomaTemplate({
         </Box>
 
         <Box textAlign="center" my="25px">
-        <Box w="175px" mx="auto" borderBottom="1px solid #000000" mb="5px" />
-        <Text fontSize="13px" color="#000000" mt="5px">
+          <Box w="175px" mx="auto" borderBottom="1px solid #000000" mb="5px" />
+          {signature && signerRole === "registrar" && (
+            <Image 
+              src={signature} 
+              alt="Registrar Signature" 
+              position="absolute"
+              left="50%"
+              top="76%"
+              transform="translateX(-50%)"
+              maxH="90px"
+              maxW="100px"
+              objectFit="contain"
+            />
+          )}
+          <Text fontSize="13px" color="#000000" mt="5px">
             Ms. Devy Galang
           </Text>
           <Text fontSize="12px" color="#000000" mt="-2px" fontStyle="italic">
@@ -147,8 +205,8 @@ function DiplomaTemplate({
         </Box>
 
         <Box textAlign="center" my="25px">
-        <Box w="175px" mx="auto" borderBottom="1px solid #000000" mb="5px" />
-        <Text fontSize="13px" color="#000000" mt="5px">
+          <Box w="175px" mx="auto" borderBottom="1px solid #000000" mb="5px" />
+          <Text fontSize="13px" color="#000000" mt="5px">
             President
           </Text>
           <Text fontSize="12px" color="#000000" mt="-2px" fontStyle="italic">
