@@ -18,34 +18,48 @@ const Navbar = () => {
   
   const isSettingsActive = location.pathname.includes('/settings');
   
-  const handleLogout = () => {
-    let redirectPath = '/dean/login'; 
-    
-    if (authUser) {
-      if (authUser.role === 'registrar') {
-        redirectPath = '/registrar/login';
-      } else if (authUser.role === 'student') {
-        redirectPath = '/student/login';
-      } else if (authUser.role === 'dean') {
-        redirectPath = '/dean/login';
+  const handleLogout = async () => {
+    try {
+      // Default redirect path
+      let redirectPath = '/dean/login';
+      
+      // Call the logout function from the store
+      const result = await logout();
+      
+      if (result.success) {
+        toast({
+          title: "Logged out successfully",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+        
+        // Navigate after successful logout
+        navigate(redirectPath, { replace: true });
+      } else {
+        toast({
+          title: "Logout failed",
+          description: result.error,
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
       }
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast({
+        title: "An error occurred",
+        description: "Please try again later",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
     }
-    
-    logout();
-    
-    toast({
-      title: "Logged out successfully",
-      status: "success",
-      duration: 3000,
-      isClosable: true,
-    });
-    
-    navigate(redirectPath);
   };
   
   // Main navigation items
   const navItems = [
-    { name: 'Dashboard', icon: FaHouseUser, href: '/dean/homepage', hasSubmenu: false },
+    { name: 'Dashboard', icon: FaHouseUser, href: '/dean/dashboard', hasSubmenu: false },
     { 
       name: 'Settings', 
       icon: FaCog, 
@@ -226,16 +240,19 @@ const Navbar = () => {
                   />
                   <Text>{item.name}</Text>
                 </Box>
-              ) : (
+              ) : item.onClick ? (
                 <Box
-                  as={NavLink}
-                  to={item.href}
+                  as="button"
+                  onClick={item.onClick}
                   display="flex"
                   alignItems="center"
                   p="10px 20px"
                   color="#ebebeb"
                   fontSize="15px"
                   fontWeight="lighter"
+                  w="100%"
+                  border="none"
+                  cursor="pointer"
                   textDecoration="none"
                   borderRadius="10px 0 0 0"
                   transition="background 0.3s ease, color 0.3s ease"
@@ -257,6 +274,41 @@ const Navbar = () => {
                     textAlign="center"
                     transition="color 0.3s ease"
                     _hover={{ color: "#b94f35" }}
+                  />
+                  <Text>{item.name}</Text>
+                </Box>
+                ) : (
+                  <Box
+                  as={NavLink}
+                  to={item.href}
+                  display="flex"
+                  alignItems="center"
+                  p="10px 20px"
+                  color="#ebebeb"
+                  fontSize="15px"
+                  fontWeight="lighter"
+                  textDecoration="none"
+                  borderRadius="10px 0 0 0"
+                  transition="background 0.3s ease, color 0.3s ease"
+                  _hover={{
+                    bg: '#442b2b',
+                    color: '#f4f4f4'
+                  }}
+                  sx={{
+                    '&.active': {
+                      fontWeight: '700',
+                      color: '#f4f4f4',
+                      bg: '#442b2b3d'
+                    }
+                  }}
+                >
+                  <Icon
+                    as={item.icon}
+                    mr="10px"
+                    w="20px"
+                    textAlign="center"
+                    transition="color 0.3s ease"
+                    _hover={{ color: '#b94f35' }}
                   />
                   <Text>{item.name}</Text>
                 </Box>

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Input, Button, VStack, Box, Heading, Flex, Select } from "@chakra-ui/react";
-import Header from "../components/Header";
 import { useAuthStore } from "../store/useAuthStore.js";
 
 const AdminSignUpDean = () => {
@@ -28,18 +27,25 @@ const AdminSignUpDean = () => {
   };
 
   return (
-    <Box minH="100vh" bg="gray.50">
-      <Header title="Dean Registration" />
+    <Box display="flex" flexDirection="column" gap="20px" p="20px" h="100vh" overflow="hidden">
+      {/* Header */}
+      <Box 
+        bgGradient="linear(to-l, #be1010, #8C0001)" 
+        color="white" 
+        p="20px" 
+        borderRadius="10px"
+      >
+        <Heading as="h1" fontSize="24px">Register a Dean</Heading>
+      </Box>
       <Flex minH="calc(100vh - 100px)" align="center" justify="center" p={4}>
         <Box
-        marginBottom={"100px"}
-        marginLeft={"70px"}
+        mb={"auto"} ml={"auto"} mr={"auto"}
           bg="gray.50"
           p={8}
           rounded="xl"
           shadow="lg"
           w="full"
-          maxW="md"
+          maxW="xl"
           
         >
           <Heading  size="md" mb={6} textAlign="center">
@@ -53,7 +59,7 @@ const AdminSignUpDean = () => {
                 onChange={(e) => setData({ ...data, fullName: e.target.value })}
                 placeholder="Full Name"
                 size="lg"
-                focusBorderColor="teal.500"
+                focusBorderColor="red.300"
               />
               <Input
                 type="email"
@@ -61,7 +67,7 @@ const AdminSignUpDean = () => {
                 onChange={(e) => setData({ ...data, email: e.target.value })}
                 placeholder="Email address"
                 size="lg"
-                focusBorderColor="teal.500"
+                focusBorderColor="red.300"
               />
               <Input
                 type="text"
@@ -69,14 +75,14 @@ const AdminSignUpDean = () => {
                 onChange={(e) => setData({ ...data, password: e.target.value })}
                 placeholder="Password"
                 size="lg"
-                focusBorderColor="teal.500"
+                focusBorderColor="red.300"
               />
               <Select
                 value={data.department}
                 onChange={(e) => setData({ ...data, department: e.target.value })}
                 placeholder="Department"
                 size="lg"
-                focusBorderColor="teal.500"
+                focusBorderColor="red.300"
               >
                 <option value="COT">COT</option>
                 <option value="CITHM">CITHM</option>
@@ -84,7 +90,7 @@ const AdminSignUpDean = () => {
                 <option value="CBA">CBA</option>
                 <option value="COL">COL</option>
               </Select>
-              <Button bg="red.600" color="white" type="submit" colorScheme="teal" size="lg" width="full">
+              <Button color="white" type="submit" colorScheme="red" size="md" width="full">
                 Register
               </Button>
             </VStack>

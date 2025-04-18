@@ -24,10 +24,13 @@ export const useRegistrarStore = create((set) => ({
         return;
       }
 
+
       // Fetch fresh data
       const response = await axiosInstances.get('/registrar/getSignedDiplomaByDepartment', {
         params: { department, expectedYearToGraduate }
       });
+      console.log("the response",response.data)
+
 
       // Update storage and state
       const now = Date.now();
