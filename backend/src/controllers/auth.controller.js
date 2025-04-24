@@ -95,7 +95,10 @@ export const login = async (req,res) =>{
       role: user.role, // ✅ this is also important!
       uniqueToken: user.uniqueToken,
       department: user.department,
-      idNumber:user.idNumber
+      idNumber:user.idNumber,
+      program:user.program,
+      expectedYearToGraduate:user. expectedYearToGraduate,
+      
      })
   
   } catch (error) {

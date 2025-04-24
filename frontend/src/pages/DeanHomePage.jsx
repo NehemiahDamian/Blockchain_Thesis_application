@@ -74,11 +74,11 @@ function DeanHomePage() {
           <Box {...cardStyle} mb={4}>
             {/* for anoto like filtered page like need to to fecth coressponding diploma ng mga dean like
             COT diplomas -> dean ng COT */}
-              {/* // hinde pede tanggalen */}
+              {/* hinde pede tanggalen */}
             <Button 
             size="lg" w="full" p={5} colorScheme="red"
             onClick={getDeanDepartment} fontWeight="bold"
-            > Process Diplomas 
+            > Load Diplomas 
             </Button>
           </Box>
         </Box>

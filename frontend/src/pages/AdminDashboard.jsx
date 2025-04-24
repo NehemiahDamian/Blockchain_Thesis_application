@@ -165,8 +165,8 @@ function AdminDashboard() {
         >
           {/* Left Card (Sign Incoming Diplomas) */}
           <Box {...cardStyles}>
-            <Heading as="h2" fontSize="28px" color="#333" mb="2px">Incoming Diplomas</Heading>
-            <Text fontSize="16px" color="#555" mb="20px">Sign Incoming Diplomas</Text>
+            <Heading as="h2" fontSize="28px" color="#333" mb="2px">Send Diplomas</Heading>
+            <Text fontSize="16px" color="#555" mb="20px">Send Diplomas to Signatories</Text>
             <Button onClick={handleSignClick} {...buttonStyles}>Sign</Button>
             <Flex {...iconContainerStyles}>
               <Box as={FaRegFileAlt} fontSize={iconFontSize} color="#d33139" />

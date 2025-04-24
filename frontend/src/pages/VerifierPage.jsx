@@ -93,7 +93,7 @@ function VerifierPage() {
           <Text fontWeight="medium">
             Welcome <Text as="span" fontWeight="bold">{username}!</Text>
           </Text>
-          <Link 
+          {/* <Link 
             onClick={handleLogout}
             _hover={{ color: textColor, fontWeight: "semibold" }}
             display="flex"
@@ -101,7 +101,7 @@ function VerifierPage() {
           >
             <FaSignOutAlt style={{ marginRight: "8px" }} />
             <Text>Logout</Text>
-          </Link>
+          </Link> */}
         </Flex>
 
         <Box
