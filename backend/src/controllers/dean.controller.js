@@ -100,7 +100,7 @@ export const digitalSignature = async (req, res) => {
       const sign = crypto.createSign("SHA256");
 
       // Only sign essential fields for stability
-      const contentToSign = `${element.fullName}-${element.idNumber}-${element.email}`;
+      const contentToSign = `${element.fullName}-${element.idNumber}-${element.email}-${element.department}-${element.expected}`;
       sign.update(contentToSign);
       sign.end();
 

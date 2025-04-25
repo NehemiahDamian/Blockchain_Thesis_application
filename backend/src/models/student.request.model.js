@@ -7,9 +7,18 @@ const studentRequestSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    numberofRequest: {
-      type: Number,
-      default: 0,
+    reason: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    paymentReceipt: {
+      type: String, // Store image path or URL
+      required: true,
+    },
+    affidavitOfLoss: {
+      type: String, // Store image path or URL
+      required: true,
     },
     status: {
       type: String,
@@ -17,9 +26,7 @@ const studentRequestSchema = new mongoose.Schema(
       default: "pending",
     },
   },
-  {
-    timestamps: true, // This is the correct syntax for enabling timestamps
-  }
+  { timestamps: true }
 );
 
 const StudentRequest = mongoose.model("StudentRequest", studentRequestSchema);
