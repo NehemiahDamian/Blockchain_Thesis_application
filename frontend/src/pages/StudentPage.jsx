@@ -1,14 +1,14 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Box, Flex, Text, Button, Image, VStack, HStack, useDisclosure, 
     Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton, FormControl, 
-    FormLabel, Input, Radio, RadioGroup, useToast, Icon, Grid, GridItem, Heading } from '@chakra-ui/react';
+    FormLabel, Input, Radio, RadioGroup, useToast, Icon, Grid, GridItem, Heading, Badge } from '@chakra-ui/react';
 import { FaHome, FaCog, FaSignOutAlt, FaPlus, FaFileAlt, FaCloudUploadAlt, FaCheckCircle } from 'react-icons/fa';
 import { useAuthStore } from "../store/useAuthStore";
 import { useStudentStore } from '../store/useStudenStore';
 
 function StudentPage() {
-    const { postStudentDetails } = useStudentStore();
+    const { postStudentDetails, getMyRequest, studentRequest } = useStudentStore();
     const { authUser, logout } = useAuthStore();
     const navigate = useNavigate();
     const [sidebarExpanded, setSidebarExpanded] = useState(false);
@@ -32,6 +32,12 @@ function StudentPage() {
         setPurpose(value);
         setOtherPurpose(value === 'other');
     };
+
+    useEffect(() => {
+        if (authUser) {
+            getMyRequest();
+        }
+    }, [authUser, getMyRequest]);
 
     // Convert file to Base64
     const fileToBase64 = (file) => {
@@ -70,8 +76,8 @@ function StudentPage() {
                 affidavitOfLossBase64: affidavitBase64
             };
 
-            console.log('Submitting:', details);
             await postStudentDetails(details);
+            await getMyRequest(); // Refresh the requests
             
             onClose();
             toast({ 
@@ -206,6 +212,50 @@ function StudentPage() {
                             Make a Request
                         </Button>
                     </Flex>
+
+                    {/* REQUEST HISTORY SECTION */}
+                    <Box mt="50px" bg="rgb(255, 38, 38)" borderRadius="20px" p={5} backdropFilter="blur(10px)">
+                        <Heading color={"whiteAlpha.900"}size="lg" mb={5} textAlign="center">My Request History</Heading>
+                        
+                        {studentRequest && studentRequest.length > 0 ? (
+                            <VStack spacing={4}>
+                                {studentRequest.map((request) => (
+                                    <Box 
+                                        key={request._id}
+                                        width="100%"
+                                        bg="rgba(113, 0, 0, 0.88)"
+                                        p={4}
+                                        borderRadius="lg"
+                                        border="1px solid rgba(0, 0, 0, 0.1)"
+                                    >
+                                        <Flex justify="space-between" align="center">
+                                            <Box>
+                                                <Text fontWeight="bold">Purpose: {request.reason}</Text>
+                                                <Text fontSize="sm" opacity={0.8}>
+                                                    Submitted: {new Date(request.createdAt).toLocaleDateString()}
+                                                </Text>
+                                            </Box>
+                                            <Badge 
+                                                colorScheme={
+                                                    request.status === 'approved' ? 'green' : 
+                                                    request.status === 'rejected' ? 'red' : 'yellow'
+                                                }
+                                                px={3}
+                                                py={1}
+                                                borderRadius="full"
+                                            >
+                                                {request.status}
+                                            </Badge>
+                                        </Flex>
+                                    </Box>
+                                ))}
+                            </VStack>
+                        ) : (
+                            <Text textAlign="center" py={10} color="whiteAlpha.700">
+                                You have not submitted any requests yet.
+                            </Text>
+                        )}
+                    </Box>
                 </Box>
             </Box>
 
