@@ -4,7 +4,7 @@ import { acceptDiploma, rejectDiploma, getDiplomaRequest, sendDiplomaSession,get
 
 const router = express.Router();
 
-router.get("/getDiplomaRequest",protectRoute,getDiplomaRequest)
+router.get("/getDiplomaRequest",getDiplomaRequest)
 
 // signupdean
 
