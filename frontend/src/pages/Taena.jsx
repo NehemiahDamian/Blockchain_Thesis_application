@@ -31,8 +31,6 @@ function Tae() {
     container.style.left = '-9999px';
     container.style.width = '800px';
     container.style.height = '475px';
-    container.style.transform = 'scale(0.8)'; // Adjust scale as needed
-    container.style.transformOrigin = 'top left';
     document.body.appendChild(container);
 
     // 2. Render with Chakra Provider

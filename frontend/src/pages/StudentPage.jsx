@@ -23,7 +23,6 @@ function StudentPage() {
     const [paymentFileName, setPaymentFileName] = useState('No file chosen');
     const [affidavitFileName, setAffidavitFileName] = useState('No file chosen');
 
-    // Form state
     const [purpose, setPurpose] = useState('');
     const [otherPurpose, setOtherPurpose] = useState(false);
     const [otherPurposeText, setOtherPurposeText] = useState('');
@@ -39,15 +38,13 @@ function StudentPage() {
         }
     }, [authUser, getMyRequest]);
 
-    // Convert file to Base64
-    const fileToBase64 = (file) => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = error => reject(error);
-        });
-    };
+    const { 
+        isOpen: isDetailsModalOpen, 
+        onOpen: onDetailsModalOpen, 
+        onClose: onDetailsModalClose 
+      } = useDisclosure();
+      const [selectedRequest, setSelectedRequest] = useState(null);
+
 
     // Handle file selection
     const handleFileChange = async (e, setFile, setFileName) => {
@@ -67,16 +64,13 @@ function StudentPage() {
         
         try {
             // Convert files to Base64
-            const paymentBase64 = paymentFile ? await fileToBase64(paymentFile) : null;
-            const affidavitBase64 = affidavitFile ? await fileToBase64(affidavitFile) : null;
+            const formData = new FormData();
+            formData.append('reason', purpose === 'other' ? otherPurposeText : purpose);
+            formData.append('paymentReceipt', paymentFile);
+            formData.append('affidavitOfLoss', affidavitFile);
+            
 
-            const details = {
-                reason: purpose === 'other' ? otherPurposeText : purpose,
-                paymentReceiptBase64: paymentBase64,
-                affidavitOfLossBase64: affidavitBase64
-            };
-
-            await postStudentDetails(details);
+            await postStudentDetails(formData );
             await getMyRequest(); // Refresh the requests
             
             onClose();
@@ -124,6 +118,8 @@ function StudentPage() {
     };
 
     return (
+
+        
         <Box width="100%" height="100vh" overflow="hidden" display="flex"
             backgroundImage={'url("../src/assets/bg3.png")'} backgroundSize="cover" backgroundPosition="center"
         >
@@ -246,6 +242,17 @@ function StudentPage() {
                                             >
                                                 {request.status}
                                             </Badge>
+                                                <Button
+                                                    colorScheme="teal"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => {
+                                                        setSelectedRequest(request);
+                                                        onDetailsModalOpen();
+                                                    }}
+                                                    >
+                                                    View Details
+                                            </Button>
                                         </Flex>
                                     </Box>
                                 ))}
@@ -260,6 +267,71 @@ function StudentPage() {
             </Box>
 
             {/* REQUEST MODAL */}
+
+            {/* Request Details Modal */}
+<Modal isOpen={isDetailsModalOpen} onClose={onDetailsModalClose}>
+  <ModalOverlay />
+  <ModalContent>
+    <ModalHeader>Request Details</ModalHeader>
+    <ModalCloseButton />
+    <ModalBody pb={6}>
+      {selectedRequest && (
+        <VStack align="stretch" spacing={4}>
+          <Box>
+            <Text fontWeight="bold">Purpose:</Text>
+            <Text>{selectedRequest.reasonforAction}</Text>
+          </Box>
+          
+          <Box>
+            <Text fontWeight="bold">Status:</Text>
+            <Badge 
+              colorScheme={
+                selectedRequest.status === 'approved' ? 'green' : 
+                selectedRequest.status === 'rejected' ? 'red' : 'yellow'
+              }
+              px={2}
+              py={1}
+              borderRadius="full"
+            >
+              {selectedRequest.status}
+            </Badge>
+          </Box>
+          
+          <Box>
+            <Text fontWeight="bold">Submitted:</Text>
+            <Text>{new Date(selectedRequest.createdAt).toLocaleString()}</Text>
+          </Box>
+          
+          {selectedRequest.adminReason && (
+            <Box>
+              <Text fontWeight="bold">Admin Response:</Text>
+              <Text>{selectedRequest.adminReason}</Text>
+            </Box>
+          )}
+          
+          <HStack mt={4}>
+            <Button 
+              as="a" 
+              href={selectedRequest.paymentReceipt} 
+              target="_blank" 
+              leftIcon={<FaFileAlt />}
+            >
+              View Payment Receipt
+            </Button>
+            <Button 
+              as="a" 
+              href={selectedRequest.affidavitOfLoss} 
+              target="_blank" 
+              leftIcon={<FaFileAlt />}
+            >
+              View Affidavit
+            </Button>
+          </HStack>
+        </VStack>
+      )}
+    </ModalBody>
+  </ModalContent>
+</Modal>
             <Modal isOpen={isOpen} onClose={onClose} size="xl">
                 <ModalOverlay />
                 <ModalContent borderRadius="25px" maxW="900px">

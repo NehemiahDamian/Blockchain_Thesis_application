@@ -16,6 +16,10 @@ const studentRequestSchema = new mongoose.Schema(
       type: String, // Store image path or URL
       required: true,
     },
+    studentName: {
+      type: String, 
+      required: true,
+    },
     affidavitOfLoss: {
       type: String, // Store image path or URL
       required: true,
@@ -25,6 +29,11 @@ const studentRequestSchema = new mongoose.Schema(
       enum: ["pending", "accepted", "rejected"],
       default: "pending",
     },
+    reasonforAction:{
+      type:String,
+      default:"Please wait for your request confirmation",
+      required:false
+    }
   },
   { timestamps: true }
 );

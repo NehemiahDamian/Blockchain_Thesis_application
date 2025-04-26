@@ -23,6 +23,7 @@ import AdminSignUpRegistrar from "./pages/RegsitrarSignup.jsx";
 import RegistrarLogin from "./pages/RegsitrarLogin.jsx";
 import VerifierPage from "./pages/VerifierPage.jsx";
 import Tae from "./pages/Tae.jsx";
+import AdminStudentRequest from "./pages/AdminStudentRequest.jsx"
 
 
 function App() {
@@ -131,6 +132,8 @@ function App() {
       </Route>
 
       <Route path = "/tae" element={<Tae/>}/>
+
+      <Route path = "/adminSrequest" element = {<AdminStudentRequest/>}/>
     </Routes>
     </div>
   );

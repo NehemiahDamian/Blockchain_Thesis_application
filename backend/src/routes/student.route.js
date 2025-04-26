@@ -1,10 +1,16 @@
 import express from "express"
 import { requestDiploma, getMyRequests } from "../controllers/student.controller.js";
 import { protectRoute } from "../middlewares/auth.middleware.js";
+import multer from "multer";
 
 const router = express.Router();
 
-router.post("/requestDiploma", protectRoute, requestDiploma)
+const upload = multer({ storage: multer.memoryStorage() });
+
+router.post("/requestDiploma", upload.fields([
+  { name: 'paymentReceipt', maxCount: 1 },
+  { name: 'affidavitOfLoss', maxCount: 1 }
+]), protectRoute,requestDiploma);
 
 // router.post("/UpdateInfo", protectRoute, UpdateInfo)
 

@@ -6,10 +6,12 @@ import cloudinary from "../lib/cloudinary.js";
 export const requestDiploma = async (req, res) => {
   try {
     const { _id: studentId } = req.user;
-    const { reason, paymentReceiptBase64, affidavitOfLossBase64 } = req.body;
+    const { reason } = req.body;
+    const paymentFile = req.files.paymentReceipt?.[0];
+    const affidavitFile = req.files.affidavitOfLoss?.[0];
 
     // 1. Validate required fields
-    if (!reason || !paymentReceiptBase64 || !affidavitOfLossBase64) {
+    if (!reason || !paymentFile || !affidavitFile) {
       return res.status(400).json({
         success: false,
         message: "All fields are required",
@@ -18,7 +20,9 @@ export const requestDiploma = async (req, res) => {
 
     // 2. Verify user exists and profile is complete
     const user = await User.findById(studentId);
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
     if (!user.fullName || !user.idNumber || !user.email) {
       return res.status(400).json({
@@ -37,33 +41,27 @@ export const requestDiploma = async (req, res) => {
       });
     }
 
-    // Helper function to upload with proper Base64 handling
-    const uploadToCloudinary = async (base64Data, folderName) => {
-      // Check if it's already a properly formatted Base64 string
-      if (base64Data.startsWith('data:')) {
-        return cloudinary.uploader.upload(base64Data, {
-          folder: `diploma_requests/${folderName}`,
-          resource_type: 'auto' // Let Cloudinary detect the type
-        });
-      }
-      
-      // If it's raw Base64 without prefix, assume it's a PDF
-      const formattedBase64 = `data:application/pdf;base64,${base64Data}`;
-      return cloudinary.uploader.upload(formattedBase64, {
+    // Helper: Upload buffer to Cloudinary
+    const uploadToCloudinary = async (file, folderName) => {
+      const base64String = file.buffer.toString('base64');
+      const dataUri = `data:${file.mimetype};base64,${base64String}`;
+
+      return cloudinary.uploader.upload(dataUri, {
         folder: `diploma_requests/${folderName}`,
-        resource_type: 'auto'
+        resource_type: 'auto',
       });
     };
 
     // 4. Upload files
     const [paymentReceiptResult, affidavitResult] = await Promise.all([
-      uploadToCloudinary(paymentReceiptBase64, 'payments'),
-      uploadToCloudinary(affidavitOfLossBase64, 'affidavits')
+      uploadToCloudinary(paymentFile, 'payments'),
+      uploadToCloudinary(affidavitFile, 'affidavits')
     ]);
 
     // 5. Create request
     const newRequest = await StudentRequest.create({
       student: studentId,
+      studentName:user.fullName,
       reason,
       paymentReceipt: paymentReceiptResult.secure_url,
       affidavitOfLoss: affidavitResult.secure_url,

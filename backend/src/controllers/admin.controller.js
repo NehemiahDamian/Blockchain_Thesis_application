@@ -9,6 +9,7 @@ import { DiplomaSession } from "../models/diploma.session.model.js";
 
 export const acceptDiploma = async (req, res) => {
   const { id } = req.params; 
+  const { reasonforAction } = req.body; // Add reason from request body
 
   try {
     const request = await StudentRequest.findById(id);
@@ -17,9 +18,9 @@ export const acceptDiploma = async (req, res) => {
       return res.status(404).json({ message: "Request not found" });
     }
 
-
     request.status = "accepted";
     request.numberofRequest++;
+    request.reasonforAction = reasonforAction; // Save the reason
 
     await request.save();
 
@@ -34,18 +35,9 @@ export const acceptDiploma = async (req, res) => {
   }
 };
 
-export const getDiplomaRequest = async() =>{
-  try {
-    const request = StudentRequest.find({})
-    res.status(200).json({message:"successfully retrievied", data:request})
-  } catch (error) {
-		console.log("error in fetching products:", error.message);
-		res.status(500).json({ success: false, message: "Server Error" });
-	}
-}
-
 export const rejectDiploma = async (req, res) => {
-  const { id } = req.params; 
+  const { id } = req.params;
+  const { reasonforAction } = req.body; // Add reason from request body
 
   try {
     const request = await StudentRequest.findById(id);
@@ -55,6 +47,7 @@ export const rejectDiploma = async (req, res) => {
     }
 
     request.status = "rejected";
+    request.reasonforAction = reasonforAction; // Save the reason
 
     await request.save();
 
@@ -127,5 +120,13 @@ export const getDiplomaByDepartment = async (req, res) => {
   }
 }
 
-//TODO
 
+export const getDiplomaRequest = async (req, res) => {
+  try {
+    const request = await StudentRequest.find({});
+    return res.status(200).json({ message: "successfully retrieved", data: request });
+  } catch (error) {
+    console.log("error in fetching products:", error.message);
+    return res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
