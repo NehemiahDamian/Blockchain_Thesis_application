@@ -35,9 +35,9 @@ export const requestDiploma = async (req, res) => {
       student: studentId,
       status: "accepted",
     });
-    if (approvedCount >= 3) {
+    if (approvedCount >= 2) {
       return res.status(400).json({
-        message: "Maximum limit reached (3 approved requests)",
+        message: "Maximum request is done, please contact or go to the LPU campus (2 limit)",
       });
     }
 
