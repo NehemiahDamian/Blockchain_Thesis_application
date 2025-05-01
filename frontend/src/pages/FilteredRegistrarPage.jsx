@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRegistrarStore } from "../store/useRegistrarStore";
 import { 
   Box, Button, Text, Input, Select, Icon, Flex, Heading,
   Grid, Modal, ModalOverlay, ModalContent, ModalHeader,
-  ModalBody, ModalCloseButton, useDisclosure, HStack, useToast
+  ModalBody, ModalCloseButton, useDisclosure, HStack, useToast, ButtonGroup, IconButton
 } from "@chakra-ui/react";
-import { FaCheckCircle } from "react-icons/fa";
+import { FaCheckCircle, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import DiplomaTemplate from "../components/DiplomaTemplate";
 
 function ViewDiplomasPage() {
@@ -26,6 +26,9 @@ function ViewDiplomasPage() {
   // Search and filter states
   const [searchTerm, setSearchTerm] = useState("");
   const [entriesCount, setEntriesCount] = useState(10);
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+
   
   // Modal
   const { isOpen: isConfirmOpen, onOpen: onConfirmOpen, onClose: onConfirmClose } = useDisclosure();
@@ -62,8 +65,54 @@ function ViewDiplomasPage() {
 
   // Filter students based on search
   const filteredStudents = studentDetails
-  .filter(student => student.fullName.toLowerCase().includes(searchTerm.toLowerCase()))
-  .slice(0, entriesCount);
+  .filter(student => student.fullName.toLowerCase().includes(searchTerm.toLowerCase()));
+
+
+   // Calculate pagination
+    const totalPages = Math.ceil(filteredStudents.length / entriesCount);
+    const startIndex = (currentPage - 1) * entriesCount;
+    const paginatedStudents = filteredStudents.slice(startIndex, startIndex + entriesCount);
+  
+    // Reset to first page when search term or entries count changes
+    useEffect(() => {
+      setCurrentPage(1);
+    }, [searchTerm, entriesCount]);
+  
+    const handlePageChange = (page) => {
+      setCurrentPage(page);
+    };
+
+      // Generate pagination numbers
+  const generatePaginationNumbers = () => {
+    let pages = [];
+    
+    if (totalPages <= 5) {
+      // If 5 or fewer pages, show all
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // If more than 5 pages, use a sliding window
+      if (currentPage <= 3) {
+        // Show first 5 pages
+        for (let i = 1; i <= 5; i++) {
+          pages.push(i);
+        }
+      } else if (currentPage >= totalPages - 2) {
+        // Show last 5 pages
+        for (let i = totalPages - 4; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        // Show 2 pages before and 2 pages after current page
+        for (let i = currentPage - 2; i <= currentPage + 2; i++) {
+          pages.push(i);
+        }
+      }
+    }
+    
+    return pages;
+  };
 
   const cardStyle = {
     bg: "white", 
@@ -97,7 +146,7 @@ function ViewDiplomasPage() {
               p={5}
               fontWeight="bold"
               onClick={handleEsig}> {/*andito yung function*/}
-                Upload E signature
+                Upload E-signature
               </Button>
               ) : (
               <Button 
@@ -176,7 +225,7 @@ function ViewDiplomasPage() {
                     onChange={(e) => setEntriesCount(Number(e.target.value))}
                     borderRadius="md"
                   >
-                    {[10, 25, 50, 100].map(value => (
+                    {[3, 10, 25, 50, 100].map(value => ( //used 3 for testing purposes
                       <option key={value} value={value}>{value}</option>
                     ))}
                   </Select>
@@ -184,10 +233,46 @@ function ViewDiplomasPage() {
                 </Flex>
               </Flex>
             </Flex>
+            {/* Upper Pagination */}
+            {filteredStudents.length > 0 && (
+              <Flex justify="center" align="center" p={3} borderBottom="1px" borderColor="gray.200" bg="gray.50">
+                <ButtonGroup isAttached variant="outline" size="sm">
+                  <IconButton 
+                    icon={<FaChevronLeft />} 
+                    aria-label="Previous page" 
+                    isDisabled={currentPage === 1}
+                    onClick={() => handlePageChange(currentPage - 1)}
+                  />
+                  
+                  {generatePaginationNumbers().map(pageNum => (
+                    <Button
+                      key={pageNum}
+                      colorScheme={currentPage === pageNum ? "red" : "gray"}
+                      variant={currentPage === pageNum ? "solid" : "outline"}
+                      onClick={() => handlePageChange(pageNum)}
+                    >
+                      {pageNum}
+                    </Button>
+                  ))}
+                  
+                  <IconButton 
+                    icon={<FaChevronRight />} 
+                    aria-label="Next page" 
+                    isDisabled={currentPage === totalPages || totalPages === 0}
+                    onClick={() => handlePageChange(currentPage + 1)}
+                  />
+                </ButtonGroup>
+                
+                <Text ml={4} fontSize="sm" color="gray.600">
+                  Page {currentPage} of {Math.max(1, totalPages)} 
+                  {" "}({filteredStudents.length} total results)
+                </Text>
+              </Flex>
+            )}
             {/* Diploma Grid */}
             <Grid templateColumns={{ base: "repeat(1, 1fr)" }} gap={6} p={6}>
-              {filteredStudents.length > 0 ? (
-                filteredStudents.map((student) => (
+              {paginatedStudents.length > 0 ? (
+                paginatedStudents.map((student) => (
                   <Box 
                     key={student._id}
                     border="2px"
@@ -201,7 +286,7 @@ function ViewDiplomasPage() {
 
                       studentName={student.fullName}
                       studentId={student.idNumber}
-                      department={student.department}
+                      department={student.program}
                       deanSignature={student.deanESignature}
                       graduationYear={student.expectedYearToGraduate}
                       signature={signatureUploaded ? esignatures : null}
@@ -213,6 +298,38 @@ function ViewDiplomasPage() {
                 <Text p={4} color="gray.500">No diplomas found or no students match the search criteria.</Text>
               )}
             </Grid>
+
+            {/* Lower Pagination */}
+            {filteredStudents.length > entriesCount && (
+              <Flex justify="center" align="center" p={4} borderTop="1px" borderColor="gray.200">
+                <ButtonGroup isAttached variant="outline" size="sm">
+                  <IconButton 
+                    icon={<FaChevronLeft />} 
+                    aria-label="Previous page" 
+                    isDisabled={currentPage === 1}
+                    onClick={() => handlePageChange(currentPage - 1)}
+                  />
+                  
+                  {generatePaginationNumbers().map(pageNum => (
+                    <Button
+                      key={pageNum}
+                      colorScheme={currentPage === pageNum ? "red" : "gray"}
+                      variant={currentPage === pageNum ? "solid" : "outline"}
+                      onClick={() => handlePageChange(pageNum)}
+                    >
+                      {pageNum}
+                    </Button>
+                  ))}
+                  
+                  <IconButton 
+                    icon={<FaChevronRight />} 
+                    aria-label="Next page" 
+                    isDisabled={currentPage === totalPages}
+                    onClick={() => handlePageChange(currentPage + 1)}
+                  />
+                </ButtonGroup>
+              </Flex>
+            )}
           </Box>
         </Flex>
       </Box>
@@ -276,7 +393,7 @@ function ViewDiplomasPage() {
           <ModalBody textAlign="center" py={8}>
             <Heading size="lg" mb={4}>Signing Complete</Heading>
             <Text fontSize="md" color="gray.600">
-              {filteredStudents.length} diplomas out of {studentDetails.length} diplomas have been signed successfully
+              {filteredStudents.length} out of {studentDetails.length} diplomas have been signed successfully
             </Text>
           </ModalBody>
         </ModalContent>

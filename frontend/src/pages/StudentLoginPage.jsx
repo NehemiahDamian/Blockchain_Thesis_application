@@ -36,6 +36,17 @@ function StudentLoginPage() {
 
   // for Signup button
   const additionalElements = (
+    <>
+    <Link to="/student/forgotpass">
+      <Button 
+        variant="link" 
+        textColor="#8b0e0e"
+        size="md"
+        mt={2}
+      >
+        Forgot Password
+      </Button>
+    </Link> 
     <Link to="/student/signup">
       <Button 
         variant="link" 
@@ -46,6 +57,7 @@ function StudentLoginPage() {
         Create account
       </Button>
     </Link>
+    </>
   );
 
   return (

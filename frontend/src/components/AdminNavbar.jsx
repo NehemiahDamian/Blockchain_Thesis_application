@@ -7,6 +7,7 @@ import {
   FaUserPlus, 
   FaCloudUploadAlt, 
   FaFile, 
+  FaFileImport,
   FaSignOutAlt 
 } from 'react-icons/fa';
 import { NavLink } from 'react-router-dom';
@@ -14,11 +15,12 @@ import { NavLink } from 'react-router-dom';
 const Navbar = () => {
   // Updated paths to match your routing structure
   const navItems = [
-    { name: 'Dashboard', icon: FaHouseUser, href: '/admin/dashboard' },
+    { name: 'Dashboard', icon: FaHouseUser, href: '/admin/stats' },
+    { name: 'Send Diplomas', icon: FaFileImport, href: '/admin/dashboard' },
     { name: 'Archives', icon: FaFolderOpen, href: '/archives' },
     { name: 'Sign up Dean', icon: FaUserPlus, href: '/admin/signupdn' },
     { name: 'Blockchain Diploma Upload', icon: FaCloudUploadAlt, href: '/upload-bchain' },
-    { name: 'Diploma Requests', icon: FaFile, href: '/diplomarequests' },
+    { name: 'Diploma Requests', icon: FaFile, href: '/admin/request' },
     { name: 'Logout', icon: FaSignOutAlt, href: '/login', isLogout: true }
   ];
 

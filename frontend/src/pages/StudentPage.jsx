@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { Box, Flex, Text, Button, Image, VStack, HStack, useDisclosure, 
     Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton, FormControl, 
     FormLabel, Input, Radio, RadioGroup, useToast, Icon, Grid, GridItem, Heading, Badge } from '@chakra-ui/react';
-import { FaHome, FaCog, FaSignOutAlt, FaPlus, FaFileAlt, FaCloudUploadAlt, FaCheckCircle } from 'react-icons/fa';
+import { FaHome, FaCog, FaSignOutAlt, FaPlus, FaFileAlt, FaCloudUploadAlt, FaCheckCircle, FaExclamationCircle } from 'react-icons/fa';
 import { useAuthStore } from "../store/useAuthStore";
 import { useStudentStore } from '../store/useStudenStore';
 
@@ -27,6 +27,13 @@ function StudentPage() {
     const [otherPurpose, setOtherPurpose] = useState(false);
     const [otherPurposeText, setOtherPurposeText] = useState('');
 
+    // Max requests modal
+    const {
+        isOpen: isMaxRequestsModalOpen,
+        onOpen: onMaxRequestsModalOpen,
+        onClose: onMaxRequestsModalClose
+    } = useDisclosure();
+
     const handlePurposeChange = (value) => {
         setPurpose(value);
         setOtherPurpose(value === 'other');
@@ -45,6 +52,22 @@ function StudentPage() {
       } = useDisclosure();
       const [selectedRequest, setSelectedRequest] = useState(null);
 
+    // Validation of request 
+    const checkMaxRequestsReached = () => {
+        if (!studentRequest) return false;
+        
+        // Count total number of requests
+        return studentRequest.length >= 2;
+    };
+
+    // Handle new req button
+    const handleRequestButtonClick = () => {
+        if (checkMaxRequestsReached()) {
+            onMaxRequestsModalOpen();
+        } else {
+            onOpen();
+        }
+    };
 
     // Handle file selection
     const handleFileChange = async (e, setFile, setFileName) => {
@@ -118,8 +141,6 @@ function StudentPage() {
     };
 
     return (
-
-        
         <Box width="100%" height="100vh" overflow="hidden" display="flex"
             backgroundImage={'url("../src/assets/bg3.png")'} backgroundSize="cover" backgroundPosition="center"
         >
@@ -203,15 +224,17 @@ function StudentPage() {
                             }}
                             transition="0.3s"
                             leftIcon={<FaPlus />}
-                            onClick={onOpen}
+                            onClick={handleRequestButtonClick}
                         >
                             Make a Request
                         </Button>
                     </Flex>
 
                     {/* REQUEST HISTORY SECTION */}
-                    <Box mt="50px" bg="rgb(255, 38, 38)" borderRadius="20px" p={5} backdropFilter="blur(10px)">
-                        <Heading color={"whiteAlpha.900"}size="lg" mb={5} textAlign="center">My Request History</Heading>
+                    <Box mt="60px" bg="gray.100" borderRadius="20px" p={5}  backdropFilter="blur(10px)" boxShadow="0 8px 20px rgba(0, 0, 0, 0.17)" border="1px solid rgba(255, 255, 255, 0.48)">
+                        <Heading color="#8b0e0e"size="lg" mb={5} textAlign="center"
+                        _after={{content: '""',display: 'block',width: '80px',height: '3px',background: '#ad0d0d', marginTop: '10px',marginLeft: 'auto',marginRight: 'auto'
+                              }}>My Request History</Heading>
                         
                         {studentRequest && studentRequest.length > 0 ? (
                             <VStack spacing={4}>
@@ -219,15 +242,21 @@ function StudentPage() {
                                     <Box 
                                         key={request._id}
                                         width="100%"
-                                        bg="rgba(113, 0, 0, 0.88)"
-                                        p={4}
+                                        bg="white"
+                                        p={{ base: 3, md: 4 }}
                                         borderRadius="lg"
                                         border="1px solid rgba(0, 0, 0, 0.1)"
+                                        borderLeft="8px solid"
+                                        boxShadow="0 5px 10px rgba(0, 0, 0, 0.06)"
+                                        borderLeftColor={
+                                          request.status === 'accepted' ? 'green.400' : 
+                                          request.status === 'rejected' ? 'red.400' : 'yellow.400'
+                                        }
                                     >
-                                        <Flex justify="space-between" align="center">
-                                            <Box>
-                                                <Text fontWeight="bold">Purpose: {request.reason}</Text>
-                                                <Text fontSize="sm" opacity={0.8}>
+                                        <Flex justify="space-between" align="center" >
+                                            <Box >
+                                                <Text fontWeight="bold" color="gray.900">Purpose: {request.reason}</Text>
+                                                <Text fontSize="sm" color="gray.900" opacity={0.8}>
                                                     Submitted: {new Date(request.createdAt).toLocaleDateString()}
                                                 </Text>
                                             </Box>
@@ -243,7 +272,7 @@ function StudentPage() {
                                                 {request.status}
                                             </Badge>
                                                 <Button
-                                                    colorScheme="teal"
+                                                    colorScheme="red"
                                                     variant="outline"
                                                     size="sm"
                                                     onClick={() => {
@@ -258,7 +287,7 @@ function StudentPage() {
                                 ))}
                             </VStack>
                         ) : (
-                            <Text textAlign="center" py={10} color="whiteAlpha.700">
+                            <Text textAlign="center" py={10} color="red.900">
                                 You have not submitted any requests yet.
                             </Text>
                         )}
@@ -266,74 +295,99 @@ function StudentPage() {
                 </Box>
             </Box>
 
-            {/* REQUEST MODAL */}
+          {/* MAX REQUESTS REACHED MODAL */}
+          <Modal isOpen={isMaxRequestsModalOpen} onClose={onMaxRequestsModalClose} isCentered>
+                <ModalOverlay />
+                <ModalContent borderRadius="15px">
+                    <ModalHeader color="#8b0e0e" textAlign="center">
+                        Maximum Requests Reached
+                    </ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody pb={6} textAlign="center">
+                        <Icon as={FaExclamationCircle} color="#8b0e0e" boxSize={12} mb={4} />
+                        <Text fontSize="lg" fontWeight="medium" mb={3}>
+                            You have reached the maximum of 2 requests.
+                        </Text>
+                        <Text color="gray.600" mb={5}>
+                            Please contact the registrar's office if you need further assistance.
+                        </Text>
+                        <Button 
+                            onClick={onMaxRequestsModalClose}
+                            bg="#8b0e0e"
+                            color="white"
+                            _hover={{ bg: "#6f0b0b" }}
+                            w="50%"
+                        >
+                            Okay
+                        </Button>
+                    </ModalBody>
+                </ModalContent>
+            </Modal>         
 
             {/* Request Details Modal */}
-<Modal isOpen={isDetailsModalOpen} onClose={onDetailsModalClose}>
-  <ModalOverlay />
-  <ModalContent>
-    <ModalHeader>Request Details</ModalHeader>
-    <ModalCloseButton />
-    <ModalBody pb={6}>
-      {selectedRequest && (
-        <VStack align="stretch" spacing={4}>
-          <Box>
-            <Text fontWeight="bold">Purpose:</Text>
-            <Text>{selectedRequest.reasonforAction}</Text>
-          </Box>
+        <Modal isOpen={isDetailsModalOpen} onClose={onDetailsModalClose}>
+         <ModalOverlay />
+            <ModalContent>
+                <ModalHeader>Request Details</ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody pb={6}>
+                    {selectedRequest && (
+                    <VStack align="stretch" spacing={4}>
+                    <Box>
+                        <Text fontWeight="bold">Purpose:</Text>
+                        <Text>{selectedRequest.reasonforAction}</Text>
+                    </Box>
+                    <Box>
+                        <Text fontWeight="bold">Status:</Text>
+                        <Badge 
+                        colorScheme={
+                            selectedRequest.status === 'approved' ? 'green' : 
+                            selectedRequest.status === 'rejected' ? 'red' : 'yellow'
+                        }
+                        px={2}
+                        py={1}
+                        borderRadius="full"
+                        >
+                        {selectedRequest.status}
+                        </Badge>
+                    </Box>
+                    <Box>
+                        <Text fontWeight="bold">Submitted:</Text>
+                        <Text>{new Date(selectedRequest.createdAt).toLocaleString()}</Text>
+                    </Box>
+                {selectedRequest.adminReason && (
+                    <Box>
+                    <Text fontWeight="bold">Admin Response:</Text>
+                    <Text>{selectedRequest.adminReason}</Text>
+                    </Box>
+                )}
           
-          <Box>
-            <Text fontWeight="bold">Status:</Text>
-            <Badge 
-              colorScheme={
-                selectedRequest.status === 'approved' ? 'green' : 
-                selectedRequest.status === 'rejected' ? 'red' : 'yellow'
-              }
-              px={2}
-              py={1}
-              borderRadius="full"
-            >
-              {selectedRequest.status}
-            </Badge>
-          </Box>
-          
-          <Box>
-            <Text fontWeight="bold">Submitted:</Text>
-            <Text>{new Date(selectedRequest.createdAt).toLocaleString()}</Text>
-          </Box>
-          
-          {selectedRequest.adminReason && (
-            <Box>
-              <Text fontWeight="bold">Admin Response:</Text>
-              <Text>{selectedRequest.adminReason}</Text>
-            </Box>
-          )}
-          
-          <HStack mt={4}>
-            <Button 
-              as="a" 
-              href={selectedRequest.paymentReceipt} 
-              target="_blank" 
-              leftIcon={<FaFileAlt />}
-            >
-              View Payment Receipt
-            </Button>
-            <Button 
-              as="a" 
-              href={selectedRequest.affidavitOfLoss} 
-              target="_blank" 
-              leftIcon={<FaFileAlt />}
-            >
-              View Affidavit
-            </Button>
-          </HStack>
-        </VStack>
-      )}
-    </ModalBody>
-  </ModalContent>
-</Modal>
-            <Modal isOpen={isOpen} onClose={onClose} size="xl">
-                <ModalOverlay />
+                <HStack mt={4}>
+                    <Button 
+                    as="a" 
+                    href={selectedRequest.paymentReceipt} 
+                    target="_blank" 
+                    leftIcon={<FaFileAlt />}
+                    >
+                    View Payment Receipt
+                    </Button>
+                    <Button 
+                    as="a" 
+                    href={selectedRequest.affidavitOfLoss} 
+                    target="_blank" 
+                    leftIcon={<FaFileAlt />}
+                    >
+                    View Affidavit
+                    </Button>
+                </HStack>
+                </VStack>
+            )}
+            </ModalBody>
+        </ModalContent>
+        </Modal>
+        {/* REQUEST MODAL */}
+        <Modal isOpen={isOpen} onClose={onClose} size="xl">
+            <ModalOverlay />
                 <ModalContent borderRadius="25px" maxW="900px">
                     <ModalHeader display="flex" justifyContent="space-between" alignItems="center" borderBottomWidth="1px">
                         <HStack>

@@ -12,7 +12,8 @@ import {
   Alert,
   AlertIcon,
   AlertTitle,
-  AlertDescription
+  AlertDescription,
+  Flex
 } from '@chakra-ui/react';
 
 // Reusable Login Component with support for additional elements and error handling
@@ -293,9 +294,9 @@ const LoginForm = ({
           
           {/* Render additional elements if provided */}
           {additionalElements && (
-            <Box width="100%" textAlign="center" mt={4}>
+            <Flex width="100%" justify="center" gap={4} mt={4}>
               {additionalElements}
-            </Box>
+            </Flex>
           )}
         </VStack>
       </Container>

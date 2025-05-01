@@ -8,6 +8,8 @@ import StudentSignup from "./pages/StudentSignup.jsx";
 import StudentLoginPage from "./pages/StudentLoginPage.jsx";
 import StudentPage from "./pages/StudentPage.jsx";
 import StudentSettings from "./pages/StudentSettings.jsx";
+import StudentForgotPassword from "./pages/StudentForgotPassword.jsx";
+import AdminStats from "./pages/AdminStats.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import AdminPage from "./pages/AdminPage.jsx";
 import AdminDeanSignUp from "./pages/AdminDeanSignUp.jsx";
@@ -62,6 +64,11 @@ function App() {
         path="/student/signup" 
         element={!authUser ? <StudentSignup /> : <Navigate to="/student/homepage" />} 
       />
+
+      <Route 
+        path="/student/forgotpass" 
+        element={!authUser ? <StudentForgotPassword /> : <Navigate to="/student/homepage" />} 
+      />
       
       <Route 
       path="/student/login" 
@@ -74,11 +81,13 @@ function App() {
       />
 
       {/* Admin routes */}
-
+      <Route path ="/admin/stats" element= {<AdminStats/>}/>
       <Route path ="/admin/dashboard" element= {<AdminDashboard/>}/>
       <Route path ="/admin/page" element= {<AdminPage/>}/> 
       <Route path ="/admin/signupdn" element= {<AdminDeanSignUp/>}/>
       <Route path ="/admin/signupregistrar" element= {<AdminSignUpRegistrar/>}/>
+      <Route path = "/admin/request" element = {<AdminStudentRequest/>}/>
+
 
       {/* Verifier routes */}
       <Route path ="/verifier/dboard" element= {<VerifierPage/>}/>
@@ -133,7 +142,6 @@ function App() {
 
       <Route path = "/tae" element={<Tae/>}/>
 
-      <Route path = "/adminSrequest" element = {<AdminStudentRequest/>}/>
     </Routes>
     </div>
   );

@@ -12,6 +12,24 @@ function DiplomaTemplate({
   signerRole = "dean", //default
   deanSignature = null
 }) {
+  
+// Function to expand department acronyms to full names
+const expandDepartment = (dept) => {
+// Map of common department acronyms to their full names
+  const departmentMap = {
+  "BSIT": "Bachelor of Science in Information Technology",
+  "BS Information Technology": "Bachelor of Science in Information Technology",
+  "BSCS": "Bachelor of Science in Computer Science",
+  "BS Computer Science": "Bachelor of Science in Computer Science",
+  "Esports": "Bachelor of Science in ESports",
+  "BS ESports": "Bachelor of Science in ESports"
+  };
+    
+// Return the expanded name if it exists in the map, otherwise return the original value
+  return departmentMap[dept] || dept;
+};
+
+const displayDepartment = expandDepartment(department);
 
 const getSignaturePosition = () => {
   if (signerRole === "dean") {
@@ -128,7 +146,7 @@ const signaturePosition = getSignaturePosition();
         mb="20px"
         color="#000000"
       >
-        Bachelor of Science in Computer Science
+        {displayDepartment}
       </Text>
 
       {/* Date */}
@@ -143,7 +161,7 @@ const signaturePosition = getSignaturePosition();
       </Text>
 
       {/* Signatures Section */}
-      <Flex justify="space-between" mt="10px" px="30px">
+      <Flex justify="space-between" mt="5px" px="30px">
         <Box textAlign="center" my="25px">
           <Box w="175px" mx="auto" borderBottom="1px solid #000000" mb="5px" />
           {deanSignature ? (
@@ -206,6 +224,17 @@ const signaturePosition = getSignaturePosition();
 
         <Box textAlign="center" my="25px">
           <Box w="175px" mx="auto" borderBottom="1px solid #000000" mb="5px" />
+          <Image 
+            src="../src/assets/pressig.png"
+            alt="Registrar Signature" 
+            position="absolute"
+            left="80%"
+            top="72%"
+            transform="translateX(-50%)"
+            maxH="90px"
+            maxW="100px"
+            objectFit="contain"
+          />
           <Text fontSize="13px" color="#000000" mt="5px">
             President
           </Text>
@@ -214,6 +243,15 @@ const signaturePosition = getSignaturePosition();
           </Text>
         </Box>
       </Flex>
+      <Text
+        textAlign="center"
+        fontSize="10px"
+        color="#050505"
+        letterSpacing="1px"
+        mt="-10px"
+      >
+        INSERT TOKEN HERE
+      </Text>
     </Box>
   );
 };
