@@ -10,7 +10,8 @@ function DiplomaTemplate({
   graduationYear = "",
   signature = null,
   signerRole = "dean", //default
-  deanSignature = null
+  deanSignature = null,
+  registrarSignature = null
 }) {
 
 const getSignaturePosition = () => {
@@ -183,18 +184,32 @@ const signaturePosition = getSignaturePosition();
 
         <Box textAlign="center" my="25px">
           <Box w="175px" mx="auto" borderBottom="1px solid #000000" mb="5px" />
-          {signature && signerRole === "registrar" && (
+          {registrarSignature ? (
             <Image 
-              src={signature} 
-              alt="Registrar Signature" 
+              src={registrarSignature} 
+              alt="Dean Signature" 
               position="absolute"
-              left="50%"
-              top="76%"
+              left="20%"
+              top="70%"
               transform="translateX(-50%)"
               maxH="90px"
               maxW="100px"
               objectFit="contain"
             />
+          ) : (
+            signature && signerRole === "registrar" && (
+              <Image 
+                src={signature} 
+                alt="Signature" 
+                position="absolute"
+                left="20%"
+                top="70%"
+                transform="translateX(-50%)"
+                maxH="90px"
+                maxW="100px"
+                objectFit="contain"
+              />
+            )
           )}
           <Text fontSize="13px" color="#000000" mt="5px">
             Ms. Devy Galang

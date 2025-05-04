@@ -7,6 +7,7 @@ export const useAdminStore = create((set) => ({
   // State
   diplomas: [],
   allRequest: [],
+  departmentYears:[],
 
   // Check diplomas for a specific department and year
   checkDiplomas: async (department, year) => {
@@ -78,5 +79,33 @@ export const useAdminStore = create((set) => ({
       console.error("Error rejecting request:", error.message);
       return false;
     }
+  },
+
+  fetchDepartmentYears: async () => {
+
+    try {
+      const response = await axiosInstances.get('/admin/adminGetSignedDiploma');
+      const apiData = response.data
+
+      const formattedData = [];
+
+      for(const department in apiData){
+        for(const year in apiData[department]){
+          formattedData.push({
+            year,
+            department,
+            ...apiData[department][year]
+          });
+        }
+
+        set({departmentYears:formattedData})
+      }
+      
+    } catch (error) {
+      console.log(error)
+    }
   }
+  
+
+
 }));

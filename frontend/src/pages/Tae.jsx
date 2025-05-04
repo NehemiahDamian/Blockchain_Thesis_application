@@ -1,144 +1,102 @@
-import { useState } from 'react';
+import{ useState } from 'react';
 import axios from 'axios';
-import html2pdf from 'html2pdf.js';
-import { ChakraProvider } from '@chakra-ui/react';
+import { Button, Text, VStack, Link, useToast, Box } from '@chakra-ui/react';
+import { renderToString } from 'react-dom/server';
 import DiplomaTemplate from '../components/DiplomaTemplate';
 
-function Tae() {
-  const [students] = useState([
-    { 
-      name: "Alice Johnson",
-      id: "STU-001",
-      department: "Computer Science",
-      graduationYear: "2023",
-      token: "ec456ce8-c99d-461b-994a-100cef506b56"
-    },
-    { 
-      name: "Aliczvxcvcxve Johnson",
-      id: "STU-001",
-      department: "Computer Science",
-      graduationYear: "2023",
-      token: "ec456ce8-c99d-461b-994a-100cef506b56"
-    },
-  ]);
+const Tae = () => {
+  const [isUploading, setIsUploading] = useState(false);
+  const [ipfsResult, setIpfsResult] = useState(null);
+  const toast = useToast();
 
-  const [isProcessing, setIsProcessing] = useState(false);
-
-  const generatePDF = async (student) => {
-    // 1. Create temporary container
-    const container = document.createElement('div');
-    container.style.position = 'absolute';
-    container.style.left = '-9999px';
-    container.style.width = '800px';
-    container.style.height = '475px';
-    container.style.transform = 'scale(0.8)'; // Adjust scale as needed
-    container.style.transformOrigin = 'top left';
-    document.body.appendChild(container);
-
-    // 2. Render with Chakra Provider
-    const { createRoot } = await import('react-dom/client');
-    const root = createRoot(container);
-    root.render(
-      <ChakraProvider>
-        <div style={{ width: '800px', height: '475px' }}>
-          <DiplomaTemplate
-            studentName={student.name}
-            studentId={student.id}
-            department={student.department}
-            graduationYear={student.graduationYear}
-          />
-        </div>
-      </ChakraProvider>
-    );
-
-    // 3. Wait for rendering (longer timeout for Chakra)
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    // 4. Convert to image first (fixes Chakra styling issues)
-    const canvas = await html2canvas(container, {
-      scale: 2,
-      useCORS: true,
-      allowTaint: true,
-      logging: true,
-    });
-
-    // 5. Generate PDF from canvas
-    const pdfBlob = await html2pdf()
-      .set({
-        margin: 0,
-        filename: `${student.token}.pdf`,
-        image: { 
-          type: 'jpeg', 
-          quality: 1,
-        },
-        jsPDF: {
-          unit: 'px',
-          format: [800, 475],
-          orientation: 'portrait'
-        }
-      })
-      .from(canvas)
-      .outputPdf('blob');
-
-    // 6. Clean up
-    root.unmount();
-    document.body.removeChild(container);
-    return pdfBlob;
+  // Test with ONE student
+  const testStudent = {
+    fullName: "Maria Santos",
+    idNumber: "2023-001",
+    department: "Computer Science",
+    deanESignature: "/dean_sig.png", // Replace with actual path
+    expectedYearToGraduate: "2023",
+    registrarDigitalSignature: "/registrar_sig.png" // Replace
   };
 
-  const uploadToIPFS = async (pdfBlob, student) => {
-    const formData = new FormData();
-    formData.append('file', pdfBlob, `${student.name}.pdf`);
+  const uploadDiplomaToIPFS = async () => {
+    setIsUploading(true);
+    setIpfsResult(null);
 
-    const response = await axios.post(
-      'https://api.pinata.cloud/pinning/pinFileToIPFS',
-      formData,
-      {
-        headers: {
-          'pinata_api_key': import.meta.env.VITE_PINATA_API_KEY,
-          'pinata_secret_api_key': import.meta.env.VITE_PINATA_SECRET_KEY,
-          'Content-Type': 'multipart/form-data'
-        }
-      }
-    );
-
-    return response.data.IpfsHash;
-  };
-
-  const processAllStudents = async () => {
-    setIsProcessing(true);
     try {
-      for (const student of students) {
-        try {
-          const pdfBlob = await generatePDF(student);
-          const ipfsHash = await uploadToIPFS(pdfBlob, student);
-          console.log(`✅ ${student.name}:`, ipfsHash);
-        } catch (error) {
-          console.error(`❌ ${student.name}:`, error);
+      // 1. Render Diploma to HTML
+      const diplomaHTML = renderToString(
+        <DiplomaTemplate 
+          studentName={testStudent.fullName}
+          studentId={testStudent.idNumber}
+          department={testStudent.department}
+          deanSignature={testStudent.deanESignature}
+          graduationYear={testStudent.expectedYearToGraduate}
+          registrarSignature={testStudent.registrarDigitalSignature}
+        />
+      );
+
+      // 2. Create a Blob (HTML or PDF)
+      const blob = new Blob([diplomaHTML], { type: 'text/html' });
+      
+      // 3. Prepare FormData for Pinata
+      const formData = new FormData();
+      formData.append('file', blob, `${testStudent.idNumber}_diploma.html`);
+
+      // 4. Upload to Pinata
+      const response = await axios.post(
+        "https://api.pinata.cloud/pinning/pinFileToIPFS",
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            pinata_api_key: import.meta.env.VITE_PINATA_API_KEY,
+            pinata_secret_api_key: import.meta.env.VITE_PINATA_SECRET_KEY,
+          },
         }
-      }
+      );
+
+      // 5. Save the result
+      setIpfsResult({
+        cid: response.data.IpfsHash,
+        url: `https://gateway.pinata.cloud/ipfs/${response.data.IpfsHash}`,
+      });
+
+      toast({
+        title: "Success!",
+        description: "Diploma uploaded to IPFS.",
+        status: "success",
+      });
+
+    } catch (error) {
+      toast({
+        title: "Upload Failed",
+        description: error.message,
+        status: "error",
+      });
     } finally {
-      setIsProcessing(false);
+      setIsUploading(false);
     }
   };
 
   return (
-    <div>
-      <h1>Diploma Generator</h1>
-      <button 
-        onClick={processAllStudents} 
-        disabled={isProcessing}
+    <VStack spacing={4} p={4}>
+      <Button 
+        onClick={uploadDiplomaToIPFS}
+        isLoading={isUploading}
+        colorScheme="blue"
       >
-        {isProcessing ? 'Processing...' : 'Generate All Diplomas'}
-      </button>
-    </div>
-  );
-}
+        Test IPFS Upload (1 Student)
+      </Button>
 
-// Helper function to use html2canvas directly
-async function html2canvas(element, options) {
-  const { default: html2canvas } = await import('html2canvas');
-  return html2canvas(element, options);
-}
+      {ipfsResult && (
+        <Box mt={4}>
+          <Text><strong>IPFS CID:</strong> {ipfsResult.cid}</Text>
+        
+        </Box>
+      )}
+    </VStack>
+  );
+};
 
 export default Tae;

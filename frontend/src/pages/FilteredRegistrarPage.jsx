@@ -206,6 +206,8 @@ function ViewDiplomasPage() {
                       graduationYear={student.expectedYearToGraduate}
                       signature={signatureUploaded ? esignatures : null}
                       signerRole="registrar"
+                      registrarSignature={student.registrarDigitalSignature}
+
                     />
                   </Box>
                 ))

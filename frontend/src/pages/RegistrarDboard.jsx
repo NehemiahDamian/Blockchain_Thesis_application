@@ -249,6 +249,17 @@ function RegistrarDboard() {
               </MenuList>
             </Menu>
           </Flex>
+
+
+
+        {/* dito lalagay malay yung prang map ng mga may status na signed 5/5 */}
+              {/* {departmentYears.map((departmentYear) => (
+        <div key={`${departmentYear.department}-${departmentYear.year}`}>
+          Department: {departmentYear.department}, Year: {departmentYear.year} status: {departmentYear.status}
+          {console.log(departmentYear)}
+          <button></button>
+        </div>
+      ))} */}
           <Box sx={scrollableContainerStyle}>
             {collegeContainers
               .filter(college => filterValue === 'All' || college.status === filterValue)
