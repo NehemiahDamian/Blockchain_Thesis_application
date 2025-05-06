@@ -1,9 +1,10 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 import { useEffect } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "./store/useAuthStore.js";
 import { Loader } from "lucide-react";
-import RootLayout from "./components/RootLayout.jsx"; // imported Navbars root layout
+import RootLayout from "./components/RootLayout.jsx"; 
 import StudentSignup from "./pages/StudentSignup.jsx";
 import StudentLoginPage from "./pages/StudentLoginPage.jsx";
 import StudentPage from "./pages/StudentPage.jsx";
@@ -22,7 +23,7 @@ import RegistrarEsig from "./pages/RegistrarEsig.jsx";
 import AdminSignUpRegistrar from "./pages/RegsitrarSignup.jsx";
 import RegistrarLogin from "./pages/RegsitrarLogin.jsx";
 import VerifierPage from "./pages/VerifierPage.jsx";
-import Tae from "./pages/Tae.jsx";
+import FilteredAdminBchain from "./pages/filteredAdminForBChain.jsx";
 import AdminStudentRequest from "./pages/AdminStudentRequest.jsx"
 
 
@@ -131,7 +132,7 @@ function App() {
       />
       </Route>
 
-      <Route path = "/tae" element={<Tae/>}/>
+      <Route path = "/admin/FilteredAdminBchain" element={<FilteredAdminBchain/>}/>
 
       <Route path = "/adminSrequest" element = {<AdminStudentRequest/>}/>
     </Routes>

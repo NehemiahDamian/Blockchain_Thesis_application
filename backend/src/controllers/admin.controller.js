@@ -1,10 +1,9 @@
 import mongoose from "mongoose"
 import User from "../models/user.model.js"
 import StudentRequest from "../models/student.request.model.js";
-// import StudentSignup from "../../../frontend/src/pages/StudentSignup.jsx";
+import {SignedDiploma} from "../models/signedDiploma.model.js"
 import { DiplomaSession } from "../models/diploma.session.model.js";
-// import DiplomaNewDb from "../models/SignedDiploma.js"; 
-// import crypto from "crypto";
+
 
 
 export const acceptDiploma = async (req, res) => {
@@ -63,7 +62,6 @@ export const rejectDiploma = async (req, res) => {
 };
 
 
-
 export const sendDiplomaSession = async (req, res) => {
   const { department, year, sessionName } = req.body;
 
@@ -93,10 +91,6 @@ export const sendDiplomaSession = async (req, res) => {
     res.status(500).json({ message: "Failed to create session." });
   }
 }
-
-
-
-
 
 export const getDiplomaByDepartment = async (req, res) => {
   const { department, year } = req.query;
@@ -130,3 +124,91 @@ export const getDiplomaRequest = async (req, res) => {
     return res.status(500).json({ success: false, message: "Server Error" });
   }
 };
+
+
+export const adminGetSignedDiploma = async (req, res) => {
+  try {
+    const result = await SignedDiploma.aggregate([
+      {
+        $group: {
+          _id: {
+            department: "$department",
+            year: "$expectedYearToGraduate"
+          }
+        }
+      },
+
+      {
+        $group: {
+          _id: "$_id.department",
+          years: { $push: "$_id.year" }
+        }
+      },
+      {
+        $project: {
+          department: "$_id",
+          years: 1,
+          _id: 0
+        }
+      }
+    ]);
+    
+     const formattedResult = {}
+
+    for(const item of result){
+      formattedResult[item.department] = {};
+
+      for(const year of item.years){
+
+        const total = await SignedDiploma.countDocuments({
+          department:item.department,
+          expectedYearToGraduate:year
+      });
+
+      const signed =  await SignedDiploma.countDocuments({
+        department:item.department,
+        expectedYearToGraduate:year,
+        deanESignature:{$exists:true, $ne: null},
+        registrarESignature:{$exists:true, $ne: null}
+      })
+
+      formattedResult[item.department][year]={
+        status: `${total}/${signed}`,
+         raw: { signed, total }
+
+      };
+
+
+      }
+    }
+
+    res.status(200).json(formattedResult);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+export const getStudentforBlockchainUpload = async (req, res) => {
+  try {
+    console.log(req.query)
+    const { department, year } = req.query;
+    
+    const students = await SignedDiploma.find({
+      department: department,
+      expectedYearToGraduate:year
+      
+    });
+    
+
+    if (!students.length) {
+      return res.status(404).json({ message: "No students found." });
+    }
+
+   return  res.status(200).json({ students });
+
+  } catch (error) {
+    console.log("Error:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+}

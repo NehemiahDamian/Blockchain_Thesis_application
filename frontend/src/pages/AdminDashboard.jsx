@@ -1,13 +1,22 @@
-import { useState } from "react";
+/* eslint-disable no-unused-vars */
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   Box, Heading, Text, Button, Flex, Menu, MenuButton, MenuList, MenuItem, 
   Container, useDisclosure, useBreakpointValue 
 } from '@chakra-ui/react';
 import { FaRegFileAlt, FaRegFileExcel, FaChevronDown } from 'react-icons/fa';
+import { useAdminStore } from '../store/useAdminStore';
 
 function AdminDashboard() {
   const navigate = useNavigate();
+  const{fetchDepartmentYears,departmentYears} = useAdminStore()
+
+  // for fetching yung mga coleges and years
+  // useEffect(() => {
+  //   fetchDepartmentYears()
+  
+  // }, [fetchDepartmentYears]);
   
   // for the buttons
   const [viewMode, setViewMode] = useState(null); // null, 'view-signed'
@@ -26,6 +35,8 @@ function AdminDashboard() {
   const handleViewClick = () => {
     setViewMode(viewMode === 'view-signed' ? null : 'view-signed');
   };
+
+  //tas gawa nlng ng button dito for the filtered pages ng mga isisign
 
   // Common styles for reuse
   const cardStyles = {
@@ -210,6 +221,18 @@ function AdminDashboard() {
               </MenuList>
             </Menu>
           </Flex>
+
+
+
+
+          {/* dito lalagay malay yung prang map ng mga may status na signed 5/5 */}
+          {/* {departmentYears.map((departmentYear) => (
+        <div key={`${departmentYear.department}-${departmentYear.year}`}>
+          Department: {departmentYear.department}, Year: {departmentYear.year} status: {departmentYear.status}
+          {console.log(departmentYear)}
+          <button></button>
+        </div>
+      ))} */}
           <Box sx={scrollableContainerStyle}>
             {collegeContainers
               .filter(college => filterValue === 'All' || college.status === filterValue)
