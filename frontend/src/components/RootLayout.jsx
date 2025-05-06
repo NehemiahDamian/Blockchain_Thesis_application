@@ -8,9 +8,7 @@ export default function RootLayout() {
   const location = useLocation();
   const currentPath = location.pathname;
 
-  const loginPages = ['/student/login', '/student/signup', '/dean/login', '/admin/login', '/registrar/login', '/studentdb', 'studentsettings', '/verifierdashboard'];
-  const nonLoginPages = ['/student/homepage', '/student/settings', '/verifier/dboard' /*,'/verifier/login*/];
-
+  const loginPages = ['/student/login', '/student/signup', '/dean/login', '/admin/login', '/registrar/login', '/studentdb', '/studentsettings', '/verifierdashboard'];  const nonLoginPages = ['/student/homepage', '/student/settings', '/verifier/dboard', '/student/forgotpass' /*,'/verifier/login*/];
   const isLoginPage = loginPages.some(page => currentPath.includes(page));
   const isNonLoginPage = nonLoginPages.some(page => currentPath.includes(page));
 

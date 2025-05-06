@@ -4,8 +4,10 @@ import { useAdminStore } from "../store/useAdminStore";
 import { 
   Box, Button, Text, Input, Select, Flex, Heading,
   Grid, Modal, ModalOverlay, ModalContent, ModalHeader,
-  ModalBody, ModalCloseButton, useDisclosure, HStack, useToast
+  ModalBody, ModalCloseButton, useDisclosure, HStack, useToast,
+  ButtonGroup, IconButton
 } from "@chakra-ui/react";
+import { FaCheckCircle, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import DiplomaTemplate from "../components/DiplomaTemplate";
 
 
@@ -25,6 +27,8 @@ function AdminPage() {
   const [isSearchSubmitted, setIsSearchSubmitted] = useState(false);
   const [entriesCount, setEntriesCount] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Modals
   const { isOpen: isConfirmOpen, onOpen: onConfirmOpen, onClose: onConfirmClose } = useDisclosure();
@@ -94,10 +98,56 @@ function AdminPage() {
     console.log("Diplomas updated:", diplomas);
   }, [diplomas]);
 
-    // Filter students based on search
-    const filteredDiplomas = diplomas
-    .filter(student => student.fullName?.toLowerCase().includes(searchTerm.toLowerCase()))
-    .slice(0, entriesCount);
+  // Filter students based on search
+  const filteredDiplomas = diplomas.filter(student => 
+    student.fullName?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Pagination calculation
+  const totalPages = Math.ceil(filteredDiplomas.length / entriesCount);
+  const startIndex = (currentPage - 1) * entriesCount;
+  const paginatedStudents = filteredDiplomas.slice(startIndex, startIndex + entriesCount);
+
+  // Reset to page 1 when entries count or search term changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [entriesCount, searchTerm]);
+  
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+  
+  // Generate pagination numbers
+  const generatePaginationNumbers = () => {
+    let pages = [];
+    
+    if (totalPages <= 5) {
+      // If 5 or fewer pages, show all
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // If more than 5 pages, use a sliding window
+      if (currentPage <= 3) {
+        // Show first 5 pages
+        for (let i = 1; i <= 5; i++) {
+          pages.push(i);
+        }
+      } else if (currentPage >= totalPages - 2) {
+        // Show last 5 pages
+        for (let i = totalPages - 4; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        // Show 2 pages before and 2 pages after current page
+        for (let i = currentPage - 2; i <= currentPage + 2; i++) {
+          pages.push(i);
+        }
+      }
+    }
+    
+    return pages;
+  };
 
   const cardStyle = {
     bg: "white", 
@@ -138,6 +188,7 @@ function AdminPage() {
           </Flex>
         </Box>
       )}
+
 
       {/* Content */}
       <Flex p={6} minH="calc(100vh - 140px)" direction={{ base: "column", md: "row" }} gap={6}>
@@ -281,7 +332,7 @@ function AdminPage() {
                       onChange={(e) => setEntriesCount(Number(e.target.value))}
                       borderRadius="md"
                     >
-                      {[10, 25, 50, 100].map(value => (
+                      {[5, 10, 25, 50, 100].map(value => (
                       <option key={value} value={value}>{value}</option>
                       ))}
                     </Select>
@@ -289,10 +340,46 @@ function AdminPage() {
                   </Flex>
                 </Flex>
               </Flex>
+         {/* Pagination */}
+        {filteredDiplomas.length > 0 && (
+          <Flex justify="center" align="center" p={3} borderBottom="1px" borderColor="gray.200" bg="gray.50">
+            <ButtonGroup isAttached variant="outline" size="sm">
+                  <IconButton 
+                    icon={<FaChevronLeft />} 
+                    aria-label="Previous page" 
+                    isDisabled={currentPage === 1}
+                    onClick={() => handlePageChange(currentPage - 1)}
+                  />
+                  
+                  {generatePaginationNumbers().map(pageNum => (
+                    <Button
+                      key={pageNum}
+                      colorScheme={currentPage === pageNum ? "red" : "gray"}
+                      variant={currentPage === pageNum ? "solid" : "outline"}
+                      onClick={() => handlePageChange(pageNum)}
+                    >
+                      {pageNum}
+                    </Button>
+                  ))}
+                  
+                  <IconButton 
+                    icon={<FaChevronRight />} 
+                    aria-label="Next page" 
+                    isDisabled={currentPage === totalPages || totalPages === 0}
+                    onClick={() => handlePageChange(currentPage + 1)}
+                  />
+                </ButtonGroup>
+                
+                <Text ml={4} fontSize="sm" color="gray.600">
+                  Page {currentPage} of {Math.max(1, totalPages)} 
+                  {" "}({filteredDiplomas.length} total results)
+                </Text>
+              </Flex>
+            )}
           {/* Diplomas List */}
           {diplomas.length > 0 ? (
             <Grid templateColumns={{ base: "repeat(1, 1fr)" }} gap={6} p={6}>
-              {filteredDiplomas.map((student) => (
+              {paginatedStudents.map((student) => ( //changed to show paginated students
                   <Box 
                   key={student._id}
                   border="1px"
@@ -317,6 +404,36 @@ function AdminPage() {
               No diplomas found for the selected criteria.
             </Text>
           )}
+        {filteredDiplomas.length > entriesCount && (
+            <Flex justify="center" align="center" p={3} borderTop="1px" borderColor="gray.200" bg="gray.50">
+              <ButtonGroup isAttached variant="outline" size="sm">
+                <IconButton 
+                  icon={<FaChevronLeft />} 
+                  aria-label="Previous page" 
+                  isDisabled={currentPage === 1}
+                  onClick={() => handlePageChange(currentPage - 1)}
+                />
+                
+                {generatePaginationNumbers().map(pageNum => (
+                  <Button
+                    key={pageNum}
+                    colorScheme={currentPage === pageNum ? "red" : "gray"}
+                    variant={currentPage === pageNum ? "solid" : "outline"}
+                    onClick={() => handlePageChange(pageNum)}
+                  >
+                    {pageNum}
+                  </Button>
+                ))}
+                
+                <IconButton 
+                  icon={<FaChevronRight />} 
+                  aria-label="Next page" 
+                  isDisabled={currentPage === totalPages}
+                  onClick={() => handlePageChange(currentPage + 1)}
+                />
+              </ButtonGroup>
+            </Flex>
+          )}          
         </Box>
         )}
         </Flex>
