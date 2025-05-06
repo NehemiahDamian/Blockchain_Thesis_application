@@ -21,3 +21,12 @@ router.get("/checkDiploma",getDiplomaByDepartment)
 
 
 export default router;
+
+
+
+
+
+
+
+
+

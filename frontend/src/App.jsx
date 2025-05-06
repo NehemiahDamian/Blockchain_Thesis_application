@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "./store/useAuthStore.js";
 import { Loader } from "lucide-react";
-import RootLayout from "./components/RootLayout.jsx"; // imported Navbars root layout
+import RootLayout from "./components/RootLayout.jsx"; 
 import StudentSignup from "./pages/StudentSignup.jsx";
 import StudentLoginPage from "./pages/StudentLoginPage.jsx";
 import StudentPage from "./pages/StudentPage.jsx";
