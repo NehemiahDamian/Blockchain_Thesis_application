@@ -9,6 +9,7 @@ import cookieParser from "cookie-parser"
 import adminRoute from "./routes/admin.route.js"
 import deanRoute from "./routes/dean.routes.js"
 import registrarRoute from "./routes/registrar.route.js"
+import verifierRoute from "./routes/verifier.route.js"
 
 const app = express();
 dotenv.config();
@@ -30,6 +31,7 @@ app.use("/api/student", studentRoute)
 app.use("/api/admin", adminRoute )
 app.use("/api/dean", deanRoute)
 app.use("/api/registrar",  registrarRoute)
+app.use("/api/verifier", verifierRoute)
 
 
 

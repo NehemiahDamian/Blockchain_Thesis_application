@@ -65,6 +65,10 @@ const userSchema = new mongoose.Schema(
     type: String,
     required: function () { return this.role === "student" }
   },
+  dateOfBirth: {
+    type: String,
+    required: function () { return this.role === "student"; }
+  },  
 
   privateKey: 
   { type: String, 

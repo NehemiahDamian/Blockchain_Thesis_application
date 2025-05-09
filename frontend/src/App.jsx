@@ -24,9 +24,10 @@ import RegistrarFilteredPage from "./pages/FilteredRegistrarPage.jsx";
 import RegistrarEsig from "./pages/RegistrarEsig.jsx";
 import AdminSignUpRegistrar from "./pages/RegsitrarSignup.jsx";
 import RegistrarLogin from "./pages/RegsitrarLogin.jsx";
-import VerifierPage from "./pages/VerifierPage.jsx";
+import VerifierHomePage from "./pages/VerifierHomePage.jsx";
 import FilteredAdminBchain from "./pages/filteredAdminForBChain.jsx";
 import AdminStudentRequest from "./pages/AdminStudentRequest.jsx"
+import VerifierPage from "./pages/VerifierPage.jsx";
 
 
 function App() {
@@ -142,6 +143,11 @@ function App() {
       </Route>
 
       <Route path = "/admin/FilteredAdminBchain" element={<FilteredAdminBchain/>}/>
+
+      <Route path = "/VerifierSide" element={<VerifierHomePage/>}/>
+
+
+      VerifierSide
 
     </Routes>
     </div>

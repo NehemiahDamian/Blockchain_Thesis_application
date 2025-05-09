@@ -6,17 +6,25 @@ import {
   Container, useDisclosure, useBreakpointValue 
 } from '@chakra-ui/react';
 import { FaRegFileAlt, FaRegFileExcel, FaChevronDown } from 'react-icons/fa';
-import { useAdminStore } from '../store/useAdminStore';
+import { useAdminStore } from '../store/useAdminStore.js';
 
 function AdminDashboard() {
   const navigate = useNavigate();
-  const{fetchDepartmentYears,departmentYears} = useAdminStore()
+  const{fetchDepartmentYears,departmentYears, fetchStudentDetails} = useAdminStore()
 
   // for fetching yung mga coleges and years
-  // useEffect(() => {
-  //   fetchDepartmentYears()
-  
-  // }, [fetchDepartmentYears]);
+  useEffect(() => {
+    fetchDepartmentYears()
+  }, [fetchDepartmentYears]);
+
+  const handleViewDiplomas = async (department, year) => {
+    try {
+      await fetchStudentDetails(department, year);
+      navigate(`/admin/FilteredAdminBchain?department=${department}&year=${year}`);
+    } catch (error) {
+      console.error("Error fetching student details:", error);
+    }
+  };
   
   // for the buttons
   const [viewMode, setViewMode] = useState(null); // null, 'view-signed'
@@ -222,42 +230,32 @@ function AdminDashboard() {
             </Menu>
           </Flex>
 
-
-
-
-          {/* dito lalagay malay yung prang map ng mga may status na signed 5/5 */}
-          {/* {departmentYears.map((departmentYear) => (
-        <div key={`${departmentYear.department}-${departmentYear.year}`}>
-          Department: {departmentYear.department}, Year: {departmentYear.year} status: {departmentYear.status}
-          {console.log(departmentYear)}
-          <button></button>
-        </div>
-      ))} */}
+          
+          {/* pa design nlng olet malay like yung mga buttons and the text
+          and yung filtering if ever nasa diplomaCount */}
           <Box sx={scrollableContainerStyle}>
-            {collegeContainers
-              .filter(college => filterValue === 'All' || college.status === filterValue)
-              .map((college, index) => (
-                <Flex key={index} {...collegeCardStyles}>
+            {departmentYears.map((dept, index) => (
+                <Flex key={`${dept.department}-${dept.year}-${index}`} {...collegeCardStyles}>
                   <Box flex="1">
-                    <Heading as="h2" fontSize="30px">{college.name}, {college.year}</Heading>
-                    {college.status === "Signed" && college.diplomaCount && (
+                    <Heading as="h2" fontSize="30px">{dept.department}, {dept.year}</Heading>
+                    {dept.status === "Signed" && dept.diplomaCount && (
                       <Text color="#4cd516" fontWeight="medium" mt="5px">
-                        {college.diplomaCount} Diplomas signed
+                        {dept.diplomaCount} Diplomas signed
                       </Text>
                     )}
                   </Box>
-                  {college.status && (
+                  {dept.status && (
                     <Text 
-                      color={college.status === "Signed" ? "#4cd516" : "#d5162f"} 
+                      color={dept.status === "Signed" ? "#4cd516" : "#d5162f"} 
                       fontWeight="bold" 
                       mr={{ md: "20px" }} 
                       fontSize="18px"
                     >
-                      {college.status}
+                      {dept.status}
                     </Text>
                   )}
                   <Button 
-                    onClick={() => navigate(`/admin/${college.status.toLowerCase()}-diplomas?department=${college.name}&year=${college.year}`)}
+                    onClick={() => handleViewDiplomas(dept.department, dept.year)}
                     {...collegeButtonStyles}
                   >
                     View

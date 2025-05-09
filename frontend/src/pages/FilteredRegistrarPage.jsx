@@ -292,6 +292,8 @@ function ViewDiplomasPage() {
                       signature={signatureUploaded ? esignatures : null}
                       signerRole="registrar"
                       registrarSignature={student.registrarDigitalSignature}
+                      studentToken={student.uniqueToken}
+
 
                     />
                   </Box>
