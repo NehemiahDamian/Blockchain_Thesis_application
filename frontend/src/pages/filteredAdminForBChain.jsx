@@ -9,7 +9,7 @@ import { useAdminStore } from '../store/useAdminStore.js';
 
 function FilterAdminForBChain() {
 
-  const { studentDetails } = useAdminStore();
+  const { studentDetails, archiveUploadedDiploma} = useAdminStore();
   const [isProcessing, setIsProcessing] = useState(false);
 
 
@@ -133,7 +133,10 @@ const handleVerifyDiploma = async () => {
           const ipfsHash = await uploadToIPFS(pdfBlob, student);
           console.log(`✅ Uploaded for ${student.fullName}: ${ipfsHash}`);
 
-          
+          const fileUrl = `https://gateway.pinata.cloud/ipfs/${ipfsHash}`;
+          console.log(fileUrl);
+          console.log(student.fullName, student.program, student.expectedYearToGraduate, student.uniqueToken, student.department);
+          await archiveUploadedDiploma(fileUrl, student.fullName,  student.program, student.expectedYearToGraduate, student.uniqueToken, student.department);
 
           tokens.push(student.uniqueToken);
           hashes.push(ipfsHash);

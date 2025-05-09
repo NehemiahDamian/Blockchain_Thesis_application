@@ -15,6 +15,7 @@ export const useAdminStore = create((set) => ({
   diplomas: [],
   allRequest: [],
   departmentYears:[],
+  allStudent:[],
 
 
     studentDetails: JSON.parse(sessionStorage.getItem("studentDetails") || "[]"),
@@ -149,8 +150,43 @@ export const useAdminStore = create((set) => ({
     } catch (error) {
       console.log(error)
     }
-  }
-  
+  },
 
+  // npx hardhat run scripts/scripts.js --network localhost
 
+  archiveUploadedDiploma: async (fileUrl, fullName, program, expectedYearToGraduate, uniqueToken, department) => {
+    try {
+      const response = await axiosInstances.post("/admin/archiveUploadedDiploma", {
+        fileUrl,
+        fullName,
+        program,
+        expectedYearToGraduate,
+        uniqueToken,
+        department,
+      });
+      return response.status === 200;
+    } catch (error) {
+      console.error("Error archiving diploma:", error.message);
+      return false;
+    }
+  },
+
+  getAllstudentsArchiveByDepartment: async (department,year) => {
+    try {
+      const response = await axiosInstances.get("/admin/getAlldepartment", {
+        params: { department, year},
+      });
+      if (response.data?.success) {
+        console.log("Students fetched: ", response.data.students);
+        set({ allStudent: response.data.students });
+        return true;
+      }
+      console.log("No students found");
+      return false;
+      
+    } catch (error) {
+      console.error("Error getting requests:", error.message);
+      return false;
+    }
+  },
 }));
