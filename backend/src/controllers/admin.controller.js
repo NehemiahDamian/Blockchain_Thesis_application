@@ -3,7 +3,7 @@ import User from "../models/user.model.js"
 import StudentRequest from "../models/student.request.model.js";
 import {SignedDiploma} from "../models/signedDiploma.model.js"
 import { DiplomaSession } from "../models/diploma.session.model.js";
-import Archive from "../models/archive.session.model.js"
+import { verificationModel } from "../models/verification.model.js";
 
 
 
@@ -172,6 +172,8 @@ export const adminGetSignedDiploma = async (req, res) => {
         }
       }
     ]);
+
+    console.log("the",result)
     
      const formattedResult = {}
 
@@ -233,39 +235,67 @@ export const getStudentforBlockchainUpload = async (req, res) => {
   }
 }
 //Todo
+
 export const uploadtoArchive = async (req, res) => {
   try {
     const {
-      studentName,
-      IpfsUrl,
-      studentToken,
+      fileUrl,
+      fullName,
       program,
-      college,
-      expectedYearToGraduate
+      expectedYearToGraduate,
+      uniqueToken,
+      department,
     } = req.body;
 
-    if (!studentName || !IpfsUrl || !studentToken || !program || !college || !expectedYearToGraduate) {
-      return res.status(400).json({ message: "please complete the details" });
+    // 🛑 Check for missing fields
+    if (!fullName || !fileUrl || !uniqueToken || !program || !department || !expectedYearToGraduate) {
+      return res.status(400).json({ message: "Please complete the details" });
     }
 
-    const student = await Archive.findOne({ studentToken });
+    // 🔎 Look for existing student by uniqueToken
+    const student = await verificationModel.findOne({ uniqueToken });
     if (student) {
-      return res.status(409).json({ message: "student already exists" });
+      return res.status(409).json({ message: "Student already exists" });
     }
 
-    const newStudent = await Archive.create({
-      studentName,
-      IpfsUrl,
-      studentToken,
+    // ✅ Create a new student record
+    const newStudent = await verificationModel.create({
+      fileUrl,
+      fullName,
       program,
-      college,
-      expectedYearToGraduate
+      expectedYearToGraduate,
+      uniqueToken,
+      department,
     });
 
-    return res.status(201).json({ message: "student created successfully", data: newStudent });
+    // 💾 Save to database
+    await newStudent.save();
+
+    // 📬 Return response
+    return res.status(201).json({ message: "Student created successfully", data: newStudent });
 
   } catch (error) {
-    console.error("Error:", error);
-    return res.status(500).json({ message: "Server error" });
+    console.error("Error:", error.message);
+    return res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
+export const getAllstudentsArchiveByDepartment = async (req, res) => {
+  try {
+    const { department, year } = req.query;
+
+    const students = await verificationModel.find({
+      department: department,
+      expectedYearToGraduate:year
+    });
+
+    // Always return a 200 status with an array (empty if no students found)
+    const studentsArray = students.map(student => student.toObject());
+    return res.status(200).json({ success: true, students: studentsArray });
+  } catch (error) {
+    console.log("Error in fetching departments:", error.message);
+    return res.status(500).json({ success: false, message: "Server Error" });
+  }
+}
+
+

@@ -2,15 +2,15 @@ import mongoose from "mongoose";
 
 const verificationSchema = new mongoose.Schema(
   {
-    fullName: {
+    fileUrl: {
       type: String,
       required: false,
     },
-    program: {
+    fullName: {
       type: String,
       required: false
     },
-    department: {
+    program: {
       type: String,
       required: false,
     },
@@ -18,34 +18,13 @@ const verificationSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
-    dateOfGraduation: {
+    uniqueToken: {
       type: String,
       required: false,
     },
-    deanESignature: {
+    department: {
       type: String,
       required: false,
-    },
-    registrarESignature: {
-      type: String,
-      required: false,
-    },
-    signedByDean: {
-      type: String,
-      required: false,
-    },
-    deanDigitalSignature: {
-      type: String,
-      required: false,
-    },
-    registrarDigitalSignature: {
-      type: String,
-      required: false,
-    },
-    signedAt: {
-      type: Date,
-      required: false,
-
     },
   },
   {

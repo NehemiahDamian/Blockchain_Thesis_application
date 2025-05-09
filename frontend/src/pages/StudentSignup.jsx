@@ -226,7 +226,7 @@ const StudentSignup = () => {
                   </InputLeftElement>
                   <Input
                     type="text"
-                    placeholder="Enter your department"
+                    placeholder="Enter your department (Ex. COT, CIR)"
                     bg="whiteAlpha.900"
                     color="#202020"
                     size="lg"

@@ -28,6 +28,9 @@ import VerifierHomePage from "./pages/VerifierHomePage.jsx";
 import FilteredAdminBchain from "./pages/filteredAdminForBChain.jsx";
 import AdminStudentRequest from "./pages/AdminStudentRequest.jsx"
 import VerifierPage from "./pages/VerifierPage.jsx";
+import Archives from "./pages/Archives.jsx";
+import FilteredArchive from "./pages/FilteredArchive.jsx";
+import ArchiveBydepartment from "./pages/ArchiveByDepartment.jsx";
 
 
 function App() {
@@ -145,6 +148,14 @@ function App() {
       <Route path = "/admin/FilteredAdminBchain" element={<FilteredAdminBchain/>}/>
 
       <Route path = "/VerifierSide" element={<VerifierHomePage/>}/>
+
+      <Route path = "/admin/Archives" element={<Archives/>}/>
+      <Route path = "/admin/FilteredArchive" element={<FilteredArchive/>}/>
+
+      <Route path = "/admin/archiveBydepartment" element={<ArchiveBydepartment/>}/>
+
+
+
 
 
       VerifierSide
