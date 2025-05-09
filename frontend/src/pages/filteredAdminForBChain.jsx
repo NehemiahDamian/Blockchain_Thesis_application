@@ -1,38 +1,42 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 import html2pdf from 'html2pdf.js';
 import { ChakraProvider } from '@chakra-ui/react';
 import DiplomaTemplate from '../components/DiplomaTemplate';
-import { initialize, uploadToBlockchain } from '../utilss/contactServices';
+import {  uploadToBlockchain, verifyDiploma} from '../utilss/contactServices';
+import { useAdminStore } from '../store/useAdminStore.js';
 
 
 function FilterAdminForBChain() {
 
-
-
-  const [students] = useState([
-    { 
-      fullName: "Alice Johnson",
-      id: "STU-001",
-      department: "Computer Science",
-      graduationYear: "2023",
-      token: "ec456ce8-c99d-461b-994a-100cef506b56",
-      deanESignature: "dasdasdas",
-      registrarDigitalSignature: "dasdasdasdas"
-    },
-    { 
-      fullName: "Aliczvxcvcxve Johnson",
-      id: "STU-002",
-      department: "Computer Science",
-      graduationYear: "2023",
-      token: "ec456ce8-c99d-461b-994a-100cef506b57",
-      deanESignature: "dasdasdzzxcas",
-      registrarDigitalSignature: "dasdasdasdas"
-    },
-
-  ]);
-
+  const { studentDetails } = useAdminStore();
   const [isProcessing, setIsProcessing] = useState(false);
+
+
+  const [verifyToken, setVerifyToken] = useState("");
+  const [verificationResult, setVerificationResult] = useState(null);
+  const [isVerifying, setIsVerifying] = useState(false);
+
+// Add this function (import verifyDiploma from your contactServices)
+const handleVerifyDiploma = async () => {
+  try {
+    console.log("Started verification process");
+    setIsVerifying(true);
+
+    console.log("Calling verifyDiploma with token:", verifyToken);
+    const result = await verifyDiploma(verifyToken);
+
+    console.log("Verification result:", result);
+    setVerificationResult(result);
+  } catch (error) {
+    console.error("Verification failed:", error);
+    setVerificationResult({ isValid: false, error: error.message });
+  } finally {
+    setIsVerifying(false);
+  }
+};
+
+  
 
   const generatePDF = async (student) => {
     const container = document.createElement('div');
@@ -50,12 +54,13 @@ function FilterAdminForBChain() {
       <ChakraProvider>
         <div style={{ width: '800px', height: '475px' }}>
           <DiplomaTemplate 
-            studentName={student.fullName}
-            studentId={student.id}
-            department={student.department}
-            deanSignature={student.deanESignature}
-            graduationYear={student.graduationYear}
-            registrarSignature={student.registrarDigitalSignature}
+             studentName={student.fullName}
+             studentId={student.id}
+             department={student.program}
+             deanSignature={student.deanESignature}
+             graduationYear={student.graduationYear}
+             registrarSignature={student.registrarESignature}
+             studentToken={student.uniqueToken}
           />
         </div>
       </ChakraProvider>
@@ -117,8 +122,8 @@ function FilterAdminForBChain() {
     
       const chunkSize = 5;
 
-      for (let i = 0; i < students.length; i += chunkSize) {
-        const batch = students.slice(i, i + chunkSize);
+      for (let i = 0; i < studentDetails.length; i += chunkSize) {
+        const batch = studentDetails.slice(i, i + chunkSize);
         let tokens = [];
         let hashes = [];
 
@@ -128,8 +133,12 @@ function FilterAdminForBChain() {
           const ipfsHash = await uploadToIPFS(pdfBlob, student);
           console.log(`✅ Uploaded for ${student.fullName}: ${ipfsHash}`);
 
-          tokens.push(student.token);
+          
+
+          tokens.push(student.uniqueToken);
           hashes.push(ipfsHash);
+
+
         } catch (error) {
           console.error(`❌ Failed for ${student.fullName}:`, error);
         }
@@ -138,6 +147,8 @@ function FilterAdminForBChain() {
        // Once batch is ready, upload it to the blockchain
       await uploadToBlockchain(tokens, hashes);
       console.log("Batch successfully uploaded to blockchain.");
+
+      
 
       // Reset for next batch
       tokens = [];
@@ -150,22 +161,72 @@ function FilterAdminForBChain() {
   return (
     <div>
       <h1>Diploma Generator</h1>
-      <button 
-        onClick={processAllStudents} 
+      {studentDetails && studentDetails.length > 0 ? (
+        studentDetails.map((student, index) => (
+          <div key={index} style={{ marginBottom: '40px', border: '1px solid #ccc', padding: '20px' }}>
+            <ChakraProvider>
+              <DiplomaTemplate
+                studentName={student.fullName}
+                studentId={student.id}
+                department={student.program}
+                deanSignature={student.deanESignature}
+                graduationYear={student.graduationYear}
+                registrarSignature={student.registrarESignature}
+                studentToken={student.uniqueToken}
+              />
+            </ChakraProvider>
+          </div>
+        ))
+      ) : (
+        <p>No students found.</p>
+      )}
+      <button
+        onClick={processAllStudents}
         disabled={isProcessing}
+        style={{ marginRight: '10px' }}
       >
         {isProcessing ? 'Processing...' : 'Generate All Diplomas'}
       </button>
-      <button 
-  onClick={async () => {
-    await initialize();  // Now triggered by user interaction
-    await processAllStudents(); // Optional
-  }}
-  disabled={isProcessing}
->
-  {isProcessing ? 'Processing...' : 'Generate All Diplomas'}
-</button>
+      <button
+        onClick={async () => {
+          await processAllStudents();
+        }}
+        disabled={isProcessing}
+      >
+        {isProcessing ? 'Processing...' : 'Initialize & Generate'}
+      </button>
 
+      <div style={{ marginTop: "20px", padding: "20px", border: "1px solid #eee" }}>
+  <h2>Verify Diploma</h2>
+
+  <input
+    type="text"
+    value={verifyToken}
+    onChange={(e) => setVerifyToken(e.target.value)}
+    placeholder="Enter student token"
+    style={{ padding: "8px", marginRight: "10px" }}
+  />
+  <button onClick={handleVerifyDiploma} disabled={isVerifying}>
+    {isVerifying ? "Verifying..." : "Verify"}
+  </button>
+  {verificationResult && (
+    <div style={{ marginTop: "10px" }}>
+      <p>
+        <strong>Status:</strong>{" "}
+        {verificationResult.isValid ? "✅ Valid" : "❌ Invalid"}
+      </p>
+      {verificationResult.timestamp && (
+        <p>
+          <strong>Issued on:</strong>{" "}
+          {new Date(verificationResult.timestamp * 1000).toLocaleString()}
+        </p>
+      )}
+      {verificationResult.error && (
+        <p style={{ color: "red" }}>Error: {verificationResult.error}</p>
+      )}
+    </div>
+  )}
+</div>
     </div>
   );
 }

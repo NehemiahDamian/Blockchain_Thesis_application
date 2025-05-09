@@ -22,6 +22,7 @@ const StudentSignup = () => {
     department:"",
     program:"",
     expectedYearToGraduate: "",
+    dateOfBirth:"",
     role: "student"
   });
 
@@ -33,21 +34,31 @@ const StudentSignup = () => {
 
   const {signup} = useAuthStore()
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+  
+    setFormData({
+      ...formData,
+      [name]: value, // Dynamically updates the field
+    });
+  };
+  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-
+  
     try {
-      console.log("Form submitted with:", formData); // Simulate API request
+      console.log("Form submitted with:", formData); // 🚀 Check the date format here
       await signup(formData);
-      onOpen(); 
+      onOpen();
     } catch (error) {
       console.error("Signup failed:", error);
-      // You could add error handling here (e.g., toast notification)
     } finally {
       setIsSubmitting(false);
     }
   };
+  
 
   const handleModalClose = () => {
     onClose();
@@ -297,6 +308,32 @@ const StudentSignup = () => {
                 />
               </InputGroup>
             </FormControl>
+
+            <FormControl isRequired>
+              <InputGroup>
+                <InputLeftElement pointerEvents="none">
+                  <Box as={FaCalendarAlt} color="#8b0e0e" />
+                </InputLeftElement>
+                <Input
+                  type="date"               // Type is "date" for calendar input
+                  name="dateOfBirth"        // Matches the key in your formData state
+                  value={formData.dateOfBirth} // Binds to state
+                  onChange={handleChange}      // Updates state on change
+                  bg="whiteAlpha.900"
+                  color="#202020"
+                  size="lg"
+                  borderRadius="xl"
+                  _hover={{ bg: "white" }}
+                  _focus={{ 
+                    boxShadow: "0px 0px 0px 3px rgba(139,14,14,0.3)",
+                    transform: "translateY(-2px)"
+                  }}
+                  transition="all 0.3s ease"
+                />
+              </InputGroup>
+            </FormControl>
+
+
 
           <Button 
           type="submit" 

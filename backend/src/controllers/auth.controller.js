@@ -6,7 +6,7 @@ import { generateToken } from "../lib/utils.js"
 import { v4 as uuidv4 } from 'uuid';
 
 export const signup = async(req,res) =>{
-  const{fullName, email, password, role, idNumber,department, program,  expectedYearToGraduate} = req.body
+  const{fullName, email, password, role, idNumber,department, program, expectedYearToGraduate, dateOfBirth} = req.body
 
   try {
     const existingUser = await User.findOne({email})
@@ -45,7 +45,8 @@ export const signup = async(req,res) =>{
         uniqueToken:sToken ,
         department,
         program,
-        expectedYearToGraduate
+        expectedYearToGraduate,
+        dateOfBirth,
       });
 
     if(newUser){
@@ -61,6 +62,7 @@ export const signup = async(req,res) =>{
         program,
         expectedYearToGraduate,
         idNumber: newUser.idNumber, // 🔥 Add this
+        dateOfBirth,
 
       });
       

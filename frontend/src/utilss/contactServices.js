@@ -200,9 +200,6 @@ initialize();
 
 export const verifyDiploma = async (studentToken) => {
   try {
-    if (!contract) {
-      await initialize();
-    }
     
     const result = await contract.verifyDiploma(studentToken);
     return {

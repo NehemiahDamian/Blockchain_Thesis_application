@@ -14,6 +14,10 @@ const signedDiplomaSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
+    dateOfBirth: {
+      type: String,
+      required: false,
+    },
     expectedYearToGraduate: {
       type: String,
       required: false,
@@ -39,6 +43,11 @@ const signedDiplomaSchema = new mongoose.Schema(
       required: false,
     },
     registrarDigitalSignature: {
+      type: String,
+      required: false,
+    },
+
+    uniqueToken: {
       type: String,
       required: false,
     },

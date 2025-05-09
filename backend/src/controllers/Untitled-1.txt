@@ -1,9 +1,0 @@
-//Store in zustand 
-this is a get  request from mongo database select user = role studen
-students
-setstudent
-get data store it in students variable
-
-
-
-

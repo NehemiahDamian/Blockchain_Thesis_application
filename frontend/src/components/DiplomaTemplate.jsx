@@ -11,7 +11,8 @@ function DiplomaTemplate({
   signature = null,
   signerRole = "dean", //default
   deanSignature = null,
-  registrarSignature = null
+  registrarSignature = null,
+  studentToken = ""
 }) {
   
 // Function to expand department acronyms to full names
@@ -157,6 +158,7 @@ const signaturePosition = getSignaturePosition();
         lineHeight="1.2"
         color="#000000"
         fontStyle="italic"
+        marginbtop="20px"
       >
         Issued on {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
       </Text>
@@ -184,7 +186,7 @@ const signaturePosition = getSignaturePosition();
                 alt="Signature" 
                 position="absolute"
                 left="20%"
-                top="70%"
+                top="60%"
                 transform="translateX(-50%)"
                 maxH="90px"
                 maxW="100px"
@@ -205,10 +207,10 @@ const signaturePosition = getSignaturePosition();
           {registrarSignature ? (
             <Image 
               src={registrarSignature} 
-              alt="Dean Signature" 
+              alt="registatr Signature" 
               position="absolute"
-              left="20%"
-              top="70%"
+              left="50%"
+              top=" 77%"
               transform="translateX(-50%)"
               maxH="90px"
               maxW="100px"
@@ -220,8 +222,8 @@ const signaturePosition = getSignaturePosition();
                 src={signature} 
                 alt="Signature" 
                 position="absolute"
-                left="20%"
-                top="70%"
+                left="50%"
+                top=" 30%"
                 transform="translateX(-50%)"
                 maxH="90px"
                 maxW="100px"
@@ -244,7 +246,7 @@ const signaturePosition = getSignaturePosition();
             alt="Registrar Signature" 
             position="absolute"
             left="80%"
-            top="72%"
+            top="70%"
             transform="translateX(-50%)"
             maxH="90px"
             maxW="100px"
@@ -259,13 +261,17 @@ const signaturePosition = getSignaturePosition();
         </Box>
       </Flex>
       <Text
+        position="absolute"
+        bottom="20px"
+        width="100%"
         textAlign="center"
-        fontSize="10px"
+        fontSize="12px"
         color="#050505"
         letterSpacing="1px"
-        mt="-10px"
+        left="50%"
+        transform="translateX(-50%)"
       >
-        INSERT TOKEN HERE
+        {studentToken }
       </Text>
     </Box>
   );

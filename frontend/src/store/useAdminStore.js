@@ -3,11 +3,56 @@
 import { create } from "zustand";
 import { axiosInstances } from "../lib/axios";
 
+const isFresh = (timestamp) => {
+  return (Date.now() - timestamp) < (5 * 60 * 1000); // 5 minute cache
+};
+
+
 export const useAdminStore = create((set) => ({
+
+  
   // State
   diplomas: [],
   allRequest: [],
   departmentYears:[],
+
+
+    studentDetails: JSON.parse(sessionStorage.getItem("studentDetails") || "[]"),
+  
+    fetchStudentDetails: async (department, expectedYearToGraduate) => {
+      try {
+        const storageKey = `students-${department}-${expectedYearToGraduate}`;
+        
+        // Check cache freshness
+        const cachedData = sessionStorage.getItem(storageKey);
+        const cachedTimestamp = sessionStorage.getItem(`${storageKey}-timestamp`);
+  
+        // pag fresh keep, pag greater than 5 minutes fetch from the backend      
+        if (cachedData && cachedTimestamp && isFresh(Number(cachedTimestamp))) {
+          set({ studentDetails: JSON.parse(cachedData) });
+          return;
+        }
+  
+  
+        // Fetch fresh data
+        const response = await axiosInstances.get('/admin/getSignedDiplomaByDepartment', {
+          params: { department, expectedYearToGraduate }
+        });
+        console.log("the response",response.data)
+  
+  
+        // Update storage and state
+        const now = Date.now();
+        sessionStorage.setItem(storageKey, JSON.stringify(response.data));
+        sessionStorage.setItem(`${storageKey}-timestamp`, now.toString());
+        set({ studentDetails: response.data });
+        
+      } catch (error) {
+        console.error("Fetch error:", error);
+        set({ studentDetails: [] });
+      }
+    },
+  
 
   // Check diplomas for a specific department and year
   checkDiplomas: async (department, year) => {

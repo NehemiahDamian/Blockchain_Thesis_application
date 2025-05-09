@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { 
@@ -24,14 +25,21 @@ import {
 } from "@chakra-ui/react";
 // Using react-icons/fa instead of FontAwesome
 import { FaSignOutAlt, FaCheckCircle } from "react-icons/fa";
+import {verifyDiploma} from '../utilss/contactServices';
+import {useVerifierStore} from "../store/useVerifierStore.js"
 
 function VerifierPage() {
+
+
+  const [verifyToken, setVerifyToken] = useState("");
+  const [verificationResult, setVerificationResult] = useState(null);
+  const [isVerifying, setIsVerifying] = useState(false);
+
   // State for form inputs
   const [formData, setFormData] = useState({
     alumniName: "",
     alumniCourse: "",
     dateOfBirth: "",
-    dateOfGraduation: ""
   });
 
   // Modal control
@@ -50,20 +58,46 @@ function VerifierPage() {
     });
   };
 
-  // Placeholder function for form submission
-  const handleSubmit = (e) => {
+  const{ getToken, tokens } = useVerifierStore()
+
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted with data:", formData);
-    // REPLACE: Add your API call here to verify the alumni
-    // For now, we'll just open the modal with mock data
-    onOpen();
+    try {
+      console.log("Started verification process");
+      setIsVerifying(true);
+      setVerificationResult(null); 
+      
+      useVerifierStore.setState({ tokens: "" });
+  
+      await getToken(formData.alumniName, formData.alumniCourse, formData.dateOfBirth);
+      
+      const { tokens } = useVerifierStore.getState();
+      if (!tokens) throw new Error("No student found in the blockchain.");
+      
+      console.log("Calling verifyDiploma with token:", tokens);
+      const result = await verifyDiploma(tokens);
+      console.log("Verification result:", result);
+      console.log(tokens);
+      
+      console.log("Verification result:", result);
+      setVerificationResult(result);
+    } catch (error) {
+      console.error("Verification failed:", error);
+      setVerificationResult({ isValid: false, error: error.message });
+    } finally {
+      setIsVerifying(false);
+      onOpen();
+    }
   };
+  
+  
 
   // Mock function for logout
-  const handleLogout = () => {
-    console.log("Logging out...");
-    // REPLACE: Implement actual logout functionality using your auth store
-  };
+  // const handleLogout = () => {
+  //   console.log("Logging out...");
+  //   // REPLACE: Implement actual logout functionality using your auth store
+  // };
 
   // Colors
   const formBgColor = useColorModeValue("#ebeef2", "#2D3748");
@@ -112,7 +146,7 @@ function VerifierPage() {
         maxW="650px"
         mx="auto"
         ml="-8%"
-        mt= "4%"
+        mt= "11%"
         >
       <Box as="h2" fontSize="2xl" fontWeight="bold" color="maroon" mb={6}>
         Enter Alumni Details
@@ -140,7 +174,7 @@ function VerifierPage() {
 
           <FormControl isRequired>
             <FormLabel>Alumni Course</FormLabel>
-            <Select
+            <Input
               placeholder="Select Course"
               name="alumniCourse"
               value={formData.alumniCourse}
@@ -153,18 +187,7 @@ function VerifierPage() {
                 borderColor: "maroon",
                 boxShadow: "0 0 0 1px maroon",
               }}
-            >
-              <option value="BS Information Technology">
-                BS Information Technology
-              </option>
-              <option value="BS Computer Science">BS Computer Science</option>
-              <option value="AB Multimedia Arts">AB Multimedia Arts</option>
-              <option value="BS Accountancy">BS Accountancy</option>
-              <option value="BS International Hospitality Management">
-                BS International Hospitality Management
-              </option>
-              <option value="AB Foreign Service">AB Foreign Service</option>
-            </Select>
+            />
           </FormControl>
 
           <FormControl isRequired>
@@ -185,37 +208,7 @@ function VerifierPage() {
             />
           </FormControl>
 
-          <FormControl isRequired>
-            <FormLabel>Date of Graduation</FormLabel>
-            <Input
-              type="date"
-              name="dateOfGraduation"
-              value={formData.dateOfGraduation}
-              onChange={handleChange}
-              border="2px solid"
-              borderColor="maroon"
-              borderRadius="md"
-              height="48px"
-              _focus={{
-                borderColor: "maroon",
-                boxShadow: "0 0 0 1px maroon",
-              }}
-            />
-          </FormControl>
-
-          <Button
-            type="submit"
-            colorScheme="red"
-            bg="maroon"
-            color="white"
-            leftIcon={<FaCheckCircle />}
-            width="100%"
-            height="48px"
-            borderRadius="md"
-            _hover={{ bg: "#7b001c" }}
-          >
-            Verify
-          </Button>
+     <button type="submit">Submit</button>
         </VStack>
       </form>
     </Box>
@@ -225,7 +218,8 @@ function VerifierPage() {
           <ModalOverlay bg="rgba(0, 0, 0, 0.5)" />
           <ModalContent borderRadius="25px" maxW="600px">
             {/* Green Verification Header */}
-            <Flex
+
+            {tokens ?  <Flex
               bg="rgb(3, 119, 3)"
               borderTopRadius="20px"
               p={4}
@@ -238,8 +232,29 @@ function VerifierPage() {
                 size={24}
                 color="white"
               />
+
               <Heading color="white" size="lg">Verified</Heading>
+
+            </Flex> :  <Flex
+              bg="rgb(201, 7, 7)"
+              borderTopRadius="20px"
+              p={4}
+              justifyContent="center"
+              alignItems="center"
+              flexDirection="row"
+              gap="10px"
+            >
+              <FaCheckCircle 
+                size={24}
+                color="white"
+              />
+
+              <Heading color="white" size="lg">Not Verified</Heading>
+
             </Flex>
+            
+            }
+       
             
             <ModalHeader 
               display="flex" 
@@ -248,7 +263,7 @@ function VerifierPage() {
               borderBottom="1px solid #ddd"
             >
               <Text color={primaryColor} fontSize="1.5rem" fontWeight="bold">
-                Search results for: Juan Dela Cruz
+                Search results for: {formData.alumniName}
               </Text>
               <ModalCloseButton position="static" />
             </ModalHeader>
@@ -260,10 +275,29 @@ function VerifierPage() {
                   justifyContent="space-between" 
                   mb={3}
                 >
-                  <Text><strong>Name</strong>: Juan Dela Cruz</Text>
-                  <Text><strong>Course</strong>: BS Accountancy</Text>
+                          {verificationResult && (
+              <div style={{ marginTop: "10px" }}>
+                <p>
+                  <strong>Status:</strong>{" "}
+                  {verificationResult.isValid ? "Valid" : "Invalid"}
+                </p>
+                {verificationResult.timestamp && (
+                <div>
+              <p>
+                <strong>Issued on:</strong>{" "}
+                {new Date(verificationResult.timestamp * 1000).toLocaleString()}
+              </p>
+              <p> <strong>Token:</strong> {tokens}</p>
+            </div>
+
+
+      )}
+      {verificationResult.error && (
+        <p style={{ color: "red" }}>Error: {verificationResult.error}</p>
+      )}
+    </div>
+  )}
                 </Flex>
-                <Text><strong>Token</strong>: ______________</Text>
               </Box>
             </ModalBody>
           </ModalContent>

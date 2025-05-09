@@ -3,7 +3,27 @@ import User from "../models/user.model.js"
 import StudentRequest from "../models/student.request.model.js";
 import {SignedDiploma} from "../models/signedDiploma.model.js"
 import { DiplomaSession } from "../models/diploma.session.model.js";
+import Archive from "../models/archive.session.model.js"
 
+
+
+export const getSignedDiplomaByDepartment = async (req, res) => {
+  const { department, expectedYearToGraduate } = req.query;
+
+  try {
+    const signedDiplomas = await SignedDiploma.find({ department, expectedYearToGraduate });
+
+    if (!signedDiplomas || signedDiplomas.length === 0) {
+      return res.status(404).json({ message: "No signed diplomas found" });
+    }
+
+
+    return res.status(200).json(signedDiplomas);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
 
 
 export const acceptDiploma = async (req, res) => {
@@ -212,3 +232,40 @@ export const getStudentforBlockchainUpload = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 }
+//Todo
+export const uploadtoArchive = async (req, res) => {
+  try {
+    const {
+      studentName,
+      IpfsUrl,
+      studentToken,
+      program,
+      college,
+      expectedYearToGraduate
+    } = req.body;
+
+    if (!studentName || !IpfsUrl || !studentToken || !program || !college || !expectedYearToGraduate) {
+      return res.status(400).json({ message: "please complete the details" });
+    }
+
+    const student = await Archive.findOne({ studentToken });
+    if (student) {
+      return res.status(409).json({ message: "student already exists" });
+    }
+
+    const newStudent = await Archive.create({
+      studentName,
+      IpfsUrl,
+      studentToken,
+      program,
+      college,
+      expectedYearToGraduate
+    });
+
+    return res.status(201).json({ message: "student created successfully", data: newStudent });
+
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
