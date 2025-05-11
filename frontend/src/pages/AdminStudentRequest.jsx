@@ -3,8 +3,10 @@ import { Box, Heading, Button, Flex, Input,TableContainer, Table, Thead,
   Tbody, Tr, Th, Td, Icon,HStack,Link,Text,Badge,useColorModeValue,Tooltip
 } from '@chakra-ui/react';
 import { FaSort, FaSortUp, FaSortDown, FaPrint, FaEye } from 'react-icons/fa';
-import { useEffect, useState, useMemo, useCallback  } from "react";
+import { useEffect, useState, useMemo, useCallback , useRef } from "react";
 import { useAdminStore } from "../store/useAdminStore";
+import html2pdf from 'html2pdf.js';
+import { tr } from "framer-motion/client";
 
 function AdminStudentRequest() {
   const { getAllRequest, allRequest, acceptRequest,RejectRequest } = useAdminStore();
@@ -13,6 +15,8 @@ function AdminStudentRequest() {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
+  const [isPrinting, setIsPrinting] = useState(false);
+  const tableRef = useRef(null);
 
   // Theme colors
   const tableBg = useColorModeValue('white', 'gray.800');
@@ -105,6 +109,132 @@ function AdminStudentRequest() {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   return filteredData.slice(indexOfFirstItem, indexOfLastItem);
   }, [currentPage, itemsPerPage, filteredData]);  
+
+  // Print function
+  const handlePrint = useCallback(() => {
+  if (!tableRef.current) return;
+  
+  setIsPrinting(true);
+  
+  // Create a clone of the table to modify for printing
+  const printContent = document.createElement('div');
+  printContent.innerHTML = `
+    <div style="padding: 2px;">
+      <div style="font-size: 10px; text-align: center; margin-bottom: 20px; color: #000000;">
+       Diplomas Request | Generated on: ${new Date().toLocaleString()} ${searchTerm ? `| Filtered by: "${searchTerm}"` : ''}
+      </div>
+      <div id="table-container"></div>
+    </div>
+  `;
+  
+  // Clone the table
+  const tableClone = tableRef.current.cloneNode(true);
+  
+  const auditTable = document.createElement('table');
+    auditTable.style.width = '100%';
+    auditTable.style.borderCollapse = 'collapse';
+    auditTable.style.fontSize = '12px';
+    
+    // Create header row
+    const headerRow = document.createElement('tr');
+    
+    // Define columns for audit report
+    const columns = [
+      { label: 'Student Name', key: 0 },
+      { label: 'Reason', key: 1 },
+      { label: 'Request Date', key: 2 },
+      { label: 'Status', key: 4 },
+      { label: 'Document Status', key: 5 }
+    ];
+    
+    // Create header cells
+    columns.forEach(column => {
+      const th = document.createElement('th');
+      th.textContent = column.label;
+      th.style.border = '1px solid #000';
+      th.style.padding = '5px';
+      th.style.backgroundColor = '#f0f0f0';
+      th.style.textAlign = 'left';
+      headerRow.appendChild(th);
+    });
+    
+    auditTable.appendChild(headerRow);
+    
+    // Process each row in the original table
+    const rows = tableClone.querySelectorAll('tbody tr');
+    rows.forEach(originalRow => {
+      const cells = originalRow.querySelectorAll('td');
+      const newRow = document.createElement('tr');
+      
+      // Add specific cells in our desired order
+      columns.forEach(column => {
+        const td = document.createElement('td');
+        
+        if (column.key === 5) { // Document Status
+          const hasPaymentReceipt = cells[3].textContent.includes('Payment Receipt');
+          const hasAffidavit = cells[3].textContent.includes('Affidavit of Loss');
+          
+          if (hasPaymentReceipt && hasAffidavit) {
+            td.textContent = 'All Documents Submitted';
+          } else if (hasPaymentReceipt) {
+            td.textContent = 'Payment Receipt Only';
+          } else if (hasAffidavit) {
+            td.textContent = 'Affidavit Only';
+          } else {
+            td.textContent = 'No Documents';
+          }
+        } else {
+          // For date column, format it more compactly
+          if (column.key === 2) {
+            const dateText = cells[column.key].textContent;
+            if (dateText) {
+              try {
+                const date = new Date(dateText);
+                td.textContent = date.toLocaleDateString();
+              } catch (e) {
+                td.textContent = dateText;
+              }
+            }
+          } else {
+            td.textContent = cells[column.key].textContent.trim();
+          }
+        }
+        
+        td.style.border = '1px solid #000';
+        td.style.padding = '5px';
+        newRow.appendChild(td);
+      });
+      
+      auditTable.appendChild(newRow);
+    });
+    
+    // Append the audit table
+    printContent.querySelector('#table-container').appendChild(auditTable);
+    
+    // Configure html2pdf options
+    const opt = {
+      margin: [5, 5, 5, 5], // smaller margins: top, right, bottom, left
+      filename: `diploma_requests_audit_${new Date().toISOString().slice(0,10)}.pdf`,
+      image: { type: 'jpeg', quality: 0.95 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+      output: 'dataurlnewwindow'
+    };
+    
+    // Generate PDF and open in new window first
+    html2pdf().from(printContent).set(opt).toPdf().get('pdf').then((pdf) => {
+      // Open PDF in new window
+      const blob = pdf.output('blob');
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+      
+      setIsPrinting(false);
+    }).catch(err => {
+      console.error("Error generating PDF:", err);
+      setIsPrinting(false);
+    });
+  }, [searchTerm]);
+
 
   const handleAccept = async (requestId) => {
     const reasonforAction = "Diploma Approved, Please show this to the registrar as a confirmation"; // You can also use window.prompt for user input
@@ -254,12 +384,16 @@ function AdminStudentRequest() {
           colorScheme="red" 
           size="md"
           boxShadow="sm"
+          onClick={handlePrint}
+          isLoading={isPrinting}
+          loadingText="Generating PDF..."
         >
           Print Report
         </Button>
     </Flex>
     {/* Table */}
     <TableContainer 
+    ref={tableRef}
     bg={tableBg} 
     borderRadius="lg" 
     boxShadow="md" 
@@ -390,9 +524,9 @@ function AdminStudentRequest() {
           </Td>
           <Td py={3} textAlign="center">
             {request.status === 'accepted' ? (
-              <Text fontSize="xs" color="green.500" fontWeight="medium">Accepted na</Text>
+              <Text fontSize="xs" color="green.500" fontWeight="medium">ACCEPTED</Text>
             ) : request.status === 'rejected' ? (
-              <Text fontSize="xs" color="red.500" fontWeight="medium">Rejected na</Text>
+              <Text fontSize="xs" color="red.500" fontWeight="medium">REJECTED</Text>
             ) : (
             <HStack spacing={2} justifyContent="center">
               <Button

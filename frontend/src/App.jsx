@@ -28,7 +28,7 @@ import VerifierHomePage from "./pages/VerifierHomePage.jsx";
 import FilteredAdminBchain from "./pages/filteredAdminForBChain.jsx";
 import AdminStudentRequest from "./pages/AdminStudentRequest.jsx"
 import VerifierPage from "./pages/VerifierPage.jsx";
-import Archives from "./pages/Archives.jsx";
+import AdminArchives from "./pages/Archives.jsx";
 import FilteredArchive from "./pages/FilteredArchive.jsx";
 import ArchiveBydepartment from "./pages/ArchiveByDepartment.jsx";
 
@@ -92,6 +92,11 @@ function App() {
       <Route path ="/admin/signupdn" element= {<AdminDeanSignUp/>}/>
       <Route path ="/admin/signupregistrar" element= {<AdminSignUpRegistrar/>}/>
       <Route path = "/admin/request" element = {<AdminStudentRequest/>}/>
+      <Route path = "/admin/FilteredAdminBchain" element={<FilteredAdminBchain/>}/>
+      <Route path = "/admin/Archives" element={<AdminArchives/>}/>
+      <Route path = "/admin/FilteredArchive" element={<FilteredArchive/>}/>
+
+      <Route path = "/admin/archiveBydepartment" element={<ArchiveBydepartment/>}/>
 
 
       {/* Verifier routes */}
@@ -145,14 +150,10 @@ function App() {
       />
       </Route>
 
-      <Route path = "/admin/FilteredAdminBchain" element={<FilteredAdminBchain/>}/>
 
       <Route path = "/VerifierSide" element={<VerifierHomePage/>}/>
 
-      <Route path = "/admin/Archives" element={<Archives/>}/>
-      <Route path = "/admin/FilteredArchive" element={<FilteredArchive/>}/>
 
-      <Route path = "/admin/archiveBydepartment" element={<ArchiveBydepartment/>}/>
 
 
 

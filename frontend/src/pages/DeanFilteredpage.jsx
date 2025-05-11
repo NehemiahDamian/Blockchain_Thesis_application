@@ -298,9 +298,10 @@ function ViewDiplomasPage() {
                     <DiplomaTemplate 
                       studentName={student.fullName}
                       studentId={student.idNumber}
-                      program={student.program}
+                      department={student.program}
                       graduationYear={student.expectedYearToGraduate}
                       signature={signatureUploaded ? esignatures : null}
+                      signerRole="dean"
                     />
                   </Box>
                 ))
