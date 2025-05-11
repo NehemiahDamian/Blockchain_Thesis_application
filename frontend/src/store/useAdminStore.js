@@ -16,6 +16,8 @@ export const useAdminStore = create((set) => ({
   allRequest: [],
   departmentYears:[],
   allStudent:[],
+  departmentsArr:[],
+
 
 
     studentDetails: JSON.parse(sessionStorage.getItem("studentDetails") || "[]"),
@@ -134,6 +136,8 @@ export const useAdminStore = create((set) => ({
       const apiData = response.data
 
       const formattedData = [];
+      
+
 
       for(const department in apiData){
         for(const year in apiData[department]){
@@ -145,6 +149,8 @@ export const useAdminStore = create((set) => ({
         }
 
         set({departmentYears:formattedData})
+        set({departmentsArr: apiData });
+
       }
       
     } catch (error) {
