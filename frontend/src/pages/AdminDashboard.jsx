@@ -10,7 +10,7 @@ import { useAdminStore } from '../store/useAdminStore.js';
 
 function AdminDashboard() {
   const navigate = useNavigate();
-  const{fetchDepartmentYears,departmentYears, fetchStudentDetails} = useAdminStore()
+  const{ fetchDepartmentYears, departmentYears, fetchStudentDetails } = useAdminStore()
 
   // for fetching yung mga coleges and years
   useEffect(() => {
@@ -20,7 +20,7 @@ function AdminDashboard() {
   const handleViewDiplomas = async (department, year) => {
     try {
       await fetchStudentDetails(department, year);
-      navigate(`/admin/FilteredAdminBchain?department=${department}&year=${year}`);
+      navigate(`/admin/FilteredAdminBchain?department=${encodeURIComponent(department)}&year=${encodeURIComponent(year)}`);
     } catch (error) {
       console.error("Error fetching student details:", error);
     }
@@ -106,12 +106,11 @@ function AdminDashboard() {
     _hover: { bg: "white", transform: "translateY(-2px)", textDecoration: "none" }
   };
 
-  // College data for rendering (mock data for View Signed or Declined)
-  const collegeContainers = [
-    { name: "COT", year: "2026-2027", status: "Signed", diplomaCount: "18/20" },
-    { name: "COT", year: "2025-2026", status: "Declined" },
-    { name: "CITHM", year: "2025-2026", status: "Declined" }
-  ];
+  // Filter departments based on the selected filter
+  const filteredDepartments = departmentYears.filter(dept => {
+    if (filterValue === 'All') return true;
+    return dept.status === filterValue;
+  });
 
   // Animation styles
   const fadeInAnimation = {
@@ -186,7 +185,7 @@ function AdminDashboard() {
           <Box {...cardStyles}>
             <Heading as="h2" fontSize="28px" color="#333" mb="2px">Send Diplomas</Heading>
             <Text fontSize="16px" color="#555" mb="20px">Send Diplomas to Signatories</Text>
-            <Button onClick={handleSignClick} {...buttonStyles}>Sign</Button>
+            <Button onClick={handleSignClick} {...buttonStyles}>Send</Button>
             <Flex {...iconContainerStyles}>
               <Box as={FaRegFileAlt} fontSize={iconFontSize} color="#d33139" />
             </Flex>
@@ -234,7 +233,7 @@ function AdminDashboard() {
           {/* pa design nlng olet malay like yung mga buttons and the text
           and yung filtering if ever nasa diplomaCount */}
           <Box sx={scrollableContainerStyle}>
-            {departmentYears.map((dept, index) => (
+            {filteredDepartments.map((dept, index) => (
                 <Flex key={`${dept.department}-${dept.year}-${index}`} {...collegeCardStyles}>
                   <Box flex="1">
                     <Heading as="h2" fontSize="30px">{dept.department}, {dept.year}</Heading>
@@ -246,12 +245,12 @@ function AdminDashboard() {
                   </Box>
                   {dept.status && (
                     <Text 
-                      color={dept.status === "Signed" ? "#4cd516" : "#d5162f"} 
+                      color={dept.status === "Signed" ? "red.500" : "green.500"} 
                       fontWeight="bold" 
                       mr={{ md: "20px" }} 
                       fontSize="18px"
                     >
-                      {dept.status}
+                      {dept.status} Diplomas Signed
                     </Text>
                   )}
                   <Button 

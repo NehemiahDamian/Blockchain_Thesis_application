@@ -9,6 +9,7 @@ import { FaCheckCircle, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import DiplomaTemplate from "../components/DiplomaTemplate";
 
 function ViewDiplomasPage() {
+  const { departmentYears, fetchDepartmentYears} = useRegistrarStore();
   // Button states
   const [signatureUploaded, setSignatureUploaded] = useState(false);
   const [showDigitalSignBtn, setShowDigitalSignBtn] = useState(false);
@@ -29,12 +30,16 @@ function ViewDiplomasPage() {
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
 
-  
   // Modal
   const { isOpen: isConfirmOpen, onOpen: onConfirmOpen, onClose: onConfirmClose } = useDisclosure();
   const { isOpen: isCompletionOpen, onOpen: onCompletionOpen, onClose: onCompletionClose } = useDisclosure();
   const toast = useToast(); // For notifications
 
+
+  useEffect(() => {
+      fetchDepartmentYears();
+  }, [fetchDepartmentYears]);
+  
   const handleEsig = async () => {
     await getEsignature();
     const storedSignature = useRegistrarStore.getState().eSignature;
@@ -198,7 +203,9 @@ function ViewDiplomasPage() {
             borderBottom="1px"
             borderColor="gray.200"
             >
-              <Heading size="md">Diplomas {new Date().getFullYear()}-{new Date().getFullYear() + 1}</Heading>
+              <Heading size="md">
+                {departmentYears[0]?.department} {departmentYears[0]?.year}
+              </Heading>
               
               <Flex 
                 mt={{ base: 4, md: 0 }}
@@ -344,7 +351,7 @@ function ViewDiplomasPage() {
         <ModalContent p={5}>
           <ModalHeader textAlign="center">
             <Text fontSize="xl" fontWeight="bold">
-              Are you sure you want to sign all diplomas for {new Date().getFullYear()}-{new Date().getFullYear() + 1}?
+              Are you sure you want to sign all diplomas for {departmentYears[0]?.department} {departmentYears[0]?.year}?
             </Text>
           </ModalHeader>
           <ModalBody>
