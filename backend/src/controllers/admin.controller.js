@@ -298,4 +298,39 @@ export const getAllstudentsArchiveByDepartment = async (req, res) => {
   }
 }
 
+export const getStatistics = async (req, res) => {
+  try {
+    const totalDiplomas = await SignedDiploma.countDocuments();
+    const departmentStats = await SignedDiploma.aggregate([
+      { $group: { _id: "$department", count: { $sum: 1 } } }
+    ]);
+    
+    const yearStats = await SignedDiploma.aggregate([
+      { $group: { _id: "$expectedYearToGraduate", count: { $sum: 1 } } }
+    ]);
+
+    const numberofRequest = await StudentRequest.aggregate([
+      { $group: { _id: "$status", count: { $sum: 1 } } }
+    ]);
+
+    const acceptedRequest = numberofRequest.find(item => item._id === "accepted")?.count || 0;  
+    const declinedRequest = numberofRequest.find(item => item._id === "declined")?.count || 0;  
+    const pendingRequest = numberofRequest.find(item => item._id === "pending")?.count || 0;
+    
+    res.json({
+      totalDiplomas,
+      departmentStats,
+      yearStats,
+      numberofRequest: [
+        { status: "accepted", count: acceptedRequest },
+        { status: "declined", count: declinedRequest },
+        { status: "pending", count: pendingRequest }
+      ]
+      
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error fetching statistics." });
+  }
+};
 

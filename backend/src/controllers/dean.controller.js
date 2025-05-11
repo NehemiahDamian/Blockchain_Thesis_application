@@ -2,7 +2,7 @@ import User from "../models/user.model.js";
 import crypto from "crypto"
 import { DiplomaSession } from "../models/diploma.session.model.js";
 import { SignedDiploma } from "../models/signedDiploma.model.js"; 
-
+import { AuditLogs } from "../models/audit.logs.model.js";
 export const getEsignature = async (req, res) => {
   const dean = req.user; // This is already set
 
@@ -16,6 +16,17 @@ export const getEsignature = async (req, res) => {
 
     const signature = deanAuth.esignature;
     const fullName = deanAuth.fullName;
+
+    // await AuditLogs.create({
+    //   user: req.user,
+    //   action: "getEsignature",
+    //   timestamp: new Date(),
+    //   details: {
+    //     fullName: deanAuth.fullName,
+    //     email: deanAuth.email,
+    //     role: deanAuth.role,
+    //   },
+    // });
 
     res.status(200).json({ message: "Success", data: { signature, fullName } });
   } catch (error) {
@@ -65,6 +76,18 @@ export const getDiplomaByDepartment = async (req, res) => {
       return res.status(404).json({ message: "No diploma session found for this department." });
     }
 
+    // await AuditLogs.create({
+    //   user: req.user.fullName,
+    //   action: "getDiplomaByDepartment",
+    //   timestamp: new Date(),
+    //   details: {
+    //     department: session.department,
+    //     year: session.year,
+    //   },
+    //   userRole: req.user.role,
+
+    // });
+
     res.status(200).json({
       message: "Session found",
       data: {
@@ -106,6 +129,8 @@ export const digitalSignature = async (req, res) => {
 
       const digitalSignature = sign.sign(privateKey, "hex");
 
+      
+
       return {
         ...element,
         signedByDean: req.user.fullName,
@@ -116,7 +141,19 @@ export const digitalSignature = async (req, res) => {
     });
 
     const signedDiplomas = await SignedDiploma.insertMany(data);
-
+    // await AuditLogs.create({
+    //   user: req.user.fullName,
+    //   action: "digitalSignature",
+    //   timestamp: new Date(),
+    //   details: {
+    //     studentId: element._id,
+    //     studentName: element.fullName,
+    //     studentEmail: element.email,
+    //     studentDepartment: element.department,
+    //     studentYear: element.expected,
+    //   },
+    //   userRole: req.user.role,
+    // });
     res.status(200).json({
       message: "Diplomas signed successfully",
       data: signedDiplomas,
@@ -136,6 +173,17 @@ export const addEsignature =  async (req,res) =>{
     return res.status(400).json({message:"E Signature is required"})
   }
   // cloudinary
+
+  // await AuditLogs.create({
+  //   user: req.user.fullName,
+  //   action: "addEsignature",
+  //   timestamp: new Date(),
+  //   details: {
+  //     fullName: req.user.fullName,
+  //     email: req.user.email,
+  //   },
+  //   userRole: req.user.role,
+  // }); 
 
   const updatedUser = await User.findByIdAndUpdate(userId, 
     {esignature:esignature},

@@ -3,7 +3,7 @@ import crypto from "crypto"
 import { DiplomaSession } from "../models/diploma.session.model.js";
 import cloudinary from "../lib/cloudinary.js";
 import { SignedDiploma } from "../models/signedDiploma.model.js"; // import SignedDiploma from "../models/signedDiploma.model.js";
-
+import { AuditLogs } from "../models/audit.logs.model.js";
 
 export const getSignedDiploma = async (req, res) => {
   try {
@@ -52,7 +52,16 @@ export const getSignedDiplomaByDepartment = async (req, res) => {
     if (!signedDiplomas || signedDiplomas.length === 0) {
       return res.status(404).json({ message: "No signed diplomas found" });
     }
-
+    // await AuditLogs.create({
+    //   user: req.user.fullName,
+    //   action: "getSignedDiplomaByDepartment",
+    //   timestamp: new Date(),
+    //   details: {
+    //     department,
+    //     expectedYearToGraduate
+    //   },
+    //   userRole: req.user.role,
+    // });
 
     return res.status(200).json(signedDiplomas);
   } catch (error) {
@@ -74,6 +83,17 @@ export const addEsignature = async (req, res) => {
       const updatedUser = await User.findByIdAndUpdate(userId, 
         {esignature:uploadResponse.secure_url},
         {new:true})
+
+        // await AuditLogs.create({
+        //   user: req.user.fullName,
+        //   action: "getSignedDiplomaByDepartment",
+        //   timestamp: new Date(),
+        //   details: {
+        //     department,
+        //     expectedYearToGraduate
+        //   },
+        //   userRole: req.user.role,
+        // });
     
         res.status(200).json(updatedUser)
       
@@ -138,6 +158,20 @@ export const digitalSignature = async (req, res) => {
 
     // Perform bulk update
     const result = await SignedDiploma.bulkWrite(updateOperations);
+
+    // await AuditLogs.create({
+    //   user: req.user.fullName,
+    //   action: "digitalSignature",
+    //   timestamp: new Date(),
+    //   details: {
+    //     students: students.map(student => ({
+    //       id: student._id,
+    //       registrarDigitalSignature: student.registrarDigitalSignature,
+    //       registrarESignature: student.registrarESignature
+    //     }))
+    //   },
+    //   userRole: req.user.role,
+    // });
 
     res.status(200).json({
       message: "Diplomas updated with signatures successfully",
