@@ -80,7 +80,12 @@ export const useDeanStore = create((set) => ({
       console.log(res.data);
       console.log("the esig", esignatures);
     } catch (error) {
-      console.log("error in digital signature:", error);
+       return {
+      error: true,
+      message: error.response?.data?.message || 
+              error.message || 
+              "Failed to sign diplomas"
+    };
     }
   },
   

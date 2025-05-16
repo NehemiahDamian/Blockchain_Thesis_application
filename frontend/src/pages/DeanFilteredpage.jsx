@@ -63,14 +63,56 @@ function ViewDiplomasPage() {
     onConfirmOpen();
   }
 
-  const confirmSign = async () => {
-    onConfirmClose();
+const confirmSign = async () => {
+  onConfirmClose();
+  
+  try {
+    // Attempt to sign diplomas
+    const result = await digitalSignature(studentDetails, esignatures);
     
-    // Nilipat ko lang dito yung original na code mo para gumana sa confirmation modal
-    await digitalSignature(studentDetails, esignatures);
+    // Check if the response contains an error (from backend or store)
+    if (result?.error) {
+      throw new Error(result.message || "Failed to sign diplomas");
+    }
     
+    // If successful, show completion modal
     onCompletionOpen();
+    
+    // Show success toast
+    toast({
+      title: "Success",
+      description: "Diplomas signed successfully",
+      status: "success",
+      duration: 3000,
+      isClosable: true,
+    });
+    
+  } catch (error) {
+    console.error("Signing error:", error);
+    
+    // Determine the error message
+    let errorMessage = "An error occurred while signing diplomas";
+    
+    if (error.message.includes("already have signatures")) {
+      errorMessage = error.message;
+    } else if (error.message.includes("private key is missing")) {
+      errorMessage = "Authorization error: Please ensure you're properly logged in";
+    } else if (error.message.includes("No students found")) {
+      errorMessage = "No students selected for signing";
+    }
+    
+    // Show error toast
+    toast({
+      title: "Signing Failed",
+      description: errorMessage,
+      status: "error",
+      duration: 5000,
+      isClosable: true,
+      position: "bottom",
+    });
   }
+}
+
 
   // Filter students based on search
   const filteredStudents = studentDetails

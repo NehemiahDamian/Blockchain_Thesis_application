@@ -8,7 +8,7 @@ router.get("/getSignedDiploma", protectRoute,getSignedDiploma)
 router.get("/getSignedDiplomaByDepartment",protectRoute ,getSignedDiplomaByDepartment)
 router.put("/addEsiganture",protectRoute ,addEsignature)
 router.get("/getEsignature", protectRoute,getEsignature)
-router.put("/digitalSignature", protectRoute, digitalSignature)
+router.post("/digitalSignature", protectRoute, digitalSignature)
 
 
 
