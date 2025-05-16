@@ -18,7 +18,7 @@ export default function RootLayout() {
 
   // Define navbar
   const isDeanRoute = currentPath.includes('dean');
-  const isRegistrarRoute = currentPath.includes('registrar');
+  const isRegistrarRoute = currentPath.startsWith('/registrar');
 
   let NavbarComponent;
 

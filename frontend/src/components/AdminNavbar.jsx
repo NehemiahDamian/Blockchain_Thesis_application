@@ -1,5 +1,5 @@
-import React from 'react';
-import { Box, Image, VStack, Icon, Text, Flex } from '@chakra-ui/react';
+import React, { useState } from 'react';
+import { Box, Image, VStack, Icon, Text, Flex, Collapse } from '@chakra-ui/react';
 import { 
   FaHouseUser, 
   FaFileInvoice, 
@@ -8,17 +8,30 @@ import {
   FaCloudUploadAlt, 
   FaFile, 
   FaFileImport,
-  FaSignOutAlt 
+  FaSignOutAlt,
+  FaUserCog,
+  FaChevronDown,
+  FaChevronUp
 } from 'react-icons/fa';
 import { NavLink } from 'react-router-dom';
 
 const Navbar = () => {
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   // Updated paths to match your routing structure
   const navItems = [
     { name: 'Dashboard', icon: FaHouseUser, href: '/admin/stats' },
     { name: 'Send Diplomas', icon: FaFileImport, href: '/admin/dashboard' },
     { name: 'Archives', icon: FaFolderOpen, href: '/admin/Archives' },
-    { name: 'Sign up Dean', icon: FaUserPlus, href: '/admin/signupdn' },
+        { 
+      name: 'Register', 
+      icon: FaUserCog, 
+      href: '#', 
+      hasSubmenu: true,
+      submenuItems: [
+        { name: 'Sign Up Dean', icon: FaUserPlus, href: '/admin/signupdn' },
+        { name: 'Sign Up Registrar', icon: FaUserPlus, href: '/admin/signupregistrar' }
+      ]
+    },
     { name: 'Diploma Requests', icon: FaFile, href: '/admin/request' },
     { name: 'Logout', icon: FaSignOutAlt, href: '/login', isLogout: true }
   ];
@@ -46,6 +59,10 @@ const Navbar = () => {
     });
     
     navigate(redirectPath);
+  };
+
+    const toggleSubmenu = () => {
+    setIsRegisterOpen(!isRegisterOpen);
   };
 
   return (
@@ -91,6 +108,65 @@ const Navbar = () => {
               borderRadius: "10px 0 0 0",
             }}
           >
+            {item.hasSubmenu ? (
+              <>
+                <Flex
+                  onClick={toggleSubmenu}
+                  alignItems="center"
+                  cursor="pointer"
+                  p="9px 20px"
+                  color="#ebebeb"
+                  fontSize="15px"
+                  fontWeight={isRegisterOpen ? "700" : "lighter"}
+                  _hover={{
+                    color: "#f4f4f4"
+                  }}
+                >
+                  <Icon 
+                    as={item.icon} 
+                    mr="10px"
+                    mt="3px" 
+                    w="20px" 
+                    textAlign="center" 
+                  />
+                  <Text flex="1">{item.name}</Text>
+                </Flex>
+                <Collapse in={isRegisterOpen} animateOpacity>
+                  <VStack
+                    spacing={2}
+                    pl={8}
+                    mt={2}
+                    align="start"
+                    width="100%"
+                  >
+                    {item.submenuItems.map((subItem, subIndex) => (
+                      <NavLink
+                        key={subIndex}
+                        to={subItem.href}
+                        style={({ isActive }) => ({
+                          textDecoration: "none",
+                          color: isActive ? "#f4f4f4" : "#ebebeb",
+                          fontSize: "14px",
+                          display: "flex",
+                          alignItems: "center",
+                          padding: "5px 10px",
+                          fontWeight: isActive ? "700" : "lighter",
+                          width: "100%"
+                        })}
+                      >
+                        <Icon 
+                          as={subItem.icon} 
+                          mr="8px"
+                          w="16px" 
+                          textAlign="center" 
+                        />
+                        <Text>{subItem.name}</Text>
+                      </NavLink>
+                    ))}
+                  </VStack>
+                </Collapse>
+              </>
+            ) : (
             <NavLink
               to={item.href}
               style={({ isActive }) => ({
@@ -124,6 +200,7 @@ const Navbar = () => {
                 <Text>{item.name}</Text>
               )}
             </NavLink>
+            )}
           </Box>
         ))}
       </VStack>

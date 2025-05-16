@@ -200,7 +200,7 @@ function RegistrarDboard() {
         </Flex>
       </Container>
 
-      {/* Sign Diplomas - Department/Year List */}
+      {/* Send Diplomas - Department/Year List */}
       {viewMode === 'sign' && (
         <Box width="100%" display="flex" flexDirection="column" gap="15px" sx={fadeInAnimation}>
           <Box sx={scrollableContainerStyle}>
@@ -213,6 +213,26 @@ function RegistrarDboard() {
                 <Box flex="1">
                   <Heading as="h2" fontSize="30px">{department}, {year}</Heading>
                 </Box>
+                  {department.status && (
+                    <Flex>
+                    <Text 
+                      color={department.status == "Declined" ? "red.500" : "green.500"} 
+                      fontWeight="bold" 
+                      mr={{ md: "20px" }} 
+                      fontSize="18px"
+                    >
+                      Total Diplomas:
+                    </Text>
+                    <Text 
+                      color={department.status == "Signed" ? "red.500" : "green.500"} 
+                      fontWeight="bold" 
+                      mr={{ md: "20px" }} 
+                      fontSize="18px"
+                    >
+                      {department.status} Diplomas Signed
+                    </Text>
+                    </Flex>
+                  )}
                 <Button 
                   onClick={() => handleViewDiplomas(department, year)}
                   {...collegeButtonStyles}

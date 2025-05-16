@@ -3,7 +3,8 @@ import { useRegistrarStore } from "../store/useRegistrarStore";
 import { 
   Box, Button, Text, Input, Select, Icon, Flex, Heading,
   Grid, Modal, ModalOverlay, ModalContent, ModalHeader,
-  ModalBody, ModalCloseButton, useDisclosure, HStack, useToast, ButtonGroup, IconButton
+  ModalBody, ModalCloseButton, useDisclosure, HStack, useToast, ButtonGroup, IconButton,
+  Tabs, TabList, Tab, TabPanels, TabPanel, Checkbox, Stack
 } from "@chakra-ui/react";
 import { FaCheckCircle, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import DiplomaTemplate from "../components/DiplomaTemplate";
@@ -13,6 +14,7 @@ function ViewDiplomasPage() {
   // Button states
   const [signatureUploaded, setSignatureUploaded] = useState(false);
   const [showDigitalSignBtn, setShowDigitalSignBtn] = useState(false);
+  const [showProcessingOptions, setShowProcessingOptions] = useState(false);
 
   // Signatures states
   const [esignatures, setEsignature] = useState(null);
@@ -24,6 +26,10 @@ function ViewDiplomasPage() {
   } = useRegistrarStore();
   const [handleEsigbtn, setHandleEsigbtn] = useState(false);
 
+  // Processing states
+  const [processingMode, setProcessingMode] = useState(null); 
+  const [selectedDiplomas, setSelectedDiplomas] = useState([]);
+
   // Search and filter states
   const [searchTerm, setSearchTerm] = useState("");
   const [entriesCount, setEntriesCount] = useState(10);
@@ -33,6 +39,7 @@ function ViewDiplomasPage() {
   // Modal
   const { isOpen: isConfirmOpen, onOpen: onConfirmOpen, onClose: onConfirmClose } = useDisclosure();
   const { isOpen: isCompletionOpen, onOpen: onCompletionOpen, onClose: onCompletionClose } = useDisclosure();
+  const { isOpen: isProcessingModalOpen, onOpen: onProcessingModalOpen, onClose: onProcessingModalClose } = useDisclosure();
   const toast = useToast(); // For notifications
 
 
@@ -47,9 +54,16 @@ function ViewDiplomasPage() {
       setEsignature(storedSignature);
       setSignatureUploaded(true); // para makita na may signature na
       setShowDigitalSignBtn(true); // para mapalitan yung text sa button
+      setShowProcessingOptions(true);
     }
     setHandleEsigbtn(true);
   };
+
+  const selectProcessingMode = (mode) => {
+    setProcessingMode(mode);
+    onProcessingModalClose();
+  };
+
 
   const handleDigitalSignature = async () => {
     if(esignatures === null) {
@@ -59,28 +73,33 @@ function ViewDiplomasPage() {
     onConfirmOpen();
   };
 
-const confirmSign = async () => {
-  onConfirmClose();
-  
-  try {
+  const confirmSign = async () => {
+    onConfirmClose();
+
+    if (processingMode === 'batch') {
+    // Nilipat ko lang dito yung original na code mo para gumana sa confirmation modal
     await digitalSignature(studentDetails, esignatures);
-    onCompletionOpen();
-    toast({
-      title: "Done",
-      description: "Signing complete",
-      status: "success",
-      duration: 2000
-    });
+    }
     
-  } catch {
-    toast({
-      title: "Error",
-      description: "Could not sign diplomas", 
-      status: "error", 
-      duration: 3000
+    else if (processingMode === 'individual') {
+      console.log("Individual signing mode selected");
+    }
+    onCompletionOpen();
+  };
+
+  // Individual Processing
+    const handleDiplomaSelection = (studentId) => {
+    setSelectedDiplomas(prev => {
+      if (prev.includes(studentId)) {
+        return prev.filter(id => id !== studentId);
+      } else {
+        return [...prev, studentId];
+      }
     });
-  }
-}
+  };
+
+
+
   // Filter students based on search
   const filteredStudents = studentDetails
   .filter(student => student.fullName.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -100,7 +119,7 @@ const confirmSign = async () => {
       setCurrentPage(page);
     };
 
-      // Generate pagination numbers
+  // Generate pagination numbers
   const generatePaginationNumbers = () => {
     let pages = [];
     
@@ -167,16 +186,48 @@ const confirmSign = async () => {
                 Upload E-signature
               </Button>
               ) : (
-              <Button 
-              colorScheme="green"
-              size="sm"
-              w="full"
-              p={5}
-              fontWeight="bold"
-              onClick={handleDigitalSignature}> {/*andito yung function*/}
-                Digitally Sign Diplomas
-              </Button>
-            )}
+                showProcessingOptions ? (
+                  <Stack spacing={3}>
+                    <Button 
+                      colorScheme={processingMode === 'batch' ? "red" : "gray"}
+                      size="sm"
+                      w="full"
+                      p={6}
+                      onClick={() => selectProcessingMode('batch')}>
+                      Batch Processing
+                    </Button>
+                    <Button 
+                      colorScheme={processingMode === 'individual' ? "red" : "gray"}
+                      size="sm"
+                      w="full"
+                      p={6}
+                      onClick={() => selectProcessingMode('individual')}>
+                      Individual Processing
+                    </Button>
+                {processingMode && (
+                    <Button 
+                    colorScheme="green"
+                    size="sm"
+                    w="full"
+                    p={5}
+                    fontWeight="bold"
+                    onClick={handleDigitalSignature}> {/*andito yung function*/}
+                    {processingMode === 'batch' ? 'Digitally Sign All Diplomas' : 'Sign Selected Diplomas'}
+                    </Button>
+                  )}
+                </Stack>
+                 ) : (
+                  <Button 
+                    colorScheme="green"
+                    size="sm"
+                    w="full"
+                    p={5}
+                    fontWeight="bold"
+                    onClick={onProcessingModalOpen}>
+                    Select Processing Mode
+                  </Button>
+                )
+              )}
             </Box>
           {/* Signature Section */}
           {handleEsigbtn && (
@@ -196,6 +247,14 @@ const confirmSign = async () => {
                   Accepted Formats: PNG
                 </Text>
             </Box>
+            )}
+            {/* Selection Stats (for Individual mode) */}
+            {processingMode === 'individual' && (
+              <Box {...cardStyle} mt={4}>
+                <Text>
+                  {selectedDiplomas.length} out of {filteredStudents.length} diplomas selected
+                </Text>
+              </Box>
             )}
         </Box>
           {/* Right Panel (Diplomas) */}
@@ -296,12 +355,30 @@ const confirmSign = async () => {
                   <Box 
                     key={student._id}
                     border="2px"
-                    borderColor="gray.200"
+                    borderColor={selectedDiplomas.includes(student._id) ? "red.300" : "gray.200"}
                     borderRadius="md"
                     overflow="hidden"
                     transition="transform 0.2s"
                     _hover={{ transform: "scale(1.02)" }}
+                    position="relative"
                   >
+                    {processingMode === 'individual' && (
+                      <Checkbox 
+                        position="absolute"
+                        top="10px"
+                        right="10px"
+                        zIndex="1"
+                        colorScheme="red"
+                        size="lg"
+                        isChecked={selectedDiplomas.includes(student._id)}
+                        onChange={() => handleDiplomaSelection(student._id)}
+                        sx={{
+                          '&:not(:checked) .chakra-checkbox__control': {
+                            borderColor: 'gray.500',
+                          },
+                        }}
+                      />
+                    )}
                     <DiplomaTemplate 
 
                       studentName={student.fullName}
@@ -358,13 +435,17 @@ const confirmSign = async () => {
         </Flex>
       </Box>
      {/* Modals */}
+
      {/* Confirmation Modal */}
       <Modal isOpen={isConfirmOpen} onClose={onConfirmClose} isCentered>
         <ModalOverlay bg="blackAlpha.300" backdropFilter="blur(2px)" />
         <ModalContent p={5}>
           <ModalHeader textAlign="center">
             <Text fontSize="xl" fontWeight="bold">
-              Are you sure you want to sign all diplomas for {departmentYears[0]?.department} {departmentYears[0]?.year}?
+              {processingMode === 'batch' 
+                ? `Are you sure you want to sign all diplomas for ${departmentYears[0]?.department} ${departmentYears[0]?.year}?`
+                : `Are you sure you want to sign ${selectedDiplomas.length} selected diplomas?`
+              }
             </Text>
           </ModalHeader>
           <ModalBody>
