@@ -317,19 +317,26 @@ export const getStatistics = async (req, res) => {
     const acceptedRequest = numberofRequest.find(item => item._id === "accepted")?.count || 0;  
     const declinedRequest = numberofRequest.find(item => item._id === "declined")?.count || 0;  
     // const pendingRequest = numberofRequest.find(item => item._id === "pending")?.count || 0;
-    const session = await DiplomaSession.countDocuments();
-    
-    res.json({
-      totalDiplomas,
-      departmentStats,
-      yearStats,
-      numberofRequest: [
-        { status: "accepted", count: acceptedRequest },
-        { status: "declined", count: declinedRequest },
-      ],
-      session: session,
-      
-    });
+    const sessions = await DiplomaSession.find(); // Get all sessions
+const sessionCount = sessions.length;
+
+// Count the total number of students across all sessions
+const totalStudentCount = sessions.reduce((acc, session) => {
+  return acc + session.students.length;
+}, 0);
+
+res.json({
+  totalDiplomas,
+  departmentStats,
+  yearStats,
+  numberofRequest: [
+    { status: "accepted", count: acceptedRequest },
+    { status: "declined", count: declinedRequest },
+  ],
+  session: sessionCount,
+  totalStudents: totalStudentCount // 👈 This is the total number of students across all sessions
+});
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error fetching statistics." });

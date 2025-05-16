@@ -129,9 +129,9 @@ function AdminDashboard() {
         />
         <MetricCard 
           icon={FaClipboardList}
-          title="Sent sessions requests"
-          value={statistics.session?.length || 0}
-          description="Awaiting review"
+          title="Sent students on Deans"
+          value={statistics.totalStudents}
+          description="Awaiting signature"
         />
       </SimpleGrid>
 

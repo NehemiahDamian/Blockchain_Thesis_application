@@ -251,15 +251,15 @@ function AdminDashboard() {
                       mr={{ md: "20px" }} 
                       fontSize="18px"
                     >
-                      Total Diplomas:
+                      Total Diplomas: {dept.raw.total}
                     </Text>
-                    <Text 
+                    <Text marginright={-10}
                       color={dept.status == "Signed" ? "red.500" : "green.500"} 
                       fontWeight="bold" 
                       mr={{ md: "20px" }} 
                       fontSize="18px"
                     >
-                      {dept.status} Diplomas Signed
+                       Diplomas Signed: {dept.raw.signed}
                     </Text>
                     </Flex>
                   )}
