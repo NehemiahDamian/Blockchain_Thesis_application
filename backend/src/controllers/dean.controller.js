@@ -107,7 +107,7 @@ export const getDiplomaByDepartment = async (req, res) => {
 
 
 export const digitalSignature = async (req, res) => {
-  const { students, esignatures } = req.body;  // ✅ Extract esignatures properly
+  const { students, esignatures } = req.body;
   const privateKey = req.user.privateKey;
 
   if (!students || students.length === 0) {
@@ -119,6 +119,23 @@ export const digitalSignature = async (req, res) => {
   }
 
   try {
+    // Check if any student already has signatures
+    const studentsWithExistingSignatures = students.filter(student => 
+      student.deanESignature || student.registrarDigitalSignature
+    );
+
+    if (studentsWithExistingSignatures.length > 0) {
+      return res.status(400).json({
+        message: "Some students already have signatures",
+        students: studentsWithExistingSignatures.map(student => ({
+          id: student.idNumber || student._id,
+          name: student.fullName,
+          existingDeanSignature: !!student.deanESignature,
+          existingRegistrarSignature: !!student.registrarDigitalSignature
+        }))
+      });
+    }
+
     const data = students.map((element) => {
       const sign = crypto.createSign("SHA256");
 
@@ -129,31 +146,16 @@ export const digitalSignature = async (req, res) => {
 
       const digitalSignature = sign.sign(privateKey, "hex");
 
-      
-
       return {
         ...element,
         signedByDean: req.user.fullName,
         deanDigitalSignature: digitalSignature,
-        deanESignature: esignatures,  // Use the single signature
+        deanESignature: esignatures,
         signedAt: new Date(),
       };
     });
 
     const signedDiplomas = await SignedDiploma.insertMany(data);
-    // await AuditLogs.create({
-    //   user: req.user.fullName,
-    //   action: "digitalSignature",
-    //   timestamp: new Date(),
-    //   details: {
-    //     studentId: element._id,
-    //     studentName: element.fullName,
-    //     studentEmail: element.email,
-    //     studentDepartment: element.department,
-    //     studentYear: element.expected,
-    //   },
-    //   userRole: req.user.role,
-    // });
     res.status(200).json({
       message: "Diplomas signed successfully",
       data: signedDiplomas,

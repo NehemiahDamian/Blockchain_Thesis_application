@@ -59,15 +59,28 @@ function ViewDiplomasPage() {
     onConfirmOpen();
   };
 
-  const confirmSign = async () => {
-    onConfirmClose();
-    
-    // Nilipat ko lang dito yung original na code mo para gumana sa confirmation modal
+const confirmSign = async () => {
+  onConfirmClose();
+  
+  try {
     await digitalSignature(studentDetails, esignatures);
-    
     onCompletionOpen();
-  };
-
+    toast({
+      title: "Done",
+      description: "Signing complete",
+      status: "success",
+      duration: 2000
+    });
+    
+  } catch {
+    toast({
+      title: "Error",
+      description: "Could not sign diplomas", 
+      status: "error", 
+      duration: 3000
+    });
+  }
+}
   // Filter students based on search
   const filteredStudents = studentDetails
   .filter(student => student.fullName.toLowerCase().includes(searchTerm.toLowerCase()));
