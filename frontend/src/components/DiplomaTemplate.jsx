@@ -20,9 +20,9 @@ const expandDepartment = (dept) => {
 // Map of common department acronyms to their full names
   const departmentMap = {
   "BSIT": "Bachelor of Science in Information Technology",
-  "BS Information Technology": "Bachelor of Science in Information Technology",
+  "Information Technology": "Bachelor of Science in Information Technology",
   "BSCS": "Bachelor of Science in Computer Science",
-  "BS Computer Science": "Bachelor of Science in Computer Science",
+  "Computer Science": "Bachelor of Science in Computer Science",
   "Esports": "Bachelor of Science in ESports",
   "BS ESports": "Bachelor of Science in ESports"
   };

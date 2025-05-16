@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { Box, Button,  Container, Flex, FormControl, Heading, Input, InputGroup, InputLeftElement, InputRightElement, Link, 
-  Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Text,useDisclosure } from "@chakra-ui/react";
+  Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Select, Text,useDisclosure } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
 import { FaUser, FaUniversity, FaGraduationCap, FaUserCircle, FaLock, FaArrowLeft, FaEye,
   FaEyeSlash,FaCalendarAlt,FaEnvelope,FaIdCard,FaStar } from "react-icons/fa";
@@ -193,58 +193,62 @@ const StudentSignup = () => {
               </InputGroup>
             </FormControl>
 
-            {/* Program and Major row */}
-            <Flex gap="4" direction={{ base: "column", md: "row" }}>
-              <FormControl isRequired>
-                <InputGroup>
-                  <InputLeftElement pointerEvents="none">
-                    <Box as={FaUniversity} color="#8b0e0e" />
-                  </InputLeftElement>
-                  <Input
-                    type="text"
-                    placeholder="Enter your program/course"
-                    bg="whiteAlpha.900"
-                    color="#202020"
-                    size="lg"
-                    borderRadius="xl"
-                    value={formData.program}
-                    onChange={(e) => setFormData({ ...formData, program: e.target.value })}
-                    _hover={{ bg: "white" }}
-                    _focus={{ 
-                      boxShadow: "0px 0px 0px 3px rgba(139,14,14,0.3)",
-                      transform: "translateY(-2px)"
-                    }}
-                    transition="all 0.3s ease"
-                  />
-                </InputGroup>
-              </FormControl>
-              
-              <FormControl isRequired>
-                <InputGroup>
-                  <InputLeftElement pointerEvents="none">
-                    <Box as={FaGraduationCap} color="#8b0e0e" />
-                  </InputLeftElement>
-                  <Input
-                    type="text"
-                    placeholder="Enter your department (Ex. COT, CIR)"
-                    bg="whiteAlpha.900"
-                    color="#202020"
-                    size="lg"
-                    borderRadius="xl"
-                    value={formData.department}
-                    onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                    _hover={{ bg: "white" }}
-                    _focus={{ 
-                      boxShadow: "0px 0px 0px 3px rgba(139,14,14,0.3)",
-                      transform: "translateY(-2px)"
-                    }}
-                    transition="all 0.3s ease"
-                  />
-                </InputGroup>
-              </FormControl>
-            </Flex>
+                  <Flex gap="4" direction={{ base: "column", md: "row" }}>
+                    <FormControl isRequired>
+                    <InputGroup>
+                      <InputLeftElement pointerEvents="none">
+                      <Box as={FaUniversity} color="#8b0e0e" />
+                      </InputLeftElement>
+                      <Input
+                      type="text"
+                      placeholder="Enter your program/course"
+                      bg="whiteAlpha.900"
+                      color="#202020"
+                      size="lg"
+                      borderRadius="xl"
+                      value={formData.program}
+                      onChange={(e) => setFormData({ ...formData, program: e.target.value })}
+                      _hover={{ bg: "white" }}
+                      _focus={{ 
+                        boxShadow: "0px 0px 0px 3px rgba(139,14,14,0.3)",
+                        transform: "translateY(-2px)"
+                      }}
+                      transition="all 0.3s ease"
+                      />
+                    </InputGroup>
+                    </FormControl>
+                    
+                    <FormControl isRequired>
+                    <InputGroup>
+                      <InputLeftElement pointerEvents="none">
+                      {/* <Box marginLeft={1} as={FaGraduationCap} color="#8b0e0e" /> */}
+                      </InputLeftElement>
+                      <Select 
+                      placeholder=" Select your department  "
+                      bg="whiteAlpha.900"
+                      color="#202020"
+                      size="lg"
+                      borderRadius="xl"
+                      value={formData.department}
+                      onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                      _hover={{ bg: "white" }}
+                      _focus={{ 
+                        boxShadow: "0px 0px 0px 3px rgba(139,14,14,0.3)",
+                        transform: "translateY(-2px)"
+                      }}
+                      transition="all 0.3s ease"
+                      >
+                      <option value="College of Technology">College of Technology</option>
+                      <option value="College of International Tourism and Hospitality Management">College of International Tourism and Hospitality Management</option>
+                      <option value="College of Arts and Sciences">College of Arts and Sciences</option>
+                      <option value="College of Business Administration">College of Business Administration</option>
+                      <option value="College of Law">College of Law</option>
+                      </Select>
+                    </InputGroup>
+                    </FormControl>
+                  </Flex>
 
-            {/* Password row */}
+                  {/* Password row */}
             <Flex gap="4" direction={{ base: "column", md: "row" }}>
               <FormControl isRequired>
                 <InputGroup>

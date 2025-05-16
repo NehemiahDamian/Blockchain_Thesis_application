@@ -114,11 +114,11 @@ const AdminSignUpDean = () => {
                 focusBorderColor="red.300"
               >
                 <option value="" disabled hidden>Department</option>
-                <option value="COT">College of Technology</option>
-                <option value="CITHM">College of International Tourism and Hospitality Management</option>
-                <option value="CAS">College of Arts and Sciences</option>
-                <option value="CBA">College of Business and Arts</option>
-                <option value="COL">COL</option>
+                <option value="College of Technology">College of Technology</option>
+                <option value="College of International Tourism and Hospitality Management">College of International Tourism and Hospitality Management</option>
+                <option value="College of Arts and Sciences">College of Arts and Sciences</option>
+                <option value="College of Business Administration">College of Business Administration</option>
+                <option value="College of Law">College of Law</option>
               </Select>
               <Button color="white" type="submit" colorScheme="red" size="md" width="full">
                 Register

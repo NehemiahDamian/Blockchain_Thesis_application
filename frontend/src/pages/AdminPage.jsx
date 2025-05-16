@@ -38,11 +38,17 @@ function AdminPage() {
   // colleges for dropdowns
   const colleges = [
       { value: "", label: "Select College" },
-      { value: "COT", label: "College of Technology" },
-      { value: "CAS", label: "College of Arts and Sciences" },
-      { value: "CBA", label: "College of Business Administration" },
-      { value: "CIR", label: "College of International Relations" },
-      { value: "CITHM", label: "College of International Tourism and Hospitality Management" },
+      // { value: "COT", label: "College of Technology" },
+      // { value: "CAS", label: "College of Arts and Sciences" },
+      // { value: "CBA", label: "College of Business Administration" },
+      // { value: "CIR", label: "College of International Relations" },
+      // { value: "CITHM", label: "College of International Tourism and Hospitality Management" },
+      { value: "College of Technology", label: "College of Technology" },
+      { value: "College of International Tourism and Hospitality Management", label: "College of International Tourism and Hospitality Management" },
+      { value: "College of Arts and Sciences", label: "College of Arts and Sciences" },
+      { value: "College of Business Administration", label: "College of Business Administration" },
+      { value: "College of Law", label: "College of Law" },
+
   ];
 
   const handleSubmit = async (e) => {
