@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Box, Flex, Text, Button, Image, VStack, HStack, useDisclosure, 
     Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton, FormControl, 
-    FormLabel, Input, Radio, RadioGroup, useToast, Icon, Grid, GridItem, Heading, Badge } from '@chakra-ui/react';
+    FormLabel, Input, Radio, RadioGroup, useToast, Icon, Grid, GridItem, Heading, Badge, Spinner } from '@chakra-ui/react';
 import { FaHome, FaCog, FaSignOutAlt, FaPlus, FaFileAlt, FaCloudUploadAlt, FaCheckCircle, FaExclamationCircle } from 'react-icons/fa';
 import { useAuthStore } from "../store/useAuthStore";
 import { useStudentStore } from '../store/useStudenStore';
@@ -14,6 +14,7 @@ function StudentPage() {
     const [sidebarExpanded, setSidebarExpanded] = useState(false);
     const { isOpen, onOpen, onClose } = useDisclosure();
     const toast = useToast();
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // File upload state
     const paymentFileRef = useRef(null);
@@ -86,6 +87,8 @@ function StudentPage() {
         e.preventDefault();
         
         try {
+            setIsSubmitting(true);
+
             // Convert files to Base64
             const formData = new FormData();
             formData.append('reason', purpose === 'other' ? otherPurposeText : purpose);
@@ -96,6 +99,7 @@ function StudentPage() {
             await postStudentDetails(formData );
             await getMyRequest(); // Refresh the requests
             
+            setIsSubmitting(false);
             onClose();
             toast({ 
                 title: 'Request submitted!', 
@@ -117,6 +121,7 @@ function StudentPage() {
             
         } catch (error) {
             console.error('Submission error:', error);
+            setIsSubmitting(false);
             toast({
                 title: 'Error submitting request',
                 description: error.message || 'Please try again',
@@ -262,7 +267,7 @@ function StudentPage() {
                                             </Box>
                                             <Badge 
                                                 colorScheme={
-                                                    request.status === 'approved' ? 'green' : 
+                                                    request.status === 'accepted' ? 'green' : 
                                                     request.status === 'rejected' ? 'red' : 'yellow'
                                                 }
                                                 px={3}
@@ -318,7 +323,7 @@ function StudentPage() {
                             _hover={{ bg: "#6f0b0b" }}
                             w="50%"
                         >
-                            Okay
+                            OK
                         </Button>
                     </ModalBody>
                 </ModalContent>
@@ -437,7 +442,7 @@ function StudentPage() {
                                                     ref={paymentFileRef}
                                                     style={{ display: 'none' }}
                                                     onChange={(e) => handleFileChange(e, setPaymentFile, setPaymentFileName)}
-                                                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                                    accept=".jpg,.jpeg,.png"
                                                     required
                                                 />
                                                 <Button
@@ -455,7 +460,7 @@ function StudentPage() {
                                                 </Text>
                                             </HStack>
                                             <Text fontSize="xs" color="#888" mt={1}>
-                                                Accepted formats: PDF, DOC, DOCX, JPG, PNG (Max 5MB)
+                                                Accepted formats: JPG, JPEG, PNG (Max 5MB)
                                             </Text>
                                         </FormControl>
 
@@ -467,7 +472,7 @@ function StudentPage() {
                                                     ref={affidavitFileRef}
                                                     style={{ display: 'none' }}
                                                     onChange={(e) => handleFileChange(e, setAffidavitFile, setAffidavitFileName)}
-                                                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                                    accept=".jpg,.jpeg,.png"
                                                     required
                                                 />
                                                 <Button
@@ -485,7 +490,7 @@ function StudentPage() {
                                                 </Text>
                                             </HStack>
                                             <Text fontSize="xs" color="#888" mt={1}>
-                                                Accepted formats: PDF, DOC, DOCX, JPG, PNG (Max 5MB)
+                                                Accepted formats: JPG, JPEG, PNG (Max 5MB)
                                             </Text>
                                         </FormControl>
                                     </VStack>
@@ -498,6 +503,7 @@ function StudentPage() {
                                     background="#eee" 
                                     color="#333"
                                     _hover={{ bg: "#ddd" }}
+                                    isDisabled={isSubmitting}
                                 >
                                     Cancel
                                 </Button>
@@ -506,6 +512,10 @@ function StudentPage() {
                                     background="#8b0e0e"
                                     color="white"
                                     _hover={{ bg: "#6f0b0b" }}
+                                    isLoading={isSubmitting}
+                                    loadingText="Submitting, Please Wait..."
+                                    spinner={<Spinner color="white" size="sm" />}
+
                                 >
                                     Submit Request
                                 </Button>

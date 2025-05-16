@@ -244,14 +244,24 @@ function AdminDashboard() {
                     )}
                   </Box>
                   {dept.status && (
+                    <Flex>
                     <Text 
-                      color={dept.status === "Signed" ? "red.500" : "green.500"} 
+                      color={dept.status == "Declined" ? "red.500" : "green.500"} 
+                      fontWeight="bold" 
+                      mr={{ md: "20px" }} 
+                      fontSize="18px"
+                    >
+                      Total Diplomas:
+                    </Text>
+                    <Text 
+                      color={dept.status == "Signed" ? "red.500" : "green.500"} 
                       fontWeight="bold" 
                       mr={{ md: "20px" }} 
                       fontSize="18px"
                     >
                       {dept.status} Diplomas Signed
                     </Text>
+                    </Flex>
                   )}
                   <Button 
                     onClick={() => handleViewDiplomas(dept.department, dept.year)}

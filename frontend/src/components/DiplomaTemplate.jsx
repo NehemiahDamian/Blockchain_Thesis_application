@@ -33,34 +33,6 @@ const expandDepartment = (dept) => {
 
 const displayDepartment = expandDepartment(department);
 
-const getSignaturePosition = () => {
-  if (signerRole === "dean") {
-      return {
-        bottom: "0",
-        left: "20%",
-        top: "70%",
-        transform: "translateX(-50%)"
-      };
-    } else if (signerRole === "registrar") {
-      return {
-        bottom: "0",
-        left: "50%", 
-        top: "76%",
-        transform: "translateX(-50%)"
-      };
-    } else {
-      // Default position if role is not specified
-      return {
-        bottom: "0",
-        left: "20%",
-        top: "70%",
-        transform: "translateX(-50%)"
-      };
-    }
-  };
-const signaturePosition = getSignaturePosition();
-
-
   return (
     <Box
       w="800px"
@@ -172,10 +144,9 @@ const signaturePosition = getSignaturePosition();
               src={deanSignature} 
               alt="Dean Signature" 
               position="absolute"
-              left="20%"
-              top="70%"
-              transform="translateX(-20%)"
-              maxH="90px"
+              top="75%"              
+              left="14%"
+              maxH="60px"
               maxW="100px"
               objectFit="contain"
             />
@@ -188,8 +159,8 @@ const signaturePosition = getSignaturePosition();
                 left="20%"
                 top="73%"
                 transform="translateX(-50%)"
-                maxH="90px"
-                maxW="100px"
+                maxH="100px"
+                maxW="120px"
                 objectFit="contain"
               />
             )
@@ -209,10 +180,9 @@ const signaturePosition = getSignaturePosition();
               src={registrarSignature} 
               alt="registatr Signature" 
               position="absolute"
-              left="50%"
-              top=" 77%"
-              transform="translateX(-50%)"
-              maxH="90px"
+              top="70%"
+              left="46%"
+              maxH="60px"
               maxW="100px"
               objectFit="contain"
             />
@@ -222,10 +192,10 @@ const signaturePosition = getSignaturePosition();
                 src={signature} 
                 alt="Signature" 
                 position="absolute"
+                top="73%"
                 left="50%"
-                top=" 30%"
                 transform="translateX(-50%)"
-                maxH="90px"
+                maxH="60px"
                 maxW="100px"
                 objectFit="contain"
               />

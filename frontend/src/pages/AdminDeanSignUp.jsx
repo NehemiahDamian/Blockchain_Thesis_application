@@ -1,30 +1,48 @@
 import { useState } from "react";
-import { Input, Button, VStack, Box, Heading, Flex, Select } from "@chakra-ui/react";
+import { Input, Button, VStack, Box, Heading, Flex, Select, InputGroup, InputRightElement,
+  Modal,ModalOverlay,ModalContent,ModalHeader,ModalBody,ModalFooter,Text,useDisclosure,IconButton } from "@chakra-ui/react";
 import { useAuthStore } from "../store/useAuthStore.js";
+import { FaEye, FaEyeSlash,} from "react-icons/fa";
+
 
 const AdminSignUpDean = () => {
   const [data, setData] = useState({
-    fullName: "",
+    fullName: "", 
     email: "",
     password: "",
     department: "",
     role:"dean",
   });
 
+  const [showPassword, setShowPassword] = useState(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const { signup } = useAuthStore();
+
+  const handleTogglePassword = () => {
+    setShowPassword(!showPassword);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Dean Data:", data);
     // Add your submit logic here
     signup(data);
+    
+    // opens modal
+    onOpen();
+  };
+
+   const handleCloseModal = () => {
+    onClose();
     setData({
       fullName: "",
       email: "",
       password: "",
       department: "",
-    })
+      role: "dean",
+    });
   };
+
 
   return (
     <Box display="flex" flexDirection="column" gap="20px" p="20px" h="100vh" overflow="hidden">
@@ -69,25 +87,37 @@ const AdminSignUpDean = () => {
                 size="lg"
                 focusBorderColor="red.300"
               />
-              <Input
-                type="text"
-                value={data.password}
-                onChange={(e) => setData({ ...data, password: e.target.value })}
-                placeholder="Password"
-                size="lg"
-                focusBorderColor="red.300"
-              />
+              <InputGroup size="lg">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  value={data.password}
+                  onChange={(e) => setData({ ...data, password: e.target.value })}
+                  placeholder="Password"
+                  size="lg"
+                  focusBorderColor="red.300"
+                />
+                <InputRightElement width="4.5rem">
+                  <IconButton
+                    h="1.75rem"
+                    size="sm"
+                    onClick={handleTogglePassword}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    icon={showPassword ? <FaEyeSlash /> : <FaEye />}
+                    variant="ghost"
+                  />
+                </InputRightElement>
+              </InputGroup>
               <Select
                 value={data.department}
                 onChange={(e) => setData({ ...data, department: e.target.value })}
-                placeholder="Department"
                 size="lg"
                 focusBorderColor="red.300"
               >
-                <option value="COT">COT</option>
-                <option value="CITHM">CITHM</option>
-                <option value="CAS">CAS</option>
-                <option value="CBA">CBA</option>
+                <option value="" disabled hidden>Department</option>
+                <option value="COT">College of Technology</option>
+                <option value="CITHM">College of International Tourism and Hospitality Management</option>
+                <option value="CAS">College of Arts and Sciences</option>
+                <option value="CBA">College of Business and Arts</option>
                 <option value="COL">COL</option>
               </Select>
               <Button color="white" type="submit" colorScheme="red" size="md" width="full">
@@ -97,6 +127,30 @@ const AdminSignUpDean = () => {
           </form>
         </Box>
       </Flex>
+      {/* Success Modal */}
+      <Modal isOpen={isOpen} onClose={handleCloseModal} isCentered>
+        <ModalOverlay />
+        <ModalContent borderRadius="lg" maxW="500px">
+          <ModalHeader bg="green.500" color="white" borderTopRadius="lg">Registration Successful</ModalHeader>
+          <ModalBody py={4}>
+            <Text>You have successfully registered a new Dean account.</Text>
+            <Text mt={2}>
+              Full Name: <strong>{data.fullName}</strong>
+            </Text>
+            <Text>
+              Email: <strong>{data.email}</strong>
+            </Text>
+            <Text>
+              Department: <strong>{data.department}</strong>
+            </Text>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="green" mr={3} onClick={handleCloseModal}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };
