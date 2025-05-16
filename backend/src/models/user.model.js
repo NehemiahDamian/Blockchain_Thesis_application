@@ -32,8 +32,16 @@ const userSchema = new mongoose.Schema(
     sparse: true,
     required: function () { return this.role === "student" }
   },
-  
-  publicKey: 
+
+  resetToken: {
+  type: String,
+  default: null,
+},
+resetTokenExpiry: {
+  type: Date,
+  default: null,
+},
+   publicKey: 
   { type: String, 
     sparse: true, 
     required: 

@@ -27,7 +27,7 @@ import {
 } from 'react-icons/fa';
 
 function StudentSettings() {
-  const { authUser, logout } = useAuthStore();
+  const { authUser, logout, resetPasswordatLoggedIn } = useAuthStore();
   const toast = useToast();
   const { colorMode } = useColorMode();
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
@@ -66,7 +66,7 @@ function StudentSettings() {
     }
   };
   
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // Form validation logic
     if (formData.newPassword !== formData.confirmPassword) {
@@ -79,6 +79,8 @@ function StudentSettings() {
       });
       return;
     }
+
+    await resetPasswordatLoggedIn(formData.currentPassword, formData.newPassword);
     
     // Submit form data
     toast({
@@ -286,6 +288,7 @@ function StudentSettings() {
                   name="fullname" 
                   placeholder="Enter your full name"
                   value={formData.fullname}
+                  readOnly
                   onChange={handleInputChange}
                 />
               </FormControl>
@@ -299,47 +302,10 @@ function StudentSettings() {
                   placeholder="Enter your student ID"
                   value={formData.studentId}
                   onChange={handleInputChange}
+                  readOnly
                 />
               </FormControl>
-              
-              <FormControl id="username" {...formControlProps}>
-                <FormLabel {...formLabelProps}>Username</FormLabel>
-                <Input 
-                  {...inputProps}
-                  type="text" 
-                  name="username" 
-                  placeholder="Enter your username"
-                  value={formData.username}
-                  onChange={handleInputChange}
-                />
-              </FormControl>
-            </SimpleGrid>
-            
-            {/* Second Row */}
-            <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4} mb={4}>
-              <FormControl id="dob" {...formControlProps}>
-                <FormLabel {...formLabelProps}>Date of Birth</FormLabel>
-                <Input 
-                  {...inputProps}
-                  type="date" 
-                  name="dob" 
-                  value={formData.dob}
-                  onChange={handleInputChange}
-                />
-              </FormControl>
-              
-              <FormControl id="college" {...formControlProps}>
-                <FormLabel {...formLabelProps}>College</FormLabel>
-                <Input 
-                  {...inputProps}
-                  type="text" 
-                  name="college" 
-                  placeholder="Enter your college"
-                  value={formData.college}
-                  onChange={handleInputChange}
-                />
-              </FormControl>
-              
+
               <FormControl id="email" {...formControlProps}>
                 <FormLabel {...formLabelProps}>Email Address</FormLabel>
                 <Input 
@@ -349,9 +315,14 @@ function StudentSettings() {
                   placeholder="Enter your email address"
                   value={formData.email}
                   onChange={handleInputChange}
+                  readOnly
                 />
               </FormControl>
+              
+        
             </SimpleGrid>
+            
+          
             
             {/* Third Row - Password Section */}
             <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4} mb={6}>
@@ -391,6 +362,31 @@ function StudentSettings() {
                 />
               </FormControl>
             </SimpleGrid>
+           
+            <SimpleGrid marginTop={-8} marginLeft={-8} columns={{ base: 1, md: 3 }} spacing={4} mb={4}>
+
+               <Text 
+            marginLeft={10} // Added left margin
+              as="a" 
+              href="/forgotpassword" 
+              display="inline-block" // Changed to inline-block
+              color="blue.500" 
+              fontSize="sm"
+              textDecoration="underline"
+              _hover={{ 
+                color: "blue.600",
+                textDecoration: "none"
+              }}
+              transition="color 0.2s"
+              mt={1} // Added top margin
+              textAlign="left" // Explicit left alignment
+              width="full" // Takes full container width
+            >
+              Forgot Password?
+            </Text>
+              </SimpleGrid>
+
+              
             
             {/* Action Buttons */}
             <Flex justify="flex-end" gap={4}>

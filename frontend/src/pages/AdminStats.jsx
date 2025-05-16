@@ -1,36 +1,20 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
-  Box, Heading, Text, Button, Flex, Menu, MenuButton, MenuList, MenuItem, 
-  Container, useDisclosure, useBreakpointValue, SimpleGrid, Icon
+  Box, Heading, Text, Flex, Container, useBreakpointValue, 
+  SimpleGrid, Icon, Spinner, Alert, AlertIcon 
 } from '@chakra-ui/react';
 import { 
-  FaRegFileAlt, FaRegFileExcel, FaChevronDown, FaGraduationCap, 
-  FaChartBar, FaChartPie, FaUniversity, FaCalendarAlt, FaClipboardList 
+  FaGraduationCap, FaChartBar, FaChartPie, 
+  FaUniversity, FaCalendarAlt, FaClipboardList 
 } from 'react-icons/fa';
 import { PieChart, Pie, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell, ResponsiveContainer } from 'recharts';
+import { useAdminStore } from '../store/useAdminStore.js';
 
 function AdminDashboard() {
   const navigate = useNavigate();
   const isMobile = useBreakpointValue({ base: true, md: false });
-
-  // Sample data
-  const data = {
-    totalDiplomas: 3,
-    departmentStats: [
-      { _id: "CBA", count: 1 },
-      { _id: "COT", count: 2 }
-    ],
-    yearStats: [
-      { _id: "2024-2025", count: 2 },
-      { _id: "2025-2026", count: 1 }
-    ],
-    numberofRequest: [
-      { status: "accepted", count: 1 },
-      { status: "declined", count: 0 },
-      { status: "pending", count: 2 }
-    ]
-  };
+  const { getStats, statistics, isLoading, error } = useAdminStore();
 
   // Colors for charts
   const COLORS = ['#CE3435', '#8C0001', '#be1010', '#FF8042'];
@@ -39,6 +23,10 @@ function AdminDashboard() {
     declined: '#E53E3E',
     pending: '#DD6B20'
   };
+
+  useEffect(() => {
+    getStats();
+  }, [getStats]);
 
   // Card component
   const MetricCard = ({ icon, title, value, description }) => (
@@ -89,6 +77,29 @@ function AdminDashboard() {
     </Container>
   );
 
+  if (isLoading) {
+    return (
+      <Flex justify="center" align="center" h="100vh">
+        <Spinner size="xl" color="#CE3435" />
+      </Flex>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box p={4}>
+        <Alert status="error" borderRadius="md">
+          <AlertIcon />
+          Error loading dashboard data: {error.message}
+        </Alert>
+      </Box>
+    );
+  }
+
+  if (!statistics) {
+    return null;
+  }
+
   return (
     <Box display="flex" flexDirection="column" gap="20px" p="20px" h="100vh" overflowY="auto">
       {/* Header */}
@@ -107,19 +118,19 @@ function AdminDashboard() {
         <MetricCard 
           icon={FaGraduationCap}
           title="Total Diplomas"
-          value={data.totalDiplomas}
+          value={statistics.totalDiplomas || 0}
           description="All diploma requests"
         />
         <MetricCard 
           icon={FaClipboardList}
           title="Accepted Requests"
-          value={data.numberofRequest.find(r => r.status === 'accepted')?.count || 0}
+          value={statistics.numberofRequest?.find(r => r.status === 'accepted')?.count || 0}
           description="Approved diplomas"
         />
         <MetricCard 
           icon={FaClipboardList}
-          title="Pending Requests"
-          value={data.numberofRequest.find(r => r.status === 'pending')?.count || 0}
+          title="Sent sessions requests"
+          value={statistics.session?.length || 0}
           description="Awaiting review"
         />
       </SimpleGrid>
@@ -132,7 +143,7 @@ function AdminDashboard() {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={data.departmentStats}
+                  data={statistics.departmentStats || []}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
@@ -142,7 +153,7 @@ function AdminDashboard() {
                   nameKey="_id"
                   label={({ _id, percent }) => `${_id}: ${(percent * 100).toFixed(0)}%`}
                 >
-                  {data.departmentStats.map((entry, index) => (
+                  {(statistics.departmentStats || []).map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
@@ -158,7 +169,7 @@ function AdminDashboard() {
           <ChartCard title="Year Distribution" icon={FaCalendarAlt}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
-                data={data.yearStats}
+                data={statistics.yearStats || []}
                 margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
@@ -167,7 +178,7 @@ function AdminDashboard() {
                 <Tooltip />
                 <Legend />
                 <Bar dataKey="count" fill="#8884d8" name="Diploma Count">
-                  {data.yearStats.map((entry, index) => (
+                  {(statistics.yearStats || []).map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Bar>
@@ -185,7 +196,7 @@ function AdminDashboard() {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={data.numberofRequest}
+                  data={statistics.numberofRequest || []}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
@@ -195,7 +206,7 @@ function AdminDashboard() {
                   nameKey="status"
                   label={({ status, percent }) => `${status}: ${(percent * 100).toFixed(0)}%`}
                 >
-                  {data.numberofRequest.map((entry, index) => (
+                  {(statistics.numberofRequest || []).map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={statusColors[entry.status]} />
                   ))}
                 </Pie>
@@ -211,7 +222,7 @@ function AdminDashboard() {
           <ChartCard title="Department Comparison" icon={FaChartBar}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
-                data={data.departmentStats}
+                data={statistics.departmentStats || []}
                 margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
@@ -220,7 +231,7 @@ function AdminDashboard() {
                 <Tooltip />
                 <Legend />
                 <Bar dataKey="count" name="Diploma Count">
-                  {data.departmentStats.map((entry, index) => (
+                  {(statistics.departmentStats || []).map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Bar>

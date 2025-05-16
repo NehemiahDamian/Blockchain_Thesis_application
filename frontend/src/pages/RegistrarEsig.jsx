@@ -7,7 +7,7 @@ import { Box, Flex, Heading, Text, FormControl, FormLabel, Input, Button,
   useColorModeValue, Container, SimpleGrid, FormHelperText, useToast, Image } from "@chakra-ui/react";
 
 const RegistrarEsig= () => {
-  const { authUser} = useAuthStore();
+  const { authUser, resetPasswordatLoggedIn} = useAuthStore();
   const {addEsignature} = useRegistrarStore();
   const [selectedImg, setSelectedImg] = useState(null);
   const toast = useToast(); // for Notifications
@@ -54,29 +54,46 @@ const RegistrarEsig= () => {
 
 
   // Submit with validation
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (formData.newPassword !== formData.confirmPassword) {
-      toast({
-        title: "Passwords don't match",
-        description: "New password and confirm password must match",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
-      return;
-    }
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  
+  // 1. Validate password match
+  if (formData.newPassword !== formData.confirmPassword) {
+    toast({
+      title: "Passwords don't match",
+      description: "New password and confirm password must match",
+      status: "error",
+      duration: 3000,
+      isClosable: true,
+    });
+    return; // Important: Return early on error
+  }
 
-    // Submit form data notification
+  try {
+    // 2. Attempt password change
+    await resetPasswordatLoggedIn(formData.currentPassword, formData.newPassword);
+    
+    // 3. Only show success if password change succeeded
     toast({
       title: "Changes saved",
-      description: "Your profile has been updated successfully",
+      description: "Your password has been updated successfully",
       status: "success",
       duration: 3000,
       isClosable: true,
     });
-    console.log("Form submitted:", formData);
-  };
+    
+    // 4. Reset form fields
+    setFormData({
+      ...formData,
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    });
+
+  } catch (error) {
+    console.error("Error updating password:", error);
+  }
+};
 
   const bgColor = useColorModeValue('white', 'gray.800');
   const headerBg = useColorModeValue('linear(to-l, #be1010, #8C0001)', 'linear(to-l, #a10c0c, #640505)');
@@ -142,7 +159,7 @@ const RegistrarEsig= () => {
                   name="fullName" 
                   placeholder="Enter your full name"
                   value={formData.fullName}
-                  onChange={handleInputChange}
+                  isReadOnly
                 />
               </FormControl>
               
@@ -158,48 +175,72 @@ const RegistrarEsig= () => {
                   name="email" 
                   placeholder="Enter your email"
                   value={formData.email}
-                  onChange={handleInputChange}
+                  isReadOnly
                 />
               </FormControl>
             </SimpleGrid>
             
-            {/* Second Row - Password Fields */}
-            <SimpleGrid columns={{ base: 1, md: 3 }} spacing={5} mb={6}>
-              <FormControl id="currentPassword">
-                <FormLabel fontWeight="semibold">Current Password</FormLabel>
-                <Input 
-                  type="password" 
-                  name="currentPassword" 
-                  placeholder="Enter current password"
-                  value={formData.currentPassword}
-                  onChange={handleInputChange}
-                />
-              </FormControl>
-              
-              <FormControl id="newPassword">
-                <FormLabel fontWeight="semibold">New Password</FormLabel>
-                <Input 
-                  type="password" 
-                  name="newPassword" 
-                  placeholder="Enter new password"
-                  value={formData.newPassword}
-                  onChange={handleInputChange}
-                />
-              </FormControl>
-              
-              <FormControl id="confirmPassword">
-                <FormLabel fontWeight="semibold">Confirm New Password</FormLabel>
-                <Input 
-                  type="password" 
-                  name="confirmPassword" 
-                  placeholder="Confirm new password"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                />
-              </FormControl>
-            </SimpleGrid>
+        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={5} mb={6}>
+          {/* Current Password Field */}
+          <FormControl id="currentPassword">
+            <FormLabel fontWeight="semibold">Current Password</FormLabel>
+            <Input 
+              type="password" 
+              name="currentPassword" 
+              placeholder="Enter current password"
+              value={formData.currentPassword}
+              onChange={handleInputChange}
+            />
+          </FormControl>
 
-            {/* E-Signature Row with Preview */}
+          {/* New Password Field */}  
+          <FormControl id="newPassword">
+            <FormLabel fontWeight="semibold">New Password</FormLabel>
+            <Input 
+              type="password" 
+              name="newPassword" 
+              placeholder="Enter new password"
+              value={formData.newPassword}
+              onChange={handleInputChange}
+            />
+          </FormControl>
+
+          {/* Confirm Password Field with Forgot Link */}
+          <FormControl id="confirmPassword">
+            <FormLabel fontWeight="semibold">Confirm New Password</FormLabel>
+            <Input 
+              type="password" 
+              name="confirmPassword" 
+              placeholder="Confirm new password"
+              value={formData.confirmPassword}
+              onChange={handleInputChange}
+              mb={1} // Reduced bottom margin
+            />
+          </FormControl>
+        </SimpleGrid>
+
+            <SimpleGrid marginTop={-8} marginLeft={-5} columns={{ base: 1, md: 3 }} spacing={5} mb={6}>
+
+                   <Text 
+            marginLeft={10} // Added left margin
+              as="a" 
+              href="/forgotpassword" 
+              display="inline-block" // Changed to inline-block
+              color="blue.500" 
+              fontSize="sm"
+              textDecoration="underline"
+              _hover={{ 
+                color: "blue.600",
+                textDecoration: "none"
+              }}
+              transition="color 0.2s"
+              mt={1} // Added top margin
+              textAlign="left" // Explicit left alignment
+              width="full" // Takes full container width
+            >
+              Forgot Password?
+            </Text>
+              </SimpleGrid>
             <Flex 
               direction={{ base: 'column', md: 'row' }} 
               gap={6} 

@@ -4,7 +4,8 @@ import StudentRequest from "../models/student.request.model.js";
 import {SignedDiploma} from "../models/signedDiploma.model.js"
 import { DiplomaSession } from "../models/diploma.session.model.js";
 import { verificationModel } from "../models/verification.model.js";
-
+import crypto from 'crypto';
+import nodemailer from 'nodemailer';
 
 
 export const getSignedDiplomaByDepartment = async (req, res) => {
@@ -315,7 +316,8 @@ export const getStatistics = async (req, res) => {
 
     const acceptedRequest = numberofRequest.find(item => item._id === "accepted")?.count || 0;  
     const declinedRequest = numberofRequest.find(item => item._id === "declined")?.count || 0;  
-    const pendingRequest = numberofRequest.find(item => item._id === "pending")?.count || 0;
+    // const pendingRequest = numberofRequest.find(item => item._id === "pending")?.count || 0;
+    const session = await DiplomaSession.countDocuments();
     
     res.json({
       totalDiplomas,
@@ -324,8 +326,8 @@ export const getStatistics = async (req, res) => {
       numberofRequest: [
         { status: "accepted", count: acceptedRequest },
         { status: "declined", count: declinedRequest },
-        { status: "pending", count: pendingRequest }
-      ]
+      ],
+      session: session,
       
     });
   } catch (error) {
