@@ -276,7 +276,7 @@ function VerifierPage() {
                   mb={3}
                 >
                           {verificationResult && (
-              <div style={{ marginTop: "10px" }}>
+              <div style={{ marginTop: "-20px" }}>
                 <p>
                   <strong>Status:</strong>{" "}
                   {verificationResult.isValid ? "Valid" : "Invalid"}

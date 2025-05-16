@@ -299,7 +299,7 @@ const handleVerifyDiploma = async () => {
                 >
                   {isProcessing ? 'Processing...' : 'Generate All Diplomas'}
                 </Button>
-                <Button
+                {/* <Button
                   onClick={processAllStudents}
                   isDisabled={isProcessing}
                   size="sm"
@@ -308,8 +308,8 @@ const handleVerifyDiploma = async () => {
                   color="white"
                   _hover={{ bg: "#be1010" }}
                 >
-                  {isProcessing ? 'Processing...' : 'Initialize & Generate'}
-                </Button>
+                  {isProcessing ? 'Processing...' : 'Generate'}
+                </Button> */}
 
 
                 <Link to="/admin/dashboard">

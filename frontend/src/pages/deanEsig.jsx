@@ -7,7 +7,7 @@ import { Box, Flex, Heading, Text, FormControl, FormLabel, Input, Button,
   useColorModeValue, Container, SimpleGrid, FormHelperText, useToast, Image } from "@chakra-ui/react";
 
 const DeanEsig= () => {
-  const { authUser} = useAuthStore();
+  const { authUser, resetPasswordatLoggedIn} = useAuthStore();
   const {addEsignature} = useDeanStore();
   const [selectedImg, setSelectedImg] = useState(null);
   const toast = useToast(); // for Notifications
@@ -47,13 +47,13 @@ const DeanEsig= () => {
   });
 
   // Handles edit profile form submission
-  const handleInputChange = (e) => {
+  const handleInputChange =  (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
   // Submit with validation (Hindi pa functional pagsave dito mo nalang ilagay)
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.newPassword !== formData.confirmPassword) {
       toast({
@@ -65,6 +65,8 @@ const DeanEsig= () => {
       });
       return;
     }
+
+    await resetPasswordatLoggedIn(formData.currentPassword, formData.newPassword);
 
   // Submit form data notification
   toast({
@@ -144,7 +146,7 @@ const DeanEsig= () => {
                   name="fullName" 
                   placeholder="Enter your full name"
                   value={formData.fullName}
-                  onChange={handleInputChange}
+                  readOnly
                 />
               </FormControl>
               
@@ -160,7 +162,7 @@ const DeanEsig= () => {
                   name="email" 
                   placeholder="Enter your email"
                   value={formData.email}
-                  onChange={handleInputChange}
+                  readOnly
                 />
               </FormControl>
             </SimpleGrid>
@@ -199,7 +201,33 @@ const DeanEsig= () => {
                   onChange={handleInputChange}
                 />
               </FormControl>
+               
             </SimpleGrid>
+
+            <SimpleGrid marginTop={-5} marginLeft={3} columns={{ base: 1, md: 3 }} spacing={5} mb={6}>
+
+                <Text 
+            marginLeft={2} // Added left margin
+            margintop={-2} // Added bottom margin
+              as="a" 
+              href="/forgotpassword" 
+              display="inline-block" // Changed to inline-block
+              color="blue.500" 
+              fontSize="sm"
+              textDecoration="underline"
+              _hover={{ 
+                color: "blue.600",
+                textDecoration: "none"
+              }}
+              transition="color 0.2s"
+              mt={1} // Added top margin
+              textAlign="left" // Explicit left alignment
+              width="full" // Takes full container width
+            >
+              Forgot Password?
+            </Text>
+
+              </SimpleGrid>
 
             {/* E-Signature Row with Preview */}
             <Flex 

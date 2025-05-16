@@ -31,6 +31,7 @@ import VerifierPage from "./pages/VerifierPage.jsx";
 import AdminArchives from "./pages/Archives.jsx";
 import FilteredArchive from "./pages/FilteredArchive.jsx";
 import ArchiveBydepartment from "./pages/ArchiveByDepartment.jsx";
+import ResetPasswordPage from "./pages/ResetPassword.jsx";
 
 
 function App() {
@@ -70,10 +71,7 @@ function App() {
         element={!authUser ? <StudentSignup /> : <Navigate to="/student/homepage" />} 
       />
 
-      <Route 
-        path="/student/forgotpass" 
-        element={!authUser ? <StudentForgotPassword /> : <Navigate to="/student/homepage" />} 
-      />
+     
       
       <Route 
       path="/student/login" 
@@ -136,6 +134,9 @@ function App() {
 
       {/* registrar route */}
 
+      {/* <Route path = "/registrar/signup" element = {!authUser ? <AdminSignUpRegistrar/> : <Navigate to={location.state?.from || "/registrar/dboard" } />}/> */}
+
+
       <Route path = "/registrar/login" element = {!authUser ? <RegistrarLogin/> : <Navigate to={location.state?.from || "/registrar/dboard" } />}/>
 
       <Route path="/registrar/dboard" element={authUser?.role==="registrar" ? <RegistrarDboard/> : <Navigate to = "/registrar/login" state={{from: "/registrar/dboard"}}/>} /> 
@@ -154,7 +155,14 @@ function App() {
       <Route path = "/VerifierSide" element={<VerifierHomePage/>}/>
 
 
-
+       <Route 
+        path="/forgotpassword" 
+        element={ <StudentForgotPassword /> } 
+      />
+      <Route 
+        path="/reset-password" 
+        element={ <ResetPasswordPage /> }
+      />
 
 
 

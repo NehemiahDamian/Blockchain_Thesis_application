@@ -8,6 +8,7 @@ export const useAuthStore = create((set) => ({
   isSigningUp: false,
   isCheckingAuth: false, // Added missing state
   isLoggingIn: false,
+  message: null,
 
 
   checkAuth: async () => {
@@ -67,5 +68,54 @@ export const useAuthStore = create((set) => ({
         error: error?.response?.data?.message || "Logout failed" 
       };
     }
+  },
+
+  forgotPassword  : async (email) => {
+    set({ isLoggingIn: true });
+    try {
+      const res = await axiosInstances.post("/auth/forgot-password", { email });
+      // console.log("Password reset email sent:", res.data);
+      // toast.success("Password reset email sent");
+      set({message:"Password Reset Email Sent" })
+      set({messageBody: " If you don't receive an email within a few minutes, please check your spam folder."})
+    } catch (error) {
+      console.log(error.response.data.message);
+      set({message: "Password Reset Failed", messageBody: "Please ensure the email is registered."});
+    } finally {
+      set({ isLoggingIn: false });
+    }
+  },
+
+resetPassword: async (token, newPassword) => {
+  set({ isLoggingIn: true });
+  try {
+    const res = await axiosInstances.post("/auth/reset-password", {
+      token,        // Include token
+      newPassword   // Include newPassword (not 'password')
+    });
+    return res.data;
+  } catch (error) {
+    const message = error.response?.data?.message || "Password reset failed";
+    throw error; // Make sure to throw so the error reaches your component
+  } finally {
+    set({ isLoggingIn: false });
   }
+},
+resetPasswordatLoggedIn: async (currentPassword, newPassword) => {
+  set({ isLoggingIn: true });
+  try {
+    const res = await axiosInstances.patch("/auth/changepassword", {
+      currentPassword,
+      newPassword
+    });
+    return res.data;
+  } catch (error) {
+    const message = error.response?.data?.message || "Password reset failed";
+    throw error; 
+  } finally {
+    set({ isLoggingIn: false });
+  }
+},
+
+
 }));  

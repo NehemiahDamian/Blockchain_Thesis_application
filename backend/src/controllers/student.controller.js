@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import User from "../models/user.model.js";
 import StudentRequest from "../models/student.request.model.js";
 import cloudinary from "../lib/cloudinary.js";
-
+import { AuditLogs } from "../models/audit.logs.model.js";
 export const requestDiploma = async (req, res) => {
   try {
     const { _id: studentId } = req.user;
@@ -67,6 +67,18 @@ export const requestDiploma = async (req, res) => {
       affidavitOfLoss: affidavitResult.secure_url,
       status: "pending",
     });
+
+    // await AuditLogs.create({
+    //   user: studentId,
+    //   action: "Request Diploma",
+    //   details: {
+    //     requestId: newRequest._id,
+    //     reason,
+    //     paymentReceipt: paymentReceiptResult.secure_url,
+    //     affidavitOfLoss: affidavitResult.secure_url,
+    //   },
+    //   userRole: user.role
+    // });
 
     return res.status(201).json({
       success: true,
