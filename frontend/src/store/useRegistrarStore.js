@@ -91,7 +91,7 @@ export const useRegistrarStore = create((set) => ({
     students,
     esignatures 
   });
-  return res.data; // Let errors throw naturally
+  return res.data; 
 },
   
 }));
