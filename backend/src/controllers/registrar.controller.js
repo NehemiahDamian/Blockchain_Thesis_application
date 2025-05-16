@@ -3,7 +3,7 @@ import crypto from "crypto"
 import { DiplomaSession } from "../models/diploma.session.model.js";
 import cloudinary from "../lib/cloudinary.js";
 import { SignedDiploma } from "../models/signedDiploma.model.js"; // import SignedDiploma from "../models/signedDiploma.model.js";
-
+import { AuditLogs } from "../models/audit.logs.model.js";
 
 export const getSignedDiploma = async (req, res) => {
   try {
@@ -52,7 +52,16 @@ export const getSignedDiplomaByDepartment = async (req, res) => {
     if (!signedDiplomas || signedDiplomas.length === 0) {
       return res.status(404).json({ message: "No signed diplomas found" });
     }
-
+    // await AuditLogs.create({
+    //   user: req.user.fullName,
+    //   action: "getSignedDiplomaByDepartment",
+    //   timestamp: new Date(),
+    //   details: {
+    //     department,
+    //     expectedYearToGraduate
+    //   },
+    //   userRole: req.user.role,
+    // });
 
     return res.status(200).json(signedDiplomas);
   } catch (error) {
@@ -74,6 +83,17 @@ export const addEsignature = async (req, res) => {
       const updatedUser = await User.findByIdAndUpdate(userId, 
         {esignature:uploadResponse.secure_url},
         {new:true})
+
+        // await AuditLogs.create({
+        //   user: req.user.fullName,
+        //   action: "getSignedDiplomaByDepartment",
+        //   timestamp: new Date(),
+        //   details: {
+        //     department,
+        //     expectedYearToGraduate
+        //   },
+        //   userRole: req.user.role,
+        // });
     
         res.status(200).json(updatedUser)
       
@@ -102,18 +122,34 @@ export const getEsignature = async (req, res) =>{
 
 
 export const digitalSignature = async (req, res) => {
-  const { students, esignatures } = req.body;
-  const privateKey = req.user.privateKey;
-
-  if (!students || students.length === 0) {
-    return res.status(400).json({ message: "No students found" });
-  }
-
-  if (!privateKey) {
-    return res.status(401).json({ message: "Dean's private key is missing." });
-  }
-
   try {
+    const { students, esignatures } = req.body;
+    const privateKey = req.user.privateKey;
+
+    if (!students || students.length === 0) {
+      return res.status(400).json({ message: "No students found" });
+    }
+
+    if (!privateKey) {
+      return res.status(401).json({ message: "Dean's private key is missing." });
+    }
+
+    const studentsWithExistingSignatures = await SignedDiploma.find({
+      _id: { $in: students.map(s => s._id) },
+      registrarDigitalSignature: { $exists: true }
+    });
+
+    if (studentsWithExistingSignatures.length > 0) {
+      return res.status(400).json({
+        message: `${studentsWithExistingSignatures.length} students already have registrar signatures`,
+        students: studentsWithExistingSignatures.map(student => ({
+          id: student.idNumber || student._id,
+          name: student.fullName,
+          existingRegistrarSignature: true
+        }))
+      });
+    }
+
     const updateOperations = students.map((element) => {
       const sign = crypto.createSign("SHA256");
       const contentToSign = `${element.fullName}-${element.idNumber}-${element.email}`;
@@ -121,10 +157,9 @@ export const digitalSignature = async (req, res) => {
       sign.end();
       const digitalSignature = sign.sign(privateKey, "hex");
 
-      // Create update operation for each student
       return {
         updateOne: {
-          filter: { _id: element._id }, // Assuming each student object has an _id
+          filter: { _id: element._id },
           update: {
             $set: {
               registrarDigitalSignature: digitalSignature,
@@ -136,21 +171,23 @@ export const digitalSignature = async (req, res) => {
       };
     });
 
-    // Perform bulk update
     const result = await SignedDiploma.bulkWrite(updateOperations);
 
     res.status(200).json({
+      success: true,
       message: "Diplomas updated with signatures successfully",
       data: result
     });
+
   } catch (error) {
     console.error("Signing error:", error.message);
-    return res.status(500).json({ message: "Internal server error" });
+    const status = error.status || 500;
+    res.status(status).json({ 
+      success: false,
+      message: error.message || "Internal server error" 
+    });
   }
-
-}
-
-
+};
 
 
 

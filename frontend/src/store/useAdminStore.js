@@ -17,7 +17,8 @@ export const useAdminStore = create((set) => ({
   departmentYears:[],
   allStudent:[],
   departmentsArr:[],
-
+statistics: {},
+  
 
 
     studentDetails: JSON.parse(sessionStorage.getItem("studentDetails") || "[]"),
@@ -57,7 +58,6 @@ export const useAdminStore = create((set) => ({
     },
   
 
-  // Check diplomas for a specific department and year
   checkDiplomas: async (department, year) => {
     try {
       const response = await axiosInstances.get("/admin/checkDiploma", {
@@ -90,7 +90,6 @@ export const useAdminStore = create((set) => ({
     }
   },
 
-  // Get all diploma requests
   getAllRequest: async () => {
     try {
       const response = await axiosInstances.get("/admin/getDiplomaRequest");
@@ -105,7 +104,6 @@ export const useAdminStore = create((set) => ({
     }
   },
 
-  // Accept a specific diploma request with reason
   acceptRequest: async (pid, reasonforAction) => {
     try {
       if (!pid) throw new Error("PID is required");
@@ -117,7 +115,6 @@ export const useAdminStore = create((set) => ({
     }
   },
 
-  // Reject a specific diploma request with reason
   RejectRequest: async (pid, reasonforAction) => {
     try {
       if (!pid) throw new Error("PID is required");
@@ -195,4 +192,18 @@ export const useAdminStore = create((set) => ({
       return false;
     }
   },
+
+  getStats: async () =>{
+    try {
+      const response = await axiosInstances.get("/admin/statistics");
+   
+        console.log("Statistics fetched: ", response.data);
+        set({ statistics: response.data });
+      
+      
+    } catch (error) {
+      console.error("Error getting statistics:", error.message);
+      return false;
+    }
+  }
 }));

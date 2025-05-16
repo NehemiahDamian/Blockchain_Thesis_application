@@ -98,6 +98,8 @@ function ViewDiplomasPage() {
     });
   };
 
+
+
   // Filter students based on search
   const filteredStudents = studentDetails
   .filter(student => student.fullName.toLowerCase().includes(searchTerm.toLowerCase()));

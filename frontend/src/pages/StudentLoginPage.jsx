@@ -66,7 +66,6 @@ function StudentLoginPage() {
       data={data}
       setData={setData}
       handleSubmit={handleSubmit}
-      additionalElements={additionalElements}
       errorMessage={errorMessage}
 
     />

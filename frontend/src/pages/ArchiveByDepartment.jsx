@@ -375,7 +375,7 @@ function ArchiveBydepartment() {
         mt={4}
       >
         <HStack spacing={3} width={{ base: "100%", md: "auto" }} wrap={{ base: "wrap", md: "nowrap" }}>
-          <Select
+          {/* <Select
             value={selectedCollege}
             onChange={handleCollegeChange}
             placeholder="Select College"
@@ -387,8 +387,8 @@ function ArchiveBydepartment() {
             {colleges.map(college => (
               <option key={college} value={college}>{college}</option>
             ))}
-          </Select>
-          
+          </Select> */}
+{/*           
           <Select
             value={selectedYear}
             onChange={handleYearChange}
@@ -401,7 +401,7 @@ function ArchiveBydepartment() {
             {years.map(year => (
               <option key={year} value={year}>{year}</option>
             ))}
-          </Select>
+          </Select> */}
           
           <Input
             placeholder="Search by name, program, token..."

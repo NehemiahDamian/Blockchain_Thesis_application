@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Box, Heading, Button, Flex, Input,TableContainer, Table, Thead, 
-  Tbody, Tr, Th, Td, Icon,HStack,Link,Text,Badge,useColorModeValue,Tooltip
+  Tbody, Tr, Th, Td, Icon,HStack,Link,Text,Badge,useColorModeValue,Tooltip, Select, FormControl
 } from '@chakra-ui/react';
 import { FaSort, FaSortUp, FaSortDown, FaPrint, FaEye } from 'react-icons/fa';
 import { useEffect, useState, useMemo, useCallback , useRef } from "react";
@@ -16,7 +16,10 @@ function AdminStudentRequest() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [isPrinting, setIsPrinting] = useState(false);
+  const [monthFilter, setMonthFilter] = useState('all');
+  const [yearFilter, setYearFilter] = useState(new Date().getFullYear().toString());
   const tableRef = useRef(null);
+
 
   // Theme colors
   const tableBg = useColorModeValue('white', 'gray.800');
@@ -34,6 +37,55 @@ function AdminStudentRequest() {
     };
     fetchData();
   }, [getAllRequest]);
+
+    const monthOptions = [
+    { value: 'all', label: 'All Months' },
+    { value: '0', label: 'January' },
+    { value: '1', label: 'February' },
+    { value: '2', label: 'March' },
+    { value: '3', label: 'April' },
+    { value: '4', label: 'May' },
+    { value: '5', label: 'June' },
+    { value: '6', label: 'July' },
+    { value: '7', label: 'August' },
+    { value: '8', label: 'September' },
+    { value: '9', label: 'October' },
+    { value: '10', label: 'November' },
+    { value: '11', label: 'December' }
+  ];
+
+  const getYears = () => {
+    const currentYear = new Date().getFullYear();
+    const years = ['all'];
+    for (let i = 0; i <= 5; i++) {
+      years.push((currentYear + i).toString());
+    }
+    return years;
+  };
+  const yearOptions = getYears();
+
+   // Filtering by date
+  const filterByDate = useCallback((data) => {
+    if (!data) return [];
+    if (monthFilter === 'all' && yearFilter === 'all') return data;
+
+    return data.filter(request => {
+      const requestDate = new Date(request.createdAt);
+      const requestMonth = requestDate.getMonth().toString();
+      const requestYear = requestDate.getFullYear().toString();
+
+      if (monthFilter !== 'all' && yearFilter !== 'all') {
+        return requestMonth === monthFilter && requestYear === yearFilter;
+      } else if (monthFilter !== 'all') {
+        return requestMonth === monthFilter;
+      } else if (yearFilter !== 'all') {
+        return requestYear === yearFilter;
+      }
+      
+      return true;
+    });
+  }, [monthFilter, yearFilter]);
+
 
   // Filtering
   const requestSort = useCallback((key) => {
@@ -92,14 +144,18 @@ function AdminStudentRequest() {
   }, []); 
   const filteredData = useMemo(() => {
     if (!sortedData) return [];
-    if (!searchTerm.trim()) return sortedData;
+
+    // filter by date (month/year)
+    const dateFiltered = filterByDate(sortedData);
+
+    if (!searchTerm.trim()) return dateFiltered;
     
-    return sortedData.filter(request => 
+    return dateFiltered.filter(request => 
       (request.studentName && request.studentName.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (request.reason && request.reason.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (request.status && request.status.toLowerCase().includes(searchTerm.toLowerCase()))
     );
-  }, [sortedData, searchTerm]);
+  }, [sortedData, searchTerm, filterByDate]);
 
  // Get current items for pagination
   const currentItems = useMemo(() => {
@@ -115,13 +171,37 @@ function AdminStudentRequest() {
   if (!tableRef.current) return;
   
   setIsPrinting(true);
+
+  const getMonthDisplay = () => {
+    if (monthFilter === 'all') return 'All Months';
+    const month = monthOptions.find(option => option.value === monthFilter);
+    return month ? month.label : 'All Months';
+  };
+  
+  const getYearDisplay = () => {
+    if (yearFilter === 'all') return 'All Years';
+    return yearFilter;
+  };
+  
+  let reportTitle = 'Diploma Requests Report';
+  if (monthFilter !== 'all' || yearFilter !== 'all') {
+    reportTitle += ' for ';
+    if (monthFilter !== 'all') {
+      reportTitle += getMonthDisplay();
+      if (yearFilter !== 'all') reportTitle += ' ';
+    }
+    if (yearFilter !== 'all') {
+      reportTitle += getYearDisplay();
+    }
+  }
   
   // Create a clone of the table to modify for printing
   const printContent = document.createElement('div');
   printContent.innerHTML = `
     <div style="padding: 2px;">
       <div style="font-size: 10px; text-align: center; margin-bottom: 20px; color: #000000;">
-       Diplomas Request | Generated on: ${new Date().toLocaleString()} ${searchTerm ? `| Filtered by: "${searchTerm}"` : ''}
+      <h2 style="font-size: 12px; margin-bottom: 1px;">${reportTitle}</h2>
+       Generated on: ${new Date().toLocaleString()} ${searchTerm ? `| Filtered by: "${searchTerm}"` : ''}
       </div>
       <div id="table-container"></div>
     </div>
@@ -159,6 +239,8 @@ function AdminStudentRequest() {
     });
     
     auditTable.appendChild(headerRow);
+
+    const dataForReport = filteredData;
     
     // Process each row in the original table
     const rows = tableClone.querySelectorAll('tbody tr');
@@ -210,6 +292,15 @@ function AdminStudentRequest() {
     
     // Append the audit table
     printContent.querySelector('#table-container').appendChild(auditTable);
+
+    // Add summary statistics
+    const footerRow = document.createElement('p');
+    footerRow.textContent = `Total Requests: ${dataForReport.length}`;
+    footerRow.style.fontSize = '10px'
+    
+    // Append the audit table
+    printContent.querySelector('#table-container').appendChild(footerRow);
+
     
     // Configure html2pdf options
     const opt = {
@@ -379,6 +470,49 @@ function AdminStudentRequest() {
       borderRadius="md"
       boxShadow="sm"
       />
+        <HStack spacing={3} width={{ base: "100%", md: "32%" }} wrap={{ base: "wrap", md: "nowrap" }}>
+        {/* Month */}
+        <FormControl w={{ base: "full", md: "auto" }} maxW="150px">
+          <Select 
+          size="md"
+          value={monthFilter}
+                onChange={(e) => {
+                  setMonthFilter(e.target.value);
+                  setCurrentPage(1); // Reset to first page when filtering
+                }}
+          bg="white"
+          maxW={{ base: "full", md: "150px" }}
+          fontSize="sm"
+          boxShadow="sm"
+          >
+            {monthOptions.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+                  </option>
+              ))}
+          </Select>
+        </FormControl>
+         {/* Year */}
+        <FormControl w={{ base: "full", md: "auto" }} maxW="100px">
+          <Select 
+          size="md"
+          value={yearFilter}
+          onChange={(e) => {
+                setYearFilter(e.target.value);
+                setCurrentPage(1); // Reset to first page when filtering
+          }}
+          bg="white"
+          maxW={{ base: "full", md: "150px" }}
+          fontSize="sm"
+          boxShadow="sm"
+          >
+            {yearOptions.map(year => (
+              <option key={year} value={year}>
+                {year === 'all' ? 'All Years' : year}
+              </option>
+            ))}
+          </Select>
+        </FormControl>
         <Button 
           leftIcon={<FaPrint />} 
           colorScheme="red" 
@@ -390,6 +524,7 @@ function AdminStudentRequest() {
         >
           Print Report
         </Button>
+      </HStack>
     </Flex>
     {/* Table */}
     <TableContainer 

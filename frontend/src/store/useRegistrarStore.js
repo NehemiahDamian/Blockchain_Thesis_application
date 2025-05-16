@@ -87,17 +87,11 @@ export const useRegistrarStore = create((set) => ({
   },
 
   digitalSignature: async (students, esignatures) => {
-    try {
-      const res = await axiosInstances.put("/registrar/digitalSignature", { 
-        students, 
-        esignatures 
-      });
-      console.log("thestudents",students)
-      console.log(res.data);
-      console.log("the esig", esignatures);
-    } catch (error) {
-      console.log("error in digital signature:", error);
-    }
-  },
+  const res = await axiosInstances.post("/registrar/digitalSignature", {
+    students,
+    esignatures 
+  });
+  return res.data; // Let errors throw naturally
+},
   
 }));

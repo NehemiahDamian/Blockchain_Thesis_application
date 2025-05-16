@@ -18,6 +18,7 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "ethers": "^6.14.0",
-    "framer-motion": "^12.5.0"
+    "framer-motion": "^12.5.0",
+    "safer-buffer": "^2.1.2"
   }
 }
