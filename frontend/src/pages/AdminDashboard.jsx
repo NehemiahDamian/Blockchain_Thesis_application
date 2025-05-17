@@ -17,6 +17,29 @@ function AdminDashboard() {
     fetchDepartmentYears()
   }, [fetchDepartmentYears]);
 
+  // Mock data for declined diploma
+  useEffect(() => {
+    // Add mock declined data if it doesn't exist yet
+    const hasDeclinedData = departmentYears.some(dept => dept.status === "Declined");
+    
+    if (!hasDeclinedData && departmentYears.length > 0) {
+      // Create a deep copy of departmentYears
+      const updatedDepartmentYears = [...departmentYears];
+      
+      // Add mock declined entry
+      updatedDepartmentYears.push({
+        department: "College of Arts and Sciences",
+        year: "2025",
+        status: "Declined",
+        diplomaCount: 0,
+        raw: {
+          total: 3,
+          signed: 1
+        }
+      });
+    }
+  }, [departmentYears]);
+
   const handleViewDiplomas = async (department, year) => {
     try {
       await fetchStudentDetails(department, year);
@@ -107,10 +130,27 @@ function AdminDashboard() {
   };
 
   // Filter departments based on the selected filter
-  const filteredDepartments = departmentYears.filter(dept => {
-    if (filterValue === 'All') return true;
-    return dept.status === filterValue;
-  });
+ const filteredDepartments = filterValue === 'All' 
+    ? [...departmentYears, {
+        department: "College of Education",
+        year: "2025",
+        status: "Declined",
+        diplomaCount: 0,
+        raw: {
+          total: 3,
+          signed: 1
+        }
+      }]
+    : [...departmentYears, {
+        department: "College of Education",
+        year: "2025",
+        status: "Declined",
+        diplomaCount: 0,
+        raw: {
+          total: 3,
+          signed: 1
+        }
+      }].filter(dept => dept.status === filterValue);
 
   // Animation styles
   const fadeInAnimation = {
@@ -254,7 +294,7 @@ function AdminDashboard() {
                       Total Diplomas: {dept.raw.total}
                     </Text>
                     <Text marginright={-10}
-                      color={dept.status == "Signed" ? "red.500" : "green.500"} 
+                      color={dept.status == "Declined" ? "red.500" : "green.500"} 
                       fontWeight="bold" 
                       mr={{ md: "20px" }} 
                       fontSize="18px"

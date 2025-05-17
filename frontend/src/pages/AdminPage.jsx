@@ -51,6 +51,8 @@ function AdminPage() {
 
   ];
 
+  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     // added validation for searching diplomas
@@ -208,12 +210,11 @@ function AdminPage() {
               <Select 
                 value={studentDiploma.department}
                 onChange={(e) => setStudentDiploma({ ...studentDiploma, department: e.target.value })}
-                placeholder="Select College"
                 mb={4}
                 required
               >
                 {colleges.map((college) => (
-                <option key={college.value} value={college.value}>
+                <option key={college.value} value={college.value} disabled={college.value === ""}>
                   {college.label}
                 </option>
                 ))}

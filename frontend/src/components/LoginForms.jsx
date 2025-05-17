@@ -290,7 +290,7 @@ const LoginForm = ({
             >
               Login
             </Button>
-                  <a style={{ color: "blue" }} href="/forgotpassword">Forgot Password?</a>
+                  <a style={{ color: "#F44336" }} href="/forgotpassword">Forgot Password?</a>
 
           </VStack>
           
