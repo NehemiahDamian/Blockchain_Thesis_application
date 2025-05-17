@@ -425,6 +425,8 @@ function ViewDiplomasPage() {
                       signerRole="registrar"
                       registrarSignature={student.registrarDigitalSignature}
                       studentToken={student.uniqueToken}
+                        gwa={student.GWA} // Just add this
+
 
 
                     />

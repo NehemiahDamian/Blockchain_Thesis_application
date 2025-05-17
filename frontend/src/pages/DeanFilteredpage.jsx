@@ -344,6 +344,8 @@ const confirmSign = async () => {
                       graduationYear={student.expectedYearToGraduate}
                       signature={signatureUploaded ? esignatures : null}
                       signerRole="dean"
+                        gwa={student.GWA} // Just add this
+
                     />
                   </Box>
                 ))

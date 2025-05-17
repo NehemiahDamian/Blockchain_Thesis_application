@@ -17,7 +17,7 @@ function AdminDashboard() {
   const { getStats, statistics, isLoading, error } = useAdminStore();
 
   // Colors for charts
-  const COLORS = ['#CE3435', '#8C0001', '#be1010', '#FF8042'];
+  const COLORS = ['#CE3435', '#8C0001', '#be1010', '#F54F52'];
   const statusColors = {
     accepted: '#38A169',
     declined: '#E53E3E',
@@ -115,11 +115,18 @@ function AdminDashboard() {
       
       {/* Metrics Row */}
       <SimpleGrid columns={{ base: 1, md: 3 }} gap={4}>
+
+         <MetricCard 
+          icon={FaClipboardList}
+          title="Sent Diplomas"
+          value={statistics.totalStudents}
+          description="Awaiting signature"
+        />
         <MetricCard 
           icon={FaGraduationCap}
           title="Total Diplomas"
           value={statistics.totalDiplomas || 0}
-          description="All diploma requests"
+          description="All Signed diplomas"
         />
         <MetricCard 
           icon={FaClipboardList}
@@ -127,12 +134,7 @@ function AdminDashboard() {
           value={statistics.numberofRequest?.find(r => r.status === 'accepted')?.count || 0}
           description="Approved diplomas"
         />
-        <MetricCard 
-          icon={FaClipboardList}
-          title="Sent students on Deans"
-          value={statistics.totalStudents}
-          description="Awaiting signature"
-        />
+       
       </SimpleGrid>
 
       {/* Charts Row */}

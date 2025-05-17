@@ -33,6 +33,11 @@ const userSchema = new mongoose.Schema(
     required: function () { return this.role === "student" }
   },
 
+  GWA: {
+    type: Number,
+    required: function () { return this.role === "student"; }
+  },
+
   resetToken: {
   type: String,
   default: null,

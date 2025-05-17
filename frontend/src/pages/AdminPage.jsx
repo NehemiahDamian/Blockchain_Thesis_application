@@ -400,6 +400,9 @@ function AdminPage() {
                     studentId={student.idNumber || student.uniqueToken}
                     department={student.program || student.department}
                     graduationYear={student.expectedYearToGraduate || student.year}
+                    gwa={student.GWA} // Just add this
+                    uniqueToken={student.uniqueToken}
+
                     />
                     {/*{student.fullName} - {student.program} - {student.uniqueToken} - {student.email}*/}
                 </Box>
