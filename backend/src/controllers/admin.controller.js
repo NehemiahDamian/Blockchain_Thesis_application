@@ -343,3 +343,23 @@ res.json({
   }
 };
 
+export const getRegisteredDean = async (req, res) => {
+  try {
+    const deans = await User.find({ role: "dean" }).select("fullName department email");
+    if (!deans || deans.length === 0) {
+      return res.status(404).json({ message: "No dean found" });
+    }
+    //make the data in array
+    const deanArray = deans.map(dean => ({
+      fullName: dean.fullName,
+      department: dean.department,
+      email: dean.email
+    }));
+    return res.status(200).json(deanArray);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+

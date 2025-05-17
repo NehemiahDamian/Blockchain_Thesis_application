@@ -17,7 +17,8 @@ export const useAdminStore = create((set) => ({
   departmentYears:[],
   allStudent:[],
   departmentsArr:[],
-statistics: {},
+  statistics: {},
+  allDean: [],
   
 
 
@@ -205,5 +206,24 @@ statistics: {},
       console.error("Error getting statistics:", error.message);
       return false;
     }
+  },
+
+// In useAdminStore.js
+getAllDean: async () => {
+  try {
+    const response = await axiosInstances.get("/admin/getAllDean");
+    console.log("API Response:", response.data); // Debug log
+    
+    // Normalize the response data
+    const deanData = Array.isArray(response.data) ? response.data : [];
+    console.log("Processed Dean Data:", deanData); // Debug log
+    
+    set({ allDean: deanData });
+    return deanData.length > 0;
+  } catch (error) {
+    console.error("Error getting deans:", error.message);
+    set({ allDean: [] });
+    return false;
   }
+},
 }));
