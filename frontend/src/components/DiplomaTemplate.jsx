@@ -12,26 +12,33 @@ function DiplomaTemplate({
   signerRole = "dean", //default
   deanSignature = null,
   registrarSignature = null,
-  studentToken = ""
+  studentToken = "",
+  gwa = null 
 }) {
-  
-// Function to expand department acronyms to full names
-const expandDepartment = (dept) => {
-// Map of common department acronyms to their full names
-  const departmentMap = {
-  "BSIT": "Bachelor of Science in Information Technology",
-  "Information Technology": "Bachelor of Science in Information Technology",
-  "BSCS": "Bachelor of Science in Computer Science",
-  "Computer Science": "Bachelor of Science in Computer Science",
-  "Esports": "Bachelor of Science in ESports",
-  "BS ESports": "Bachelor of Science in ESports"
-  };
-    
-// Return the expanded name if it exists in the map, otherwise return the original value
-  return departmentMap[dept] || dept;
-};
 
-const displayDepartment = expandDepartment(department);
+  // Function to expand department acronyms to full names
+  const expandDepartment = (dept) => {
+    const departmentMap = {
+      "BSIT": "Bachelor of Science in Information Technology",
+      "Information Technology": "Bachelor of Science in Information Technology",
+      "BSCS": "Bachelor of Science in Computer Science",
+      "Computer Science": "Bachelor of Science in Computer Science",
+      "Esports": "Bachelor of Science in ESports",
+      "BS ESports": "Bachelor of Science in ESports"
+    };
+    return departmentMap[dept] || dept;
+  };
+
+  const latinHonor = (() => {
+    if (!gwa) return null;
+    const num = parseFloat(gwa);
+    if (num >= 1.00 && num <= 1.20) return "Summa Cum Laude";
+    if (num > 1.20 && num <= 1.45) return "Magna Cum Laude";
+    if (num > 1.45 && num <= 1.70) return "Cum Laude";
+    return null; // 1.71+ gets nothing
+  })();
+
+  const displayDepartment = expandDepartment(department);
 
   return (
     <Box
@@ -99,12 +106,26 @@ const displayDepartment = expandDepartment(department);
         {studentName}
       </Text>
 
+      {/* ONLY ADDITION: Latin Honors - shows ONLY when qualified */}
+      {latinHonor && (
+        <Text
+          textAlign="center"
+          fontSize="30px"
+          fontWeight="medium"
+          my="5px"
+          color="#2a52be"
+          fontStyle="italic"
+        >
+          {latinHonor}
+        </Text>
+      )}
+
       {/* Description */}
       <Text
         textAlign="center"
         fontSize="15px"
         lineHeight="1.2"
-        mt="5px"
+        mt={latinHonor ? "5px" : "15px"}
         color="#000000"
         fontStyle="italic"
       >
@@ -130,9 +151,8 @@ const displayDepartment = expandDepartment(department);
         lineHeight="1.2"
         color="#000000"
         fontStyle="italic"
-        marginbtop="20px"
       >
-        Issued on {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+        Issued in Manila, Philippines on August 1, 2025
       </Text>
 
       {/* Signatures Section */}
@@ -241,7 +261,7 @@ const displayDepartment = expandDepartment(department);
         left="50%"
         transform="translateX(-50%)"
       >
-        {studentToken }
+        {studentToken}
       </Text>
     </Box>
   );
