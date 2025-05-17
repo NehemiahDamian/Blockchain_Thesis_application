@@ -43,11 +43,11 @@ function DiplomaTemplate({
   return (
     <Box
       w="800px"
-      h="475px"
+      h="490px"
       bgGradient="linear(to-br, #f5f5f5, #e0e0e0)"
       borderRadius="20px"
       boxShadow="0 0 15px rgba(0,0,0,0.2)"
-      p="40px"
+      p="25px"
       position="relative"
       overflow="hidden"
       mx="auto"
@@ -73,7 +73,7 @@ function DiplomaTemplate({
       {/* University Name */}
       <Text
         textAlign="center"
-        fontSize="19px"
+        fontSize="16px"
         color="#050505"
         mt="2px"
         letterSpacing="1px"
@@ -106,20 +106,6 @@ function DiplomaTemplate({
         {studentName}
       </Text>
 
-      {/* ONLY ADDITION: Latin Honors - shows ONLY when qualified */}
-      {latinHonor && (
-        <Text
-          textAlign="center"
-          fontSize="30px"
-          fontWeight="medium"
-          my="5px"
-          color="#2a52be"
-          fontStyle="italic"
-        >
-          {latinHonor}
-        </Text>
-      )}
-
       {/* Description */}
       <Text
         textAlign="center"
@@ -137,12 +123,26 @@ function DiplomaTemplate({
         textAlign="center"
         fontSize="30px"
         fontWeight="medium"
-        my="5px"
-        mb="20px"
+        mt={latinHonor ? "5px" : "15px"}
+        mb={latinHonor ? "0px" : "15px"}
         color="#000000"
       >
         {displayDepartment}
       </Text>
+
+      {/* ONLY ADDITION: Latin Honors - shows ONLY when qualified */}
+      {latinHonor && (
+        <Text
+          textAlign="center"
+          fontSize="30px"
+          fontWeight="medium"
+          mb="5px"
+          color="#000000"
+          fontStyle="italic"
+        >
+        {latinHonor} 
+        </Text>
+      )}  
 
       {/* Date */}
       <Text
@@ -151,6 +151,7 @@ function DiplomaTemplate({
         lineHeight="1.2"
         color="#000000"
         fontStyle="italic"
+        mb={latinHonor ? "15px" : "25px"}
       >
         Issued in Manila, Philippines on August 1, 2025
       </Text>
@@ -164,7 +165,7 @@ function DiplomaTemplate({
               src={deanSignature} 
               alt="Dean Signature" 
               position="absolute"
-              top="75%"              
+              top="67%"              
               left="14%"
               maxH="60px"
               maxW="100px"
@@ -212,7 +213,7 @@ function DiplomaTemplate({
                 src={signature} 
                 alt="Signature" 
                 position="absolute"
-                top="73%"
+                top="75%"
                 left="50%"
                 transform="translateX(-50%)"
                 maxH="60px"
@@ -236,7 +237,7 @@ function DiplomaTemplate({
             alt="Registrar Signature" 
             position="absolute"
             left="80%"
-            top="70%"
+            top="75%"
             transform="translateX(-50%)"
             maxH="90px"
             maxW="100px"

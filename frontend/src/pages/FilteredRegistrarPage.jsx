@@ -4,9 +4,9 @@ import {
   Box, Button, Text, Input, Select, Icon, Flex, Heading,
   Grid, Modal, ModalOverlay, ModalContent, ModalHeader,
   ModalBody, ModalCloseButton, useDisclosure, HStack, useToast, ButtonGroup, IconButton,
-  Tabs, TabList, Tab, TabPanels, TabPanel, Checkbox, Stack
+  Tabs, TabList, Tab, TabPanels, TabPanel, Checkbox, Stack, FormControl, FormLabel, Textarea
 } from "@chakra-ui/react";
-import { FaCheckCircle, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaCheckCircle, FaChevronLeft, FaChevronRight, FaExclamationTriangle } from "react-icons/fa";
 import DiplomaTemplate from "../components/DiplomaTemplate";
 
 function ViewDiplomasPage() {
@@ -30,6 +30,11 @@ function ViewDiplomasPage() {
   const [processingMode, setProcessingMode] = useState(null); 
   const [selectedDiplomas, setSelectedDiplomas] = useState([]);
 
+  // Declining reasons state
+  const [declineReasons, setDeclineReasons] = useState({});
+  const [currentDiplomaToDecline, setCurrentDiplomaToDecline] = useState(null);
+  const [declineReason, setDeclineReason] = useState("");
+
   // Search and filter states
   const [searchTerm, setSearchTerm] = useState("");
   const [entriesCount, setEntriesCount] = useState(10);
@@ -40,7 +45,15 @@ function ViewDiplomasPage() {
   const { isOpen: isConfirmOpen, onOpen: onConfirmOpen, onClose: onConfirmClose } = useDisclosure();
   const { isOpen: isCompletionOpen, onOpen: onCompletionOpen, onClose: onCompletionClose } = useDisclosure();
   const { isOpen: isProcessingModalOpen, onOpen: onProcessingModalOpen, onClose: onProcessingModalClose } = useDisclosure();
+  const { isOpen: isDeclineModalOpen, onOpen: onDeclineModalOpen, onClose: onDeclineModalClose } = useDisclosure();
   const toast = useToast(); // For notifications
+
+  useEffect(() => {
+    if (processingMode === 'individual' && studentDetails.length > 0) {
+      const allStudentIds = studentDetails.map(student => student._id);
+      setSelectedDiplomas(allStudentIds);
+    }
+  }, [processingMode, studentDetails]);
 
 
   useEffect(() => {
@@ -62,6 +75,12 @@ function ViewDiplomasPage() {
   const selectProcessingMode = (mode) => {
     setProcessingMode(mode);
     onProcessingModalClose();
+
+    // selects all diplomas (individual)
+     if (mode === 'individual' && studentDetails.length > 0) {
+      const allStudentIds = studentDetails.map(student => student._id);
+      setSelectedDiplomas(allStudentIds);
+    }
   };
 
 
@@ -75,7 +94,6 @@ function ViewDiplomasPage() {
 
   const confirmSign = async () => {
     onConfirmClose();
-
 
     try {
     if (processingMode === 'batch') {
@@ -95,6 +113,14 @@ function ViewDiplomasPage() {
 
     } else if (processingMode === 'individual') {
       console.log("Individual signing mode selected");
+      onCompletionOpen();
+        toast({
+          title: "Success",
+          description: `${selectedDiplomas.length} diploma(s) have been signed successfully.`,
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
     }
   } catch (error) {
     console.error("Signing error:", error);
@@ -123,17 +149,67 @@ function ViewDiplomasPage() {
   };
 
   // Individual Processing
-    const handleDiplomaSelection = (studentId) => {
-    setSelectedDiplomas(prev => {
-      if (prev.includes(studentId)) {
-        return prev.filter(id => id !== studentId);
-      } else {
-        return [...prev, studentId];
-      }
-    });
+ const handleDiplomaSelection = (studentId) => {
+    // If diploma is currently selected, proceed with deselection flow
+    if (selectedDiplomas.includes(studentId)) {
+      setCurrentDiplomaToDecline(studentId);
+      setDeclineReason(""); // Reset reason input
+      onDeclineModalOpen();
+    } 
+    // If diploma was previously declined but now user wants to accept it again
+    else if (declineReasons[studentId]) {
+      // Remove the decline reason
+      const updatedDeclineReasons = { ...declineReasons };
+      delete updatedDeclineReasons[studentId];
+      setDeclineReasons(updatedDeclineReasons);
+      
+      // Add the diploma back to the selected list
+      setSelectedDiplomas(prev => [...prev, studentId]);
+    }
+    // If diploma was not selected before (unlikely in this flow, but for completeness)
+    else {
+      setSelectedDiplomas(prev => [...prev, studentId]);
+    }
   };
 
+  const handleDeclineSubmit = () => {
+    if (!declineReason.trim()) {
+      toast({
+        title: "Required",
+        description: "Please provide a reason for declining.",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
 
+    // Save the decline reason
+    setDeclineReasons({
+      ...declineReasons,
+      [currentDiplomaToDecline]: declineReason.trim()
+    });
+
+    // Remove the diploma from selected list
+    setSelectedDiplomas(prev => prev.filter(id => id !== currentDiplomaToDecline));
+    
+    // Close the modal
+    onDeclineModalClose();
+    
+    toast({
+      title: "Diploma Declined",
+      description: "The diploma has been declined with the provided reason.",
+      status: "info",
+      duration: 3000,
+      isClosable: true,
+    });
+  };
+  // Cancel decline action
+  const handleDeclineCancel = () => {
+    setCurrentDiplomaToDecline(null);
+    setDeclineReason("");
+    onDeclineModalClose();
+  };
 
   // Filter students based on search
   const filteredStudents = studentDetails
@@ -398,11 +474,8 @@ function ViewDiplomasPage() {
                     position="relative"
                   >
                     {processingMode === 'individual' && (
+                    <Box position="absolute" top="10px" right="10px" zIndex="1">
                       <Checkbox 
-                        position="absolute"
-                        top="10px"
-                        right="10px"
-                        zIndex="1"
                         colorScheme="red"
                         size="lg"
                         isChecked={selectedDiplomas.includes(student._id)}
@@ -413,6 +486,7 @@ function ViewDiplomasPage() {
                           },
                         }}
                       />
+                    </Box>
                     )}
                     <DiplomaTemplate 
 
@@ -425,11 +499,26 @@ function ViewDiplomasPage() {
                       signerRole="registrar"
                       registrarSignature={student.registrarDigitalSignature}
                       studentToken={student.uniqueToken}
-                        gwa={student.GWA} // Just add this
-
-
-
+                      gwa={student.GWA} // Just add this
                     />
+
+                    {/* Display Remarks if diploma is declined */}
+                    {declineReasons[student._id] && (
+                      <Box 
+                        bg="red.50" 
+                        p={3} 
+                        borderTop="1px" 
+                        borderColor="red.200"
+                      >
+                        <Flex align="center" mb={1}>
+                          <Text fontWeight="bold" color="red.600" ml={6}>Declined</Text>
+                          <Text fontSize="md" fontStyle="italic" color="gray.800">
+                            <Text as="span" fontWeight="bold" ml={6}> Remarks: </Text>
+                            {declineReasons[student._id]}
+                          </Text>
+                        </Flex>
+                      </Box>
+                    )}
                   </Box>
                 ))
               ) : (
@@ -540,6 +629,49 @@ function ViewDiplomasPage() {
           </ModalBody>
         </ModalContent>
       </Modal>
+      {/* Decline Reason Modal */}
+      <Modal isOpen={isDeclineModalOpen} onClose={handleDeclineCancel} isCentered>
+        <ModalOverlay bg="blackAlpha.300" backdropFilter="blur(2px)" />
+        <ModalContent p={5}>
+          <ModalCloseButton 
+            w="30px"
+            h="30px"
+            borderRadius="full"
+            bg="gray.100"
+            _hover={{ bg: "red.500", color: "white" }}
+          />
+          <ModalBody>
+            <FormControl isRequired>
+              <FormLabel>Please provide a reason for declining:</FormLabel>
+              <Textarea
+                placeholder="Enter your reason here..."
+                value={declineReason}
+                onChange={(e) => setDeclineReason(e.target.value)}
+                rows={3}
+              />
+            </FormControl>
+            
+            <HStack spacing={4} justify="center" mt={6} mb={2}>
+              <Button 
+                colorScheme="red" 
+                onClick={handleDeclineSubmit} 
+                size="md" 
+                w="full"
+              >
+                Decline Diploma
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={handleDeclineCancel}
+                size="md" 
+                w="full"
+              >
+                Cancel
+              </Button>
+            </HStack>
+          </ModalBody>
+        </ModalContent>
+      </Modal>     
     </Box>
   );
 }
