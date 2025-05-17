@@ -165,7 +165,7 @@ function DiplomaTemplate({
               src={deanSignature} 
               alt="Dean Signature" 
               position="absolute"
-              top="67%"              
+              top="75%"              
               left="14%"
               maxH="60px"
               maxW="100px"
