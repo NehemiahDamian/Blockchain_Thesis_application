@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { Box, Heading, Button, Flex, Input,TableContainer, Table, Thead, 
-  Tbody, Tr, Th, Td, Icon,HStack,Link,Text,Badge,useColorModeValue,Tooltip
+  Tbody, Tr, Th, Td, Icon,HStack,Link,Text,Badge,useColorModeValue,Tooltip,
+  Select, FormControl, FormLabel, InputGroup, InputLeftElement
 } from '@chakra-ui/react';
-import { FaSort, FaSortUp, FaSortDown, FaPrint, FaEye } from 'react-icons/fa';
+import { FaSort, FaSortUp, FaSortDown, FaPrint, FaEye, FaFilter, FaSearch, FaCalendarAlt } from 'react-icons/fa';
 import { useEffect, useState, useMemo, useCallback , useRef } from "react";
 import { useAdminStore } from "../store/useAdminStore";
 import html2pdf from 'html2pdf.js';
@@ -18,11 +19,37 @@ function AdminStudentRequest() {
   const [isPrinting, setIsPrinting] = useState(false);
   const tableRef = useRef(null);
 
+  // Date filtering states
+  const [startMonth, setStartMonth] = useState('');
+  const [endMonth, setEndMonth] = useState('');
+  const [filterYear, setFilterYear] = useState('');
+  const [isFilterActive, setIsFilterActive] = useState(false);
+
   // Theme colors
   const tableBg = useColorModeValue('white', 'gray.800');
   const headerBg = useColorModeValue('gray.50', 'gray.700');
   const hoverBg = useColorModeValue('gray.50', 'gray.700');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
+
+  // Generate years and months
+  const years = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    return Array.from({ length: 10 }, (_, i) => currentYear + i);
+  }, []);
+  const months = useMemo(() => [
+    { value: '0', label: 'January' },
+    { value: '1', label: 'February' },
+    { value: '2', label: 'March' },
+    { value: '3', label: 'April' },
+    { value: '4', label: 'May' },
+    { value: '5', label: 'June' },
+    { value: '6', label: 'July' },
+    { value: '7', label: 'August' },
+    { value: '8', label: 'September' },
+    { value: '9', label: 'October' },
+    { value: '10', label: 'November' },
+    { value: '11', label: 'December' }
+  ], []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,6 +61,23 @@ function AdminStudentRequest() {
     };
     fetchData();
   }, [getAllRequest]);
+
+  // filter by date
+  useEffect(() => {
+    if (startMonth && endMonth && filterYear) {
+      setIsFilterActive(true);
+      setCurrentPage(1); // Reset to first page when filtering
+    } else {
+      setIsFilterActive(false);
+    }
+  }, [startMonth, endMonth, filterYear]);
+
+  const clearDateFilter = useCallback(() => {
+    setStartMonth('');
+    setEndMonth('');
+    setFilterYear('');
+    setIsFilterActive(false);
+  }, []);
 
   // Filtering
   const requestSort = useCallback((key) => {
@@ -90,16 +134,43 @@ function AdminStudentRequest() {
     setSearchTerm(term);
     setCurrentPage(1); // Reset to first page when searching
   }, []); 
+
   const filteredData = useMemo(() => {
     if (!sortedData) return [];
-    if (!searchTerm.trim()) return sortedData;
+
+    let filtered = sortedData;
+
+    if (isFilterActive && startMonth !== '' && endMonth !== '' && filterYear !== '') {
+      const startMonthNum = parseInt(startMonth);
+      const endMonthNum = parseInt(endMonth);
+      const yearNum = parseInt(filterYear);
+      
+      filtered = filtered.filter(request => {
+        const requestDate = new Date(request.createdAt);
+        const requestMonth = requestDate.getMonth();
+        const requestYear = requestDate.getFullYear();
+        
+        // Handle ranges that span across years
+        if (startMonthNum <= endMonthNum) {
+          return requestYear === yearNum && 
+                 requestMonth >= startMonthNum && 
+                 requestMonth <= endMonthNum;
+        } else {
+          // Handle case like October to March (spans across years)
+          return requestYear === yearNum &&
+                 (requestMonth >= startMonthNum || requestMonth <= endMonthNum);
+        }
+      });
+    }
+
+    if (!searchTerm.trim()) return filtered;
     
-    return sortedData.filter(request => 
+    return filtered.filter(request => 
       (request.studentName && request.studentName.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (request.reason && request.reason.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (request.status && request.status.toLowerCase().includes(searchTerm.toLowerCase()))
     );
-  }, [sortedData, searchTerm]);
+  }, [sortedData, searchTerm, isFilterActive, startMonth, endMonth, filterYear]);
 
  // Get current items for pagination
   const currentItems = useMemo(() => {
@@ -118,10 +189,18 @@ function AdminStudentRequest() {
   
   // Create a clone of the table to modify for printing
   const printContent = document.createElement('div');
+
+  let filterInfo = '';
+    if (isFilterActive) {
+      const startMonthName = months.find(m => m.value === startMonth)?.label || '';
+      const endMonthName = months.find(m => m.value === endMonth)?.label || '';
+      filterInfo = ` | ${startMonthName} to ${endMonthName}, ${filterYear}`;
+  }
+
   printContent.innerHTML = `
     <div style="padding: 2px;">
       <div style="font-size: 10px; text-align: center; margin-bottom: 20px; color: #000000;">
-       Diplomas Request | Generated on: ${new Date().toLocaleString()} ${searchTerm ? `| Filtered by: "${searchTerm}"` : ''}
+         Diplomas Request | Generated on: ${new Date().toLocaleString()} ${searchTerm ? `| Search: "${searchTerm}"` : ''} ${filterInfo}
       </div>
       <div id="table-container"></div>
     </div>
@@ -233,7 +312,7 @@ function AdminStudentRequest() {
       console.error("Error generating PDF:", err);
       setIsPrinting(false);
     });
-  }, [searchTerm]);
+  }, [searchTerm, isFilterActive, startMonth, endMonth, filterYear, months]);
 
 
   const handleAccept = async (requestId) => {
@@ -369,16 +448,84 @@ function AdminStudentRequest() {
     flexDir={{ base: "column", md: "row" }}
     gap={3}
     >
-      <Input
-      placeholder="Search by name, reason or status..."
-      value={searchTerm}
-      onChange={handleSearch}
-      maxW={{ base: "100%", md: "300px" }}
-      fontSize="sm"
-      bg="white"
-      borderRadius="md"
-      boxShadow="sm"
-      />
+      {/* Search */}
+      <InputGroup maxW={{ base: "100%", md: "250px" }}>
+        <InputLeftElement pointerEvents="none">
+          <Icon as={FaSearch} color="gray.400" />
+        </InputLeftElement>
+        <Input
+        placeholder="Search by name, reason or status..."
+        value={searchTerm}
+        onChange={handleSearch}
+        maxW={{ base: "100%", md: "300px" }}
+        fontSize="sm"
+        bg="white"
+        borderRadius="md"
+        boxShadow="sm"
+        />
+      </InputGroup>
+
+        {/*Date Filter */}
+        <Flex 
+          gap={2} 
+          alignItems="center"
+          justifyContent="center" 
+          flexGrow={1}
+        >
+          <HStack spacing={2}>
+            <Select 
+              size="md" 
+              value={startMonth} 
+              onChange={(e) => setStartMonth(e.target.value)}
+              placeholder="From Month"
+              w={{ base: "100%", md: "150px" }}
+              variant="filled"
+              leftIcon={<FaCalendarAlt />}
+            >
+              {months.map(month => (
+                <option key={month.value} value={month.value}>{month.label}</option>
+              ))}
+            </Select>
+            
+            <Select 
+              size="md" 
+              value={endMonth} 
+              onChange={(e) => setEndMonth(e.target.value)}
+              placeholder="To Month"
+              w={{ base: "100%", md: "120px" }}
+              variant="filled"
+            >
+              {months.map(month => (
+                <option key={month.value} value={month.value}>{month.label}</option>
+              ))}
+            </Select>
+            
+            <Select 
+              size="md" 
+              value={filterYear} 
+              onChange={(e) => setFilterYear(e.target.value)}
+              placeholder="Year"
+              w={{ base: "100%", md: "100px" }}
+              variant="filled"
+            >
+              {years.map(year => (
+                <option key={year} value={year}>{year}</option>
+              ))}
+            </Select>
+            
+            {isFilterActive && (
+              <Button 
+                size="md" 
+                variant="outline" 
+                colorScheme="red"
+                onClick={clearDateFilter}
+              >
+                Clear
+              </Button>
+            )}
+          </HStack>
+        </Flex>
+
         <Button 
           leftIcon={<FaPrint />} 
           colorScheme="red" 
@@ -391,6 +538,20 @@ function AdminStudentRequest() {
           Print Report
         </Button>
     </Flex>
+
+    {/* Filter Status */}
+      {isFilterActive && (
+        <Box p={3} bg="red.50" borderRadius="md" borderLeft="4px solid" borderColor="red.500">
+          <Text fontSize="sm" color="red.700">
+            <strong>Filter active:</strong> Showing requests from {
+              months.find(m => m.value === startMonth)?.label
+            } to {
+              months.find(m => m.value === endMonth)?.label
+            }, {filterYear}
+          </Text>
+        </Box>
+      )}
+      
     {/* Table */}
     <TableContainer 
     ref={tableRef}

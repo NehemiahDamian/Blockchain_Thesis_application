@@ -42,21 +42,10 @@ function StudentLoginPage() {
         variant="link" 
         textColor="#8b0e0e"
         size="md"
-        mt={2}
       >
         Forgot Password
       </Button>
     </Link> 
-    <Link to="/student/signup">
-      <Button 
-        variant="link" 
-        textColor="#8b0e0e"
-        size="md"
-        mt={2}
-      >
-        Create account
-      </Button>
-    </Link>
     </>
   );
 
