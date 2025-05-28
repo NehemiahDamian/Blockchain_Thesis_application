@@ -60,13 +60,16 @@ const handleVerifyDiploma = async () => {
 
 
   const generatePDF = async (student) => {
+    const diplomaWidth = 842;   
+    const diplomaHeight = 595;
+
     const container = document.createElement('div');
     container.style.position = 'absolute';
-    container.style.left = '-9999px';
-    container.style.width = '800px';
-    container.style.height = '475px';
-    container.style.transform = 'scale(0.😎';
-    container.style.transformOrigin = 'top left';
+    container.style.left = '-9999px'; 
+    container.style.top = '0';
+    container.style.width = `${diplomaWidth}px`;
+    container.style.height = `${diplomaHeight}px`;
+    container.style.backgroundColor = 'white'; 
     document.body.appendChild(container);
 
     const { createRoot } = await import('react-dom/client');
@@ -107,7 +110,7 @@ const handleVerifyDiploma = async () => {
         jsPDF: {
           unit: 'px',
           format: [800, 475],
-          orientation: 'portrait'
+          orientation: 'landscape',
         }
       })
       .from(canvas)
