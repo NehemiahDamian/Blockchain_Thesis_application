@@ -193,7 +193,8 @@ function ArchiveBydepartment() {
     
     // Create the archive table
     const archiveTable = document.createElement('table');
-    archiveTable.style.width = '100%';
+    archiveTable.style.width = '800px';
+    archiveTable.style.height = '475px';
     archiveTable.style.borderCollapse = 'collapse';
     archiveTable.style.fontSize = '12px';
     

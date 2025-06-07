@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Box, Flex, Text, Button, Image, VStack, HStack, useDisclosure, 
     Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton, FormControl, 
-    FormLabel, Input, Radio, RadioGroup, useToast, Icon, Grid, GridItem, Heading, Badge, Spinner } from '@chakra-ui/react';
+    FormLabel, Input, Radio, RadioGroup, useToast, Icon, Grid, GridItem, Heading, Badge, Spinner, Checkbox,
+    CheckboxGroup} from '@chakra-ui/react';
 import { FaHome, FaCog, FaSignOutAlt, FaPlus, FaFileAlt, FaCloudUploadAlt, FaCheckCircle, FaExclamationCircle } from 'react-icons/fa';
 import { useAuthStore } from "../store/useAuthStore";
 import { useStudentStore } from '../store/useStudenStore';
@@ -103,11 +104,11 @@ function StudentPage() {
             onClose();
             toast({ 
                 title: 'Request submitted!', 
-                description: 'Please check your email regularly for updates.', 
+                description: 'Your request is being processed and may take up to 7 working days. Please check your email regularly for updates.', 
                 status: 'success', 
-                duration: 5000, 
+                duration: 8000, 
                 isClosable: true, 
-                position: 'top', 
+                position: 'bottom-center', 
                 icon: <Icon as={FaCheckCircle} /> 
             });
             
@@ -433,7 +434,7 @@ function StudentPage() {
 
                                 {/* Uploads Section */}
                                 <GridItem>
-                                    <VStack align="stretch" spacing={5}>
+                                    <VStack align="stretch" spacing={3}>
                                         <FormControl isRequired>
                                             <FormLabel>Upload Proof of Payment</FormLabel>
                                             <HStack>
@@ -496,6 +497,18 @@ function StudentPage() {
                                     </VStack>
                                 </GridItem>
                             </Grid>
+
+                              {/* Agreement */}
+                                <GridItem>
+                                    <FormControl isRequired>
+                                        <FormLabel>By clicking the "I Agree" button below, I hereby acknowledge and certify that I have understood that I can only REQUEST ONCE and will go to the LPU Registrar regarding any concerns about my request.</FormLabel>
+                                        <CheckboxGroup>
+                                            <VStack align="flex-start" spacing={1}>
+                                                <Checkbox>I Agree</Checkbox>
+                                            </VStack>
+                                        </CheckboxGroup>
+                                    </FormControl>
+                                </GridItem>
 
                             <Flex justify="flex-end" gap={3} mt={5}>
                                 <Button 
