@@ -6,6 +6,8 @@ import { DiplomaSession } from "../models/diploma.session.model.js";
 import { verificationModel } from "../models/verification.model.js";
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
+import dotenv from 'dotenv'; // Add this at the top of your file
+dotenv.config(); // Load environment variables
 
 
 export const getSignedDiplomaByDepartment = async (req, res) => {
@@ -269,10 +271,8 @@ export const uploadtoArchive = async (req, res) => {
       department,
     });
 
-    // 💾 Save to database
     await newStudent.save();
 
-    // 📬 Return response
     return res.status(201).json({ message: "Student created successfully", data: newStudent });
 
   } catch (error) {
@@ -362,4 +362,37 @@ export const getRegisteredDean = async (req, res) => {
   }
 }
 
+//TODO 
 
+export const sendcredentialsToEmail = async (req, res) => {
+
+  try {
+
+      const {email, password} = req.body;
+      const user  = await User.findOne({  email: email, role: "dean" });  
+      if (user) {
+        return res.status(404).json({ message: "User Already Exists" });
+      }
+      
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: process.env.EMAIL_USER, 
+            pass: process.env.EMAIL_PASS  
+          }
+        });
+
+        const mailOptions = {
+          from: process.env.EMAIL_USER,
+          to: email,
+          subject: 'Your Credentials',
+          text: `Here are your credentials: ${password} and your email address to use is ${email}`
+        };
+
+        await transporter.sendMail(mailOptions);
+        return res.status(200).json({ message: "Credentials sent to email" });
+  } catch (error) {
+    console.error("Error sending credentials:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};

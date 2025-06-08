@@ -1,6 +1,6 @@
 import express from "express"
 import { protectRoute } from "../middlewares/auth.middleware.js";
-import { acceptDiploma, rejectDiploma, getDiplomaRequest, sendDiplomaSession,getDiplomaByDepartment,adminGetSignedDiploma,getStudentforBlockchainUpload,getSignedDiplomaByDepartment,uploadtoArchive,getAllstudentsArchiveByDepartment,getStatistics,getRegisteredDean
+import { acceptDiploma, rejectDiploma, getDiplomaRequest, sendDiplomaSession,getDiplomaByDepartment,adminGetSignedDiploma,getStudentforBlockchainUpload,getSignedDiplomaByDepartment,uploadtoArchive,getAllstudentsArchiveByDepartment,getStatistics,getRegisteredDean,sendcredentialsToEmail
 } from "../controllers/admin.controller.js";
 
 const router = express.Router();
@@ -28,6 +28,8 @@ router.get("/getAlldepartment", getAllstudentsArchiveByDepartment)
 router.get("/statistics", getStatistics)
 
 router.get("/getAllDean",getRegisteredDean)
+
+router.post("/sendCredentials", sendcredentialsToEmail)
 
 
 

@@ -45,7 +45,7 @@ const AdminSignUpDean = () => {
     role: "dean",
   });
 
-  const { getAllDean, allDean } = useAdminStore();
+  const { getAllDean, allDean, sendEmailCredentials } = useAdminStore();
   const [showPassword, setShowPassword] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { signup } = useAuthStore();
@@ -74,10 +74,18 @@ const AdminSignUpDean = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Dean Data:", data);
-    signup(data);
+    if (!data.fullName || !data.email || !data.password || !data.department) {
+      alert("Please fill in all fields"); 
+      return;
+    } 
+    else{
+          signup(data);
+
+    }
+    await sendEmailCredentials(data.email, data.password);
     onOpen();
   };
 

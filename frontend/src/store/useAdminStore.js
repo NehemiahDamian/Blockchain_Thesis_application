@@ -226,4 +226,25 @@ getAllDean: async () => {
     return false;
   }
 },
+
+//TODO
+sendEmailCredentials: async (email, password) => {
+
+  try {
+    const res  = await axiosInstances.post("/admin/sendCredentials", {
+      email,
+      password
+    });
+    if (res.status === 200) {
+      console.log("Email sent successfully");
+      return true;
+    } else {
+      console.error("Failed to send email");
+      return false;
+    }
+  } catch (error) {
+    console.error("Error sending email:", error.message);
+    return false;
+  }
+}
 }));
