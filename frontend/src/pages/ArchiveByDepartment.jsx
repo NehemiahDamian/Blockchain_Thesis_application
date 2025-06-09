@@ -55,8 +55,8 @@ function ArchiveBydepartment() {
 
   // Extract the query parameters
   const searchParams = new URLSearchParams(location.search);
- // const department = searchParams.get("department");
- // const year = searchParams.get("year");
+ const department = searchParams.get("department");
+ const year = searchParams.get("year");
   const [selectedCollege, setSelectedCollege] = useState(searchParams.get("college") || '');
   const [selectedYear, setSelectedYear] = useState(searchParams.get("year") || '');
 
@@ -359,8 +359,8 @@ function ArchiveBydepartment() {
           <Box>
             <Heading fontSize={{ base: "22px", md: "28px" }} color="#eaeaea">Diploma Archives</Heading>
             <Text color="#e3e3e3">
-              {selectedCollege && selectedYear ? 
-                `${selectedCollege} - ${selectedYear}` : 
+              {department && year ? 
+                `${department} - ${year}` : 
                 "Select college and year"}
             </Text>
           </Box>
@@ -438,7 +438,7 @@ function ArchiveBydepartment() {
         borderColor={borderColor}
         overflowX="auto"
       >
-        <Table variant="simple" colorScheme="red" size={{ base: "sm", md: "md" }}>        
+        <Table variant="simple" colorScheme="red" size={{ base: "sm", md: "sm" }}>        
         <Thead bg={headerBg}>
           <Tr>
             <Th fontSize={{ base: "xs", md: "sm" }} onClick={() => requestSort('fullName')} 
@@ -501,7 +501,7 @@ function ArchiveBydepartment() {
       )}
       {/* Pagination */}
       {totalPages > 0 && (
-        <Flex justifyContent="end" mt={4} flexWrap="wrap">
+        <Flex justifyContent="end" mt={2} flexWrap="wrap">
           <HStack spacing={2}>
             <Button 
               size="sm" 
