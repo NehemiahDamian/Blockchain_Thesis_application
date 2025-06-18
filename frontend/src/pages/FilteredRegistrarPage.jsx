@@ -10,7 +10,7 @@ import { FaCheckCircle, FaChevronLeft, FaChevronRight, FaExclamationTriangle } f
 import DiplomaTemplate from "../components/DiplomaTemplate";
 
 function ViewDiplomasPage() {
-  const { departmentYears, fetchDepartmentYears} = useRegistrarStore();
+  const { departmentYears, fetchDepartmentYears, deanName} = useRegistrarStore();
   // Button states
   const [signatureUploaded, setSignatureUploaded] = useState(false);
   const [showDigitalSignBtn, setShowDigitalSignBtn] = useState(false);
@@ -499,7 +499,8 @@ function ViewDiplomasPage() {
                       signerRole="registrar"
                       registrarSignature={student.registrarDigitalSignature}
                       studentToken={student.uniqueToken}
-                      gwa={student.GWA} // Just add this
+                      gwa={student.GWA} 
+                      deanName={deanName}
                     />
 
                     {/* Display Remarks if diploma is declined */}

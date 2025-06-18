@@ -35,18 +35,19 @@ import { useAuthStore } from "../store/useAuthStore.js";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { FiUsers } from "react-icons/fi";
 import { useAdminStore } from "../store/useAdminStore.js";
+import { randomBytes } from "ethers";
 
 const AdminSignUpDean = () => {
   const [data, setData] = useState({
     fullName: "", 
     email: "",
-    password: "",
+    password: Math.random().toString(36).slice(-8), 
     department: "",
     role: "dean",
   });
 
   const { getAllDean, allDean, sendEmailCredentials } = useAdminStore();
-  const [showPassword, setShowPassword] = useState(false);
+  // const [showPassword, setShowPassword] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { signup } = useAuthStore();
   const [loadingDeans, setLoadingDeans] = useState(true);
@@ -70,14 +71,14 @@ const AdminSignUpDean = () => {
     fetchDeans();
   }, [getAllDean]);
 
-  const handleTogglePassword = () => {
-    setShowPassword(!showPassword);
-  };
+  // const handleTogglePassword = () => {
+  //   setShowPassword(!showPassword);
+  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Dean Data:", data);
-    if (!data.fullName || !data.email || !data.password || !data.department) {
+    if (!data.fullName || !data.email  || !data.department) {
       alert("Please fill in all fields"); 
       return;
     } 
@@ -160,7 +161,7 @@ const AdminSignUpDean = () => {
                 size="lg"
                 focusBorderColor="red.300"
               />
-              <InputGroup size="lg">
+              {/* <InputGroup size="lg">
                 <Input
                   type={showPassword ? "text" : "password"}
                   value={data.password}
@@ -179,7 +180,7 @@ const AdminSignUpDean = () => {
                     variant="ghost"
                   />
                 </InputRightElement>
-              </InputGroup>
+              </InputGroup> */}
               <Select
                 value={data.department}
                 onChange={(e) => setData({ ...data, department: e.target.value })}

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
@@ -20,7 +21,7 @@ function FilterAdminForBChain() {
   const department = queryParams.get('department');
   const year = queryParams.get('year');
 
-  const { studentDetails, archiveUploadedDiploma, departmentYears, fetchStudentDetails} = useAdminStore();
+  const { studentDetails, archiveUploadedDiploma, departmentYears, fetchStudentDetails, deanName} = useAdminStore();
   const [isProcessing, setIsProcessing] = useState(false);
   const toast = useToast();
 
@@ -387,25 +388,27 @@ const handleVerifyDiploma = async () => {
                 },
               }}
             >
-          {studentDetails && studentDetails.length > 0 ? (
-            studentDetails.map((student, index) => (
-              <Box key={index} mb="20px" overflow="hidden">
-                <ChakraProvider>
-                  <DiplomaTemplate
-                    studentName={student.fullName}
-                    studentId={student.id}
-                    department={student.program}
-                    deanSignature={student.deanESignature}
-                    graduationYear={student.graduationYear}
-                    registrarSignature={student.registrarESignature}
-                    studentToken={student.uniqueToken}
-                  />
-                </ChakraProvider>
-              </Box>
-            ))
-          ) : (
-            <Text p={4} textAlign="center" color="gray.500">No students found.</Text>
-          )}
+        {studentDetails && studentDetails.length > 0 ? (
+  studentDetails.map((student, index) => (
+    <Box key={index} mb="20px" overflow="hidden">
+      <ChakraProvider>
+        <DiplomaTemplate
+          studentName={student.fullName}
+          studentId={student.id}
+          department={student.program}
+          deanSignature={student.deanESignature}
+          graduationYear={student.graduationYear}
+          registrarSignature={student.registrarESignature}
+          studentToken={student.uniqueToken}
+          deanName={deanName} // ✅ You can now use this if needed
+        />
+      </ChakraProvider>
+    </Box>
+  ))
+) : (
+  <Text p={4} textAlign="center" color="gray.500">No students found.</Text>
+)}
+
           </Box>
           </Box>
         </Box>

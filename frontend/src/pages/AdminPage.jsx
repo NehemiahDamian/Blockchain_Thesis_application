@@ -12,7 +12,7 @@ import DiplomaTemplate from "../components/DiplomaTemplate";
 
 
 function AdminPage() {
-  const { diplomas, checkDiplomas, sendSession } = useAdminStore();
+  const { diplomas, checkDiplomas, sendSession, deanName } = useAdminStore();
   const [studentDiploma, setStudentDiploma] = useState({
     department: "",
     year: "",
@@ -384,36 +384,36 @@ function AdminPage() {
               </Flex>
             )}
           {/* Diplomas List */}
-          {diplomas.length > 0 ? (
-            <Grid templateColumns={{ base: "repeat(1, 1fr)" }} gap={6} p={6}>
-              {paginatedStudents.map((student) => ( //changed to show paginated students
-                  <Box 
-                  key={student._id}
-                  border="1px"
-                  borderColor="gray.200"
-                  borderRadius="md"
-                  overflow="hidden"
-                  transition="transform 0.2s"
-                  _hover={{ transform: "scale(1.02)" }}
+       {diplomas.length > 0 ? (
+              <Grid templateColumns={{ base: "repeat(1, 1fr)" }} gap={6} p={6}>
+                {paginatedStudents.map((student) => (
+                  <Box
+                    key={student._id}
+                    border="1px"
+                    borderColor="gray.200"
+                    borderRadius="md"
+                    overflow="hidden"
+                    transition="transform 0.2s"
+                    _hover={{ transform: "scale(1.02)" }}
                   >
-                    <DiplomaTemplate 
-                    studentName={student.fullName}
-                    studentId={student.idNumber || student.uniqueToken}
-                    department={student.program || student.department}
-                    graduationYear={student.expectedYearToGraduate || student.year}
-                    gwa={student.GWA} // Just add this
-                    uniqueToken={student.uniqueToken}
-
+                    <DiplomaTemplate
+                      studentName={student.fullName}
+                      studentId={student.idNumber || student.uniqueToken}
+                      department={student.program || student.department}
+                      graduationYear={student.expectedYearToGraduate || student.year}
+                      gwa={student.GWA}
+                      uniqueToken={student.uniqueToken}
+                      deanName={deanName}
                     />
-                    {/*{student.fullName} - {student.program} - {student.uniqueToken} - {student.email}*/}
-                </Box>
-              ))}
-            </Grid>
-          ) : (
-            <Text p={6} color="gray.500" textAlign="center">
-              No diplomas found for the selected criteria.
-            </Text>
-          )}
+                  </Box>
+                ))}
+              </Grid>
+            ) : (
+              <Text p={6} color="gray.500" textAlign="center">
+                No diplomas found for the selected criteria.
+              </Text>
+            )}
+
         {filteredDiplomas.length > entriesCount && (
             <Flex justify="center" align="center" p={3} borderTop="1px" borderColor="gray.200" bg="gray.50">
               <ButtonGroup isAttached variant="outline" size="sm">

@@ -175,6 +175,14 @@
         background-color: #f1f1f1;
       }
 
+      .overdue {
+        background-color: #ffdddd !important;
+      }
+
+      .due-soon {
+        background-color: #fff3cd !important;
+      }
+
       /* Responsive */
       @media (max-width: 768px) {
         nav ul {
@@ -240,8 +248,8 @@
             <p id="today-attendance">0</p>
           </div>
           <div class="stat-card">
-            <h3>Pending Payments</h3>
-            <p id="pending-payments">0</p>
+            <h3>Overdue Payments</h3>
+            <p id="overdue-payments">0</p>
           </div>
         </div>
 
@@ -285,16 +293,12 @@
               <input type="tel" id="member-phone" />
             </div>
             <div class="form-group">
-              <label for="member-dob">Date of Birth</label>
-              <input type="date" id="member-dob" />
-            </div>
-            <div class="form-group">
               <label for="member-plan">Membership Plan</label>
               <select id="member-plan" required>
                 <option value="">Select a plan</option>
-                <option value="basic">Basic ($30/month)</option>
-                <option value="standard">Standard ($50/month)</option>
-                <option value="premium">Premium ($80/month)</option>
+                <option value="daily">Daily ($5/day)</option>
+                <option value="monthly">Monthly ($30/month)</option>
+                <option value="yearly">Yearly ($300/year)</option>
               </select>
             </div>
             <div class="form-group">
@@ -314,6 +318,7 @@
               <th>Name</th>
               <th>Plan</th>
               <th>Start Date</th>
+              <th>Due Date</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
@@ -328,12 +333,6 @@
       <section id="attendance" class="content-section">
         <h2>Attendance Tracking</h2>
 
-        <div class="form-group">
-          <label for="attendance-date">Select Date</label>
-          <input type="date" id="attendance-date" />
-        </div>
-
-        <h3>Record Check-in</h3>
         <div class="form-group">
           <label for="checkin-member">Member ID</label>
           <input
@@ -351,6 +350,7 @@
               <th>Time</th>
               <th>Member ID</th>
               <th>Name</th>
+              <th>Plan</th>
             </tr>
           </thead>
           <tbody>
@@ -372,6 +372,14 @@
           <input type="number" id="payment-amount" min="0" step="0.01" />
         </div>
         <div class="form-group">
+          <label for="payment-type">Payment Type</label>
+          <select id="payment-type">
+            <option value="daily">Daily</option>
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label for="payment-date">Payment Date</label>
           <input type="date" id="payment-date" />
         </div>
@@ -386,6 +394,15 @@
         </div>
         <button id="record-payment-btn">Record Payment</button>
 
+        <div class="form-group">
+          <label for="payment-filter">Filter Payments</label>
+          <select id="payment-filter">
+            <option value="all">All Payments</option>
+            <option value="overdue">Overdue</option>
+            <option value="not-due">Not Due</option>
+          </select>
+        </div>
+
         <h3>Payment History</h3>
         <table id="payments-table">
           <thead>
@@ -394,7 +411,10 @@
               <th>Member ID</th>
               <th>Name</th>
               <th>Amount</th>
+              <th>Type</th>
               <th>Method</th>
+              <th>Due Date</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
@@ -408,56 +428,72 @@
       // Sample data storage (in a real app, this would be a database)
       let members = [
         {
-          id: 1,
+          id: 2,
           name: "John Doe",
           email: "john@example.com",
           phone: "555-1234",
-          dob: "1990-05-15",
-          plan: "premium",
-          startDate: "2023-01-10",
-          status: "active",
-        },
-        {
-          id: 2,
-          name: "Jane Smith",
-          email: "jane@example.com",
-          phone: "555-5678",
-          dob: "1985-11-22",
-          plan: "standard",
-          startDate: "2023-02-15",
+          plan: "monthly",
+          startDate: "2023-06-01",
+          dueDate: "2023-07-01",
           status: "active",
         },
         {
           id: 3,
+          name: "Jane Smith",
+          email: "jane@example.com",
+          phone: "555-5678",
+          plan: "yearly",
+          startDate: "2023-01-15",
+          dueDate: "2024-01-15",
+          status: "active",
+        },
+        {
+          id: 5,
           name: "Mike Johnson",
           email: "mike@example.com",
           phone: "555-9012",
-          dob: "1992-03-30",
-          plan: "basic",
-          startDate: "2023-03-01",
-          status: "inactive",
+          plan: "daily",
+          startDate: "2023-06-06",
+          dueDate: "2023-06-07",
+          status: "active",
         },
       ];
 
       let attendance = [
-        { memberId: 1, name: "John Doe", time: "2023-06-07T09:15:00" },
-        { memberId: 2, name: "Jane Smith", time: "2023-06-07T10:30:00" },
+        {
+          memberId: 2,
+          name: "John Doe",
+          plan: "monthly",
+          time: new Date().toISOString(),
+        },
+        {
+          memberId: 3,
+          name: "Jane Smith",
+          plan: "yearly",
+          time: new Date().toISOString(),
+        },
       ];
 
       let payments = [
         {
-          memberId: 1,
+          memberId: 2,
           name: "John Doe",
-          amount: 80,
+          amount: 30,
           date: "2023-06-01",
+          type: "monthly",
           method: "credit",
+          dueDate: "2023-07-01",
+          status: "paid",
         },
         {
-          memberId: 2,
+          memberId: 3,
           name: "Jane Smith",
-          amount: 50,
-          date: "2023-06-03",
+          amount: 300,
+          date: "2023-01-15",
+          type: "yearly",
           method: "debit",
+          dueDate: "2024-01-15",
+          status: "paid",
         },
       ];
 
@@ -470,6 +506,7 @@
       const cancelMemberBtn = document.getElementById("cancel-member-btn");
       const checkinBtn = document.getElementById("checkin-btn");
       const recordPaymentBtn = document.getElementById("record-payment-btn");
+      const paymentFilter = document.getElementById("payment-filter");
 
       // Navigation
       navLinks.forEach((link) => {
@@ -492,6 +529,7 @@
             updateDashboard();
           } else if (sectionId === "members") {
             renderMembersTable();
+            checkOverdueMembers();
           } else if (sectionId === "attendance") {
             renderAttendanceTable();
           } else if (sectionId === "payments") {
@@ -515,15 +553,28 @@
       memberForm.addEventListener("submit", (e) => {
         e.preventDefault();
 
+        const plan = document.getElementById("member-plan").value;
+        const startDate = document.getElementById("member-start").value;
+        let dueDate = new Date(startDate);
+
+        // Calculate due date based on plan
+        if (plan === "daily") {
+          dueDate.setDate(dueDate.getDate() + 1);
+        } else if (plan === "monthly") {
+          dueDate.setMonth(dueDate.getMonth() + 1);
+        } else if (plan === "yearly") {
+          dueDate.setFullYear(dueDate.getFullYear() + 1);
+        }
+
         const newMember = {
           id:
             members.length > 0 ? Math.max(...members.map((m) => m.id)) + 1 : 1,
           name: document.getElementById("member-name").value,
           email: document.getElementById("member-email").value,
           phone: document.getElementById("member-phone").value,
-          dob: document.getElementById("member-dob").value,
-          plan: document.getElementById("member-plan").value,
-          startDate: document.getElementById("member-start").value,
+          plan: plan,
+          startDate: startDate,
+          dueDate: dueDate.toISOString().split("T")[0],
           status: "active",
         };
 
@@ -546,15 +597,13 @@
           attendance.push({
             memberId: member.id,
             name: member.name,
+            plan: member.plan,
             time: now.toISOString(),
           });
 
           document.getElementById("checkin-member").value = "";
           renderAttendanceTable();
           updateDashboard();
-          alert(`Check-in recorded for ${member.name}`);
-        } else {
-          alert("Member not found! Please enter a valid member ID.");
         }
       });
 
@@ -566,6 +615,7 @@
         const amount = parseFloat(
           document.getElementById("payment-amount").value
         );
+        const type = document.getElementById("payment-type").value;
         const date =
           document.getElementById("payment-date").value ||
           new Date().toISOString().split("T")[0];
@@ -574,12 +624,29 @@
         const member = members.find((m) => m.id === memberId);
 
         if (member && amount > 0) {
+          // Calculate new due date based on payment type
+          let dueDate = new Date(date);
+
+          if (type === "daily") {
+            dueDate.setDate(dueDate.getDate() + 1);
+          } else if (type === "monthly") {
+            dueDate.setMonth(dueDate.getMonth() + 1);
+          } else if (type === "yearly") {
+            dueDate.setFullYear(dueDate.getFullYear() + 1);
+          }
+
+          // Update member's due date
+          member.dueDate = dueDate.toISOString().split("T")[0];
+
           payments.push({
             memberId: member.id,
             name: member.name,
             amount: amount,
             date: date,
+            type: type,
             method: method,
+            dueDate: dueDate.toISOString().split("T")[0],
+            status: "paid",
           });
 
           // Clear form
@@ -588,12 +655,13 @@
           document.getElementById("payment-date").value = "";
 
           renderPaymentsTable();
+          renderMembersTable();
           updateDashboard();
-          alert(`Payment of $${amount} recorded for ${member.name}`);
-        } else {
-          alert("Please enter valid member ID and amount!");
         }
       });
+
+      // Payment filter
+      paymentFilter.addEventListener("change", renderPaymentsTable);
 
       // Helper Functions
       function resetMemberForm() {
@@ -608,12 +676,28 @@
         tbody.innerHTML = "";
 
         members.forEach((member) => {
+          const today = new Date();
+          const dueDate = new Date(member.dueDate);
+          const daysUntilDue = Math.floor(
+            (dueDate - today) / (1000 * 60 * 60 * 24)
+          );
+
+          let statusClass = "";
+          if (daysUntilDue < 0) {
+            statusClass = "overdue";
+          } else if (daysUntilDue <= 3) {
+            statusClass = "due-soon";
+          }
+
           const row = document.createElement("tr");
+          if (statusClass) row.classList.add(statusClass);
+
           row.innerHTML = `
                     <td>${member.id}</td>
                     <td>${member.name}</td>
                     <td>${member.plan}</td>
                     <td>${member.startDate}</td>
+                    <td>${member.dueDate}</td>
                     <td>${member.status}</td>
                     <td>
                         <button onclick="editMember(${member.id})">Edit</button>
@@ -628,7 +712,7 @@
         const tbody = document.querySelector("#attendance-table tbody");
         tbody.innerHTML = "";
 
-        // Get today's date in YYYY-MM-DD format
+        // Get today's date
         const today = new Date().toISOString().split("T")[0];
 
         // Filter today's attendance
@@ -643,6 +727,7 @@
                     <td>${time}</td>
                     <td>${record.memberId}</td>
                     <td>${record.name}</td>
+                    <td>${record.plan}</td>
                 `;
           tbody.appendChild(row);
         });
@@ -652,17 +737,79 @@
         const tbody = document.querySelector("#payments-table tbody");
         tbody.innerHTML = "";
 
-        payments.forEach((payment) => {
+        const filter = paymentFilter.value;
+        const today = new Date();
+
+        let filteredPayments = payments;
+
+        if (filter === "overdue") {
+          filteredPayments = payments.filter((payment) => {
+            const dueDate = new Date(payment.dueDate);
+            return dueDate < today;
+          });
+        } else if (filter === "not-due") {
+          filteredPayments = payments.filter((payment) => {
+            const dueDate = new Date(payment.dueDate);
+            return dueDate >= today;
+          });
+        }
+
+        filteredPayments.forEach((payment) => {
+          const dueDate = new Date(payment.dueDate);
+          const today = new Date();
+          const daysUntilDue = Math.floor(
+            (dueDate - today) / (1000 * 60 * 60 * 24)
+          );
+
+          let status = "Paid";
+          if (payment.status !== "paid") {
+            if (daysUntilDue < 0) {
+              status = "Overdue";
+            } else if (daysUntilDue <= 3) {
+              status = "Due Soon";
+            } else {
+              status = "Not Due";
+            }
+          }
+
           const row = document.createElement("tr");
+          if (status === "Overdue") row.classList.add("overdue");
+          if (status === "Due Soon") row.classList.add("due-soon");
+
           row.innerHTML = `
                     <td>${payment.date}</td>
                     <td>${payment.memberId}</td>
                     <td>${payment.name}</td>
                     <td>$${payment.amount.toFixed(2)}</td>
+                    <td>${payment.type}</td>
                     <td>${payment.method}</td>
+                    <td>${payment.dueDate}</td>
+                    <td>${status}</td>
                 `;
           tbody.appendChild(row);
         });
+      }
+
+      function checkOverdueMembers() {
+        const today = new Date();
+        const overdueMembers = members.filter((member) => {
+          if (member.status !== "active") return false;
+
+          const dueDate = new Date(member.dueDate);
+          const daysOverdue = Math.floor(
+            (today - dueDate) / (1000 * 60 * 60 * 24)
+          );
+          return daysOverdue > 3;
+        });
+
+        overdueMembers.forEach((member) => {
+          members = members.filter((m) => m.id !== member.id);
+        });
+
+        if (overdueMembers.length > 0) {
+          renderMembersTable();
+          updateDashboard();
+        }
       }
 
       function updateDashboard() {
@@ -679,9 +826,14 @@
         ).length;
         document.getElementById("today-attendance").textContent = todayCount;
 
-        // Pending payments (simplified - assumes all active members need to pay)
-        document.getElementById("pending-payments").textContent =
-          members.filter((m) => m.status === "active").length;
+        // Overdue payments
+        const todayDate = new Date();
+        const overdueCount = members.filter((member) => {
+          if (member.status !== "active") return false;
+          const dueDate = new Date(member.dueDate);
+          return dueDate < todayDate;
+        }).length;
+        document.getElementById("overdue-payments").textContent = overdueCount;
 
         // Recent check-ins
         const recentCheckinsTbody = document.querySelector(
@@ -714,7 +866,6 @@
           document.getElementById("member-name").value = member.name;
           document.getElementById("member-email").value = member.email;
           document.getElementById("member-phone").value = member.phone;
-          document.getElementById("member-dob").value = member.dob;
           document.getElementById("member-plan").value = member.plan;
           document.getElementById("member-start").value = member.startDate;
 
@@ -722,12 +873,29 @@
           memberForm.onsubmit = function (e) {
             e.preventDefault();
 
+            const plan = document.getElementById("member-plan").value;
+            const startDate = document.getElementById("member-start").value;
+            let dueDate = new Date(startDate);
+
+            // Recalculate due date if plan changed
+            if (plan !== member.plan) {
+              if (plan === "daily") {
+                dueDate.setDate(dueDate.getDate() + 1);
+              } else if (plan === "monthly") {
+                dueDate.setMonth(dueDate.getMonth() + 1);
+              } else if (plan === "yearly") {
+                dueDate.setFullYear(dueDate.getFullYear() + 1);
+              }
+            } else {
+              dueDate = new Date(member.dueDate);
+            }
+
             member.name = document.getElementById("member-name").value;
             member.email = document.getElementById("member-email").value;
             member.phone = document.getElementById("member-phone").value;
-            member.dob = document.getElementById("member-dob").value;
-            member.plan = document.getElementById("member-plan").value;
-            member.startDate = document.getElementById("member-start").value;
+            member.plan = plan;
+            member.startDate = startDate;
+            member.dueDate = dueDate.toISOString().split("T")[0];
 
             addMemberForm.style.display = "none";
             addMemberBtn.style.display = "block";
@@ -738,20 +906,15 @@
       };
 
       window.deleteMember = function (id) {
-        if (confirm("Are you sure you want to delete this member?")) {
-          members = members.filter((m) => m.id !== id);
-          renderMembersTable();
-          updateDashboard();
-        }
+        members = members.filter((m) => m.id !== id);
+        renderMembersTable();
+        updateDashboard();
       };
 
       // Initialize the app
       document.addEventListener("DOMContentLoaded", () => {
         // Set default dates
         document.getElementById("member-start").value = new Date()
-          .toISOString()
-          .split("T")[0];
-        document.getElementById("attendance-date").value = new Date()
           .toISOString()
           .split("T")[0];
         document.getElementById("payment-date").value = new Date()
@@ -763,6 +926,9 @@
         renderAttendanceTable();
         renderPaymentsTable();
         updateDashboard();
+
+        // Check for overdue members every minute
+        setInterval(checkOverdueMembers, 60000);
       });
     </script>
   </body>

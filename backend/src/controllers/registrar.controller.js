@@ -62,8 +62,13 @@ export const getSignedDiplomaByDepartment = async (req, res) => {
     //   },
     //   userRole: req.user.role,
     // });
+    const dean = await User.findOne({ role: "dean", department });
+    const deanFullName = dean ? dean.fullName : "Dean not found";
 
-    return res.status(200).json(signedDiplomas);
+    return res.status(200).json({
+      students: signedDiplomas,
+      deanName: deanFullName,
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Internal server error" });

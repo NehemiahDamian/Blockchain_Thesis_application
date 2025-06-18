@@ -6,8 +6,8 @@ import { DiplomaSession } from "../models/diploma.session.model.js";
 import { verificationModel } from "../models/verification.model.js";
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
-import dotenv from 'dotenv'; // Add this at the top of your file
-dotenv.config(); // Load environment variables
+import dotenv from 'dotenv'; 
+dotenv.config(); 
 
 
 export const getSignedDiplomaByDepartment = async (req, res) => {
@@ -19,9 +19,15 @@ export const getSignedDiplomaByDepartment = async (req, res) => {
     if (!signedDiplomas || signedDiplomas.length === 0) {
       return res.status(404).json({ message: "No signed diplomas found" });
     }
+    const dean = await User.findOne({ role: "dean", department });
+    const deanName = dean ? dean.fullName : "Dean not found";
+    
 
 
-    return res.status(200).json(signedDiplomas);
+return res.status(200).json({
+  students: signedDiplomas,
+  deanName: deanName,
+});
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Internal server error" });
@@ -119,18 +125,21 @@ export const getDiplomaByDepartment = async (req, res) => {
   const { department, year } = req.query;
 
   try {
-    const treamYear = year.trim()
+    const dean = await User.findOne({ role: "dean", department });
+    const treamYear = year
     const students = await User.find({
       role: "student",
       department:department,
       expectedYearToGraduate:treamYear,
     });
 
+    const deanName = dean ? dean.fullName : "Dean not found";
+
     if (!students.length) {
       return res.status(404).json({ message: "No students found." });
     }
 
-    res.status(200).json({ students });
+    res.status(200).json({ students, deanName });
   } catch (err) {
     console.log(err)
     res.status(500).json({ message: "Server error." });
@@ -237,7 +246,6 @@ export const getStudentforBlockchainUpload = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 }
-//Todo
 
 export const uploadtoArchive = async (req, res) => {
   try {
@@ -361,9 +369,7 @@ export const getRegisteredDean = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 }
-
-//TODO 
-
+ 
 export const sendcredentialsToEmail = async (req, res) => {
 
   try {
@@ -385,8 +391,11 @@ export const sendcredentialsToEmail = async (req, res) => {
         const mailOptions = {
           from: process.env.EMAIL_USER,
           to: email,
-          subject: 'Your Credentials',
-          text: `Here are your credentials: ${password} and your email address to use is ${email}`
+          subject: 'CertChain Login Credentials',
+          text: `Here are your credentials: Email: ${email} 
+          Temporary Password: is ${password}
+          Please change your password after logging in for security purposes.
+          `
         };
 
         await transporter.sendMail(mailOptions);
