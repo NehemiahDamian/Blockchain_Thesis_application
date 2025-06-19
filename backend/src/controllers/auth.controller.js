@@ -139,7 +139,6 @@ export const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
   try {
-    // 1️⃣ Check if the user exists
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -150,12 +149,11 @@ export const forgotPassword = async (req, res) => {
     user.resetTokenExpiry = Date.now() + 3600000; // 1 hour expiry
     await user.save();
 
-    // 3️⃣ Send the reset token to the user's email
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: process.env.EMAIL_USER,  // Your Gmail address
-        pass: process.env.EMAIL_PASS   // Your Gmail password or App Password
+        user: process.env.EMAIL_USER,  
+        pass: process.env.EMAIL_PASS   
       }
     });
 

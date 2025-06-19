@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { Box, Button,  Container, Flex, FormControl, Heading, Input, InputGroup, InputLeftElement, InputRightElement, Link, 
   Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Select, Text,useDisclosure } from "@chakra-ui/react";
@@ -12,8 +12,16 @@ import { FaUser, FaUniversity, FaGraduationCap, FaUserCircle, FaLock, FaArrowLef
 
 // import AuthImagePattern from "../components/AuthImagePattern";
 // import toast from "react-hot-toast";
+import { useAdminStore } from "../store/useAdminStore.js";
+
 
 const StudentSignup = () => {
+  const {colleges, getAllColleges } = useAdminStore();
+
+    useEffect(() => {
+      getAllColleges();
+    }, []);
+  
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -39,7 +47,7 @@ const StudentSignup = () => {
   
     setFormData({
       ...formData,
-      [name]: value, // Dynamically updates the field
+      [name]: value, 
     });
   };
   
@@ -49,7 +57,7 @@ const StudentSignup = () => {
     setIsSubmitting(true);
   
     try {
-      console.log("Form submitted with:", formData); // 🚀 Check the date format here
+      console.log("Form submitted with:", formData); 
       await signup(formData);
       onOpen();
     } catch (error) {
@@ -74,7 +82,6 @@ const StudentSignup = () => {
       bgPosition="center"
       overflow="hidden"
     >
-    {/* Background */}
     <Box 
       position="absolute"
       left="0" 
@@ -85,7 +92,6 @@ const StudentSignup = () => {
       boxShadow="2px 0px 10px rgba(0, 0, 0, 0.168)"
       display={{ base: "none", md: "block" }}
     />
-    {/* Main content */}
       <Container 
         maxW="container.lg"
         pl={{ base: "4", md: "10" }}
@@ -224,7 +230,7 @@ const StudentSignup = () => {
                       {/* <Box marginLeft={1} as={FaGraduationCap} color="#8b0e0e" /> */}
                       </InputLeftElement>
                       <Select 
-                      placeholder=" Select your department  "
+                      placeholder=""
                       bg="whiteAlpha.900"
                       color="#202020"
                       size="lg"
@@ -238,11 +244,12 @@ const StudentSignup = () => {
                       }}
                       transition="all 0.3s ease"
                       >
-                      <option value="College of Technology">College of Technology</option>
-                      <option value="College of International Tourism and Hospitality Management">College of International Tourism and Hospitality Management</option>
-                      <option value="College of Arts and Sciences">College of Arts and Sciences</option>
-                      <option value="College of Business Administration">College of Business Administration</option>
-                      <option value="College of Law">College of Law</option>
+                       <option value="" disabled hidden>Select your Department</option>
+                        {colleges.map((college) => (
+                        <option key={college._id} value={college.collegeName}>
+                          {college.collegeName}
+                        </option>
+                        ))}
                       </Select>
                     </InputGroup>
                     </FormControl>
@@ -296,7 +303,7 @@ const StudentSignup = () => {
                 </InputLeftElement>
                 <Input
                   type="text"
-                  placeholder="Expected Year to Graduate (2024-2025)"
+                  placeholder="Expected Year to Graduate (2025)"
                   bg="whiteAlpha.900"
                   color="#202020"
                   size="lg"

@@ -17,13 +17,13 @@ const scrollableContainerStyle = {
 
 function Archives() {
   const navigate = useNavigate();
-  const { fetchDepartmentYears, departmentsArr } = useAdminStore();
+  const { fetchDepartmentYears, departmentsArr, addCollegeDepartment } = useAdminStore();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
 
   // Form states
   const [collegeName, setCollegeName] = useState('');
-  const [collegeAbbreviation, setCollegeAbbreviation] = useState('');
+  const [collegeAbv, setCollegeAbbreviation] = useState('');
 
   useEffect(() => {
     fetchDepartmentYears(); 
@@ -35,15 +35,18 @@ function Archives() {
     navigate(`/admin/FilteredArchive?department=${department}&years=${encodeURIComponent(JSON.stringify(years))}`);
   };
 
-    const handleSubmit = (e) => {
+    const handleSubmit =  async (e) => {
     e.preventDefault();
     
     // include function here 
+    await addCollegeDepartment(collegeName, collegeAbv)
+
+
 
     // Show success toast
     toast({
       title: "College Added Successfully",
-      description: `${collegeName} (${collegeAbbreviation}) has been added to the system.`,
+      description: `${collegeName} (${collegeAbv}) has been added to the system.`,
       status: "success",
       duration: 4000,
       isClosable: true,
@@ -175,6 +178,7 @@ function Archives() {
             <ModalCloseButton position="static" />
           </ModalHeader>
           <ModalBody padding="30px">
+
             <form onSubmit={handleSubmit}>
               <Grid templateColumns="1fr" gap={5} mb={6}>
                 {/* College Name */}
@@ -207,7 +211,7 @@ function Archives() {
                     <Input
                       placeholder="Enter college abbreviation (e.g., COE, CBA)"
                       size="lg"
-                      value={collegeAbbreviation}
+                      value={collegeAbv}
                       onChange={(e) => setCollegeAbbreviation(e.target.value)}
                       borderRadius="10px"
                       border="2px solid #e2e8f0"

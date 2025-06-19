@@ -1,6 +1,6 @@
 import express from "express"
 import { protectRoute } from "../middlewares/auth.middleware.js";
-import { acceptDiploma, rejectDiploma, getDiplomaRequest, sendDiplomaSession,getDiplomaByDepartment,adminGetSignedDiploma,getStudentforBlockchainUpload,getSignedDiplomaByDepartment,uploadtoArchive,getAllstudentsArchiveByDepartment,getStatistics,getRegisteredDean,sendcredentialsToEmail
+import { acceptDiploma, rejectDiploma, getDiplomaRequest, sendDiplomaSession,getDiplomaByDepartment,adminGetSignedDiploma,getStudentforBlockchainUpload,getSignedDiplomaByDepartment,uploadtoArchive,getAllstudentsArchiveByDepartment,getStatistics,getRegisteredDean,sendcredentialsToEmail,addCollege, getCollege
 } from "../controllers/admin.controller.js";
 
 const router = express.Router();
@@ -31,10 +31,11 @@ router.get("/getAllDean",getRegisteredDean)
 
 router.post("/sendCredentials", sendcredentialsToEmail)
 
+router.post("/addCollege", addCollege)
 
+router.get("/getCollege",  getCollege)
 
-
-
+// router.patch("/deanStatusHandler/:id", deanStatusHandler)
 
 export default router;
 

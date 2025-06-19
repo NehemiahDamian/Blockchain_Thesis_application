@@ -9,8 +9,6 @@ const isFresh = (timestamp) => {
 
 
 export const useAdminStore = create((set) => ({
-
-  
   // State
   diplomas: [],
   allRequest: [],
@@ -20,10 +18,12 @@ export const useAdminStore = create((set) => ({
   statistics: {},
   allDean: [],
   deanName: "",
+  colleges: [],
+
   
 
 
-    studentDetails: JSON.parse(sessionStorage.getItem("studentDetails") || "[]"),
+  studentDetails: JSON.parse(sessionStorage.getItem("studentDetails") || "[]"),
   
    fetchStudentDetails: async (department, expectedYearToGraduate) => {
   try {
@@ -227,7 +227,6 @@ getAllDean: async () => {
   }
 },
 
-//TODO
 sendEmailCredentials: async (email, password) => {
 
   try {
@@ -246,5 +245,47 @@ sendEmailCredentials: async (email, password) => {
     console.error("Error sending email:", error.message);
     return false;
   }
-}
+},
+
+addCollegeDepartment: async (collegeName, collegeAbv) =>{
+
+  try {
+    const res = await axiosInstances.post("/admin/addCollege",{
+      collegeName,
+      collegeAbv
+    });
+    if (res.status === 201){
+      console.log("Success")
+    }
+
+  } catch (error) {
+    console.log(error)
+  }
+},
+
+getAllColleges: async () => {
+    try {
+      const response = await axiosInstances.get("/admin/getCollege");
+      if (response.data?.colleges) {
+        set({ colleges: response.data.colleges });
+        return response.data.colleges;
+      }
+      console.log("No colleges found");
+      set({ colleges: [] });
+    } catch (error) {
+      console.error("Error getting colleges:", error.message);
+      set({ colleges: [] });
+    }
+},
+
+// updateDeanStatus: async (deanId, updateData) => {
+//   try {
+//     const response = await axiosInstances.patch(`/admin/deanStatusHandler/${deanId}`, updateData);
+//     return response.data;
+//   } catch (error) {
+//     console.error('Error updating dean status:', error);
+//     throw error;
+//   }
+// },
+
 }));

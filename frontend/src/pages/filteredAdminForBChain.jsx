@@ -40,7 +40,6 @@ function FilterAdminForBChain() {
   const [entriesCount, setEntriesCount] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
-// Add this function (import verifyDiploma from your contactServices)
 const handleVerifyDiploma = async () => {
   try {
     console.log("Started verification process");
@@ -86,6 +85,7 @@ const handleVerifyDiploma = async () => {
              graduationYear={student.graduationYear}
              registrarSignature={student.registrarESignature}
              studentToken={student.uniqueToken}
+             deanName={deanName} 
           />
         </div>
       </ChakraProvider>
