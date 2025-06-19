@@ -13,7 +13,8 @@ function DiplomaTemplate({
   deanSignature = null,
   registrarSignature = null,
   studentToken = "",
-  gwa = null 
+  gwa = null ,
+  deanName = ""
 }) {
 
   // Function to expand department acronyms to full names
@@ -187,7 +188,7 @@ function DiplomaTemplate({
             )
           )}
           <Text fontSize="13px" color="#000000" mt="5px">
-            Name of Dean
+            {deanName}
           </Text>
           <Text fontSize="12px" color="#000000" mt="-2px" fontStyle="italic">
             College Dean

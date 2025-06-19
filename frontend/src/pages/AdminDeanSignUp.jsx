@@ -35,18 +35,21 @@ import { useAuthStore } from "../store/useAuthStore.js";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { FiUsers } from "react-icons/fi";
 import { useAdminStore } from "../store/useAdminStore.js";
+import { randomBytes } from "ethers";
 
 const AdminSignUpDean = () => {
   const [data, setData] = useState({
     fullName: "", 
     email: "",
-    password: "",
+    password: Math.random().toString(36).slice(-8), 
     department: "",
     role: "dean",
   });
+  
+const [activeStatuses, setActiveStatuses] = useState({});
 
-  const { getAllDean, allDean, sendEmailCredentials } = useAdminStore();
-  const [showPassword, setShowPassword] = useState(false);
+  const { getAllDean, allDean, sendEmailCredentials, colleges, getAllColleges } = useAdminStore();
+  // const [showPassword, setShowPassword] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { signup } = useAuthStore();
   const [loadingDeans, setLoadingDeans] = useState(true);
@@ -70,14 +73,18 @@ const AdminSignUpDean = () => {
     fetchDeans();
   }, [getAllDean]);
 
-  const handleTogglePassword = () => {
-    setShowPassword(!showPassword);
-  };
+  
 
+  // const handleTogglePassword = () => {
+  //   setShowPassword(!showPassword);
+  // };
+  useEffect(() => {
+    getAllColleges();
+  }, []);
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Dean Data:", data);
-    if (!data.fullName || !data.email || !data.password || !data.department) {
+    if (!data.fullName || !data.email  || !data.department) {
       alert("Please fill in all fields"); 
       return;
     } 
@@ -160,7 +167,7 @@ const AdminSignUpDean = () => {
                 size="lg"
                 focusBorderColor="red.300"
               />
-              <InputGroup size="lg">
+              {/* <InputGroup size="lg">
                 <Input
                   type={showPassword ? "text" : "password"}
                   value={data.password}
@@ -179,22 +186,20 @@ const AdminSignUpDean = () => {
                     variant="ghost"
                   />
                 </InputRightElement>
-              </InputGroup>
-              <Select
-                value={data.department}
-                onChange={(e) => setData({ ...data, department: e.target.value })}
-                size="lg"
-                focusBorderColor="red.300"
-              >
-                <option value="" disabled hidden>Department</option>
-                <option value="College of Technology">College of Technology</option>
-                <option value="College of International Tourism and Hospitality Management">
-                  College of International Tourism and Hospitality Management
-                </option>
-                <option value="College of Arts and Sciences">College of Arts and Sciences</option>
-                <option value="College of Business Administration">College of Business Administration</option>
-                <option value="College of Law">College of Law</option>
-              </Select>
+              </InputGroup> */}
+           <Select
+            value={data.department}
+            onChange={(e) => setData({ ...data, department: e.target.value })}
+            size="lg"
+            focusBorderColor="red.300"
+          >
+            <option value="" disabled hidden>Department</option>
+            {colleges.map((college) => (
+              <option key={college._id} value={college.collegeName}>
+                {college.collegeName}
+              </option>
+            ))}
+           </Select>
               <Button color="white" type="submit" colorScheme="red" size="md" width="full">
                 Register
               </Button>
@@ -245,40 +250,68 @@ const AdminSignUpDean = () => {
                         <Th color="white" px={4} py={4} width="27%" borderBottom="2px solid #9e0000">Full Name</Th>
                         <Th color="white" px={4} py={4} width="35%" borderBottom="2px solid #9e0000">Email</Th>
                         <Th color="white" px={4} py={4} width="30%" borderBottom="2px solid #9e0000">Department</Th>
+                        <Th color="white" px={4} py={4} width="30%" borderBottom="2px solid #9e0000">status</Th>
+
                       </Tr>
                     </Thead>
                     <Tbody fontSize="md">
-                      {allDean.map((dean, index) => (
-                        <Tr 
-                          key={`${dean.email}-${index}`} 
-                          _hover={{ bg: "gray.50" }}
-                          transition="all 0.2s ease"
-                          borderBottomWidth={index === allDean.length - 1 ? "0" : "1px"}
-                        >
-                          <Td px={4} py={4} textAlign="center" fontWeight="medium" color="gray.600">{index + 1}</Td>
-                          <Td px={4} py={4}>
-                            <Text fontWeight="medium" color="gray.800">{dean.fullName}</Text>
-                          </Td>
-                          <Td px={4} py={4}>
-                            <Text color="blue.600" fontWeight="normal">{dean.email}</Text>
-                          </Td>
-                          <Td px={4} py={4}>
-                            <Badge 
-                              colorScheme={getBadgeColor(dean.department)}
-                              px={3}
-                              py={1.5}
-                              borderRadius="full"
-                              fontWeight="medium"
-                              fontSize="xs"
-                              textTransform="none"
-                              letterSpacing="tight"
-                              boxShadow="sm"
-                            >
-                              {dean.department}
-                            </Badge>
-                          </Td>
-                        </Tr>
-                      ))}
+                      {allDean.map((dean, index) => {
+                            //  const isActive = activeStatuses[dean._id] ?? true; // default to active
+                             return (
+                                <Tr
+                                  key={`${dean.email}-${index}`}
+                                  _hover={{ bg: "gray.50" }}
+                                  transition="all 0.2s ease"
+                                  borderBottomWidth={index === allDean.length - 1 ? "0" : "1px"}
+                                >
+                                  <Td px={4} py={4} textAlign="center" fontWeight="medium" color="gray.600">
+                                    {index + 1}
+                                  </Td>
+                                  <Td px={4} py={4}>
+                                    <Text fontWeight="medium" color="gray.800">{dean.fullName}</Text>
+                                  </Td>
+                                  <Td px={4} py={4}>
+                                    <Text color="blue.600" fontWeight="normal">{dean.email}</Text>
+                                  </Td>
+                                  <Td px={4} py={4}>
+                                    <Badge
+                                      colorScheme={getBadgeColor(dean.department)}
+                                      px={3}
+                                      py={1.5}
+                                      borderRadius="full"
+                                      fontWeight="medium"
+                                      fontSize="xs"
+                                      textTransform="none"
+                                      letterSpacing="tight"
+                                      boxShadow="sm"
+                                    >
+                                      {dean.department}
+                                    </Badge>
+                                  </Td>
+                                 <Td>
+                                  <button
+                                onClick={() =>
+                                  setActiveStatuses((prev) => ({
+                                    ...prev,
+                                    [dean.email]: !(prev[dean.email] ?? true), 
+                                  }))
+                                }
+                                  style={{
+                                        backgroundColor: activeStatuses[dean.email] ?? true ? 'green' : 'red',
+                                        color: 'white',
+                                        border: 'none',
+                                        padding: '8px 20px',
+                                        borderRadius: '999px',
+                                        cursor: 'pointer',
+                                      }}
+                                    >
+                                      {activeStatuses[dean.email] ?? true ? 'Active' : 'Inactive'}
+                                    </button>
+                                  </Td>
+                                </Tr>
+                              );
+                            })}
+
                     </Tbody>
                   </Table>
                 </TableContainer>

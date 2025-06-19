@@ -9,8 +9,6 @@ const isFresh = (timestamp) => {
 
 
 export const useAdminStore = create((set) => ({
-
-  
   // State
   diplomas: [],
   allRequest: [],
@@ -19,64 +17,66 @@ export const useAdminStore = create((set) => ({
   departmentsArr:[],
   statistics: {},
   allDean: [],
+  deanName: "",
+  colleges: [],
+
   
 
 
-    studentDetails: JSON.parse(sessionStorage.getItem("studentDetails") || "[]"),
+  studentDetails: JSON.parse(sessionStorage.getItem("studentDetails") || "[]"),
   
-    fetchStudentDetails: async (department, expectedYearToGraduate) => {
-      try {
-        const storageKey = `students-${department}-${expectedYearToGraduate}`;
-        
-        // Check cache freshness
-        const cachedData = sessionStorage.getItem(storageKey);
-        const cachedTimestamp = sessionStorage.getItem(`${storageKey}-timestamp`);
-  
-        // pag fresh keep, pag greater than 5 minutes fetch from the backend      
-        if (cachedData && cachedTimestamp && isFresh(Number(cachedTimestamp))) {
-          set({ studentDetails: JSON.parse(cachedData) });
-          return;
-        }
-  
-  
-        // Fetch fresh data
-        const response = await axiosInstances.get('/admin/getSignedDiplomaByDepartment', {
-          params: { department, expectedYearToGraduate }
-        });
-        console.log("the response",response.data)
-  
-  
-        // Update storage and state
-        const now = Date.now();
-        sessionStorage.setItem(storageKey, JSON.stringify(response.data));
-        sessionStorage.setItem(`${storageKey}-timestamp`, now.toString());
-        set({ studentDetails: response.data });
-        
-      } catch (error) {
-        console.error("Fetch error:", error);
-        set({ studentDetails: [] });
-      }
-    },
-  
+   fetchStudentDetails: async (department, expectedYearToGraduate) => {
+  try {
+    const storageKey = `students-${department}-${expectedYearToGraduate}`;
+    
+    const cachedData = sessionStorage.getItem(storageKey);
+    const cachedTimestamp = sessionStorage.getItem(`${storageKey}-timestamp`);
 
-  checkDiplomas: async (department, year) => {
-    try {
-      const response = await axiosInstances.get("/admin/checkDiploma", {
-        params: { department, year },
-      });
-      
-      if (response.data?.students) {
-        set({ diplomas: response.data.students });
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error("Error checking diplomas:", error.message);
-      return false;
+    if (cachedData && cachedTimestamp && isFresh(Number(cachedTimestamp))) {
+      const parsed = JSON.parse(cachedData);
+      set({ studentDetails: parsed.students, deanName: parsed.deanName });
+      return;
     }
-  },
 
-  // Send diploma session to server
+    const response = await axiosInstances.get('/admin/getSignedDiplomaByDepartment', {
+      params: { department, expectedYearToGraduate }
+    });
+
+    const { students, deanName } = response.data;
+
+    const now = Date.now();
+    sessionStorage.setItem(storageKey, JSON.stringify({ students, deanName }));
+    sessionStorage.setItem(`${storageKey}-timestamp`, now.toString());
+
+    set({ studentDetails: students, deanName }); 
+  } catch (error) {
+    console.error("Fetch error:", error);
+    set({ studentDetails: [], deanName: "" });
+  }
+},
+
+
+ checkDiplomas: async (department, year) => {
+  try {
+    const response = await axiosInstances.get("/admin/checkDiploma", {
+      params: { department, year },
+    });
+
+    if (response.data?.students) {
+      set({
+        diplomas: response.data.students,
+        deanName: response.data.deanName || "", 
+      });
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error("Error checking diplomas:", error.message);
+    return false;
+  }
+},
+
+
   sendSession: async (session) => {
     try {
       const response = await axiosInstances.post("/admin/sendDiplomaSession", session);
@@ -227,7 +227,6 @@ getAllDean: async () => {
   }
 },
 
-//TODO
 sendEmailCredentials: async (email, password) => {
 
   try {
@@ -246,5 +245,47 @@ sendEmailCredentials: async (email, password) => {
     console.error("Error sending email:", error.message);
     return false;
   }
-}
+},
+
+addCollegeDepartment: async (collegeName, collegeAbv) =>{
+
+  try {
+    const res = await axiosInstances.post("/admin/addCollege",{
+      collegeName,
+      collegeAbv
+    });
+    if (res.status === 201){
+      console.log("Success")
+    }
+
+  } catch (error) {
+    console.log(error)
+  }
+},
+
+getAllColleges: async () => {
+    try {
+      const response = await axiosInstances.get("/admin/getCollege");
+      if (response.data?.colleges) {
+        set({ colleges: response.data.colleges });
+        return response.data.colleges;
+      }
+      console.log("No colleges found");
+      set({ colleges: [] });
+    } catch (error) {
+      console.error("Error getting colleges:", error.message);
+      set({ colleges: [] });
+    }
+},
+
+// updateDeanStatus: async (deanId, updateData) => {
+//   try {
+//     const response = await axiosInstances.patch(`/admin/deanStatusHandler/${deanId}`, updateData);
+//     return response.data;
+//   } catch (error) {
+//     console.error('Error updating dean status:', error);
+//     throw error;
+//   }
+// },
+
 }));

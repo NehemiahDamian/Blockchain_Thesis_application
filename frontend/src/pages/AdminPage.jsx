@@ -12,7 +12,7 @@ import DiplomaTemplate from "../components/DiplomaTemplate";
 
 
 function AdminPage() {
-  const { diplomas, checkDiplomas, sendSession } = useAdminStore();
+  const { diplomas, checkDiplomas, sendSession, deanName, colleges, getAllColleges } = useAdminStore();
   const [studentDiploma, setStudentDiploma] = useState({
     department: "",
     year: "",
@@ -23,6 +23,10 @@ function AdminPage() {
     year: "",
     sessionName: "",
   });
+
+  useEffect(() => {
+      getAllColleges();
+    }, []);
   
   const [isSearchSubmitted, setIsSearchSubmitted] = useState(false);
   const [entriesCount, setEntriesCount] = useState(10);
@@ -36,20 +40,20 @@ function AdminPage() {
   const toast = useToast(); // notifications
 
   // colleges for dropdowns
-  const colleges = [
-      { value: "", label: "Select College" },
-      // { value: "COT", label: "College of Technology" },
-      // { value: "CAS", label: "College of Arts and Sciences" },
-      // { value: "CBA", label: "College of Business Administration" },
-      // { value: "CIR", label: "College of International Relations" },
-      // { value: "CITHM", label: "College of International Tourism and Hospitality Management" },
-      { value: "College of Technology", label: "College of Technology" },
-      { value: "College of International Tourism and Hospitality Management", label: "College of International Tourism and Hospitality Management" },
-      { value: "College of Arts and Sciences", label: "College of Arts and Sciences" },
-      { value: "College of Business Administration", label: "College of Business Administration" },
-      { value: "College of Law", label: "College of Law" },
+  // const colleges = [
+  //     { value: "", label: "Select College" },
+  //     // { value: "COT", label: "College of Technology" },
+  //     // { value: "CAS", label: "College of Arts and Sciences" },
+  //     // { value: "CBA", label: "College of Business Administration" },
+  //     // { value: "CIR", label: "College of International Relations" },
+  //     // { value: "CITHM", label: "College of International Tourism and Hospitality Management" },
+  //     { value: "College of Technology", label: "College of Technology" },
+  //     { value: "College of International Tourism and Hospitality Management", label: "College of International Tourism and Hospitality Management" },
+  //     { value: "College of Arts and Sciences", label: "College of Arts and Sciences" },
+  //     { value: "College of Business Administration", label: "College of Business Administration" },
+  //     { value: "College of Law", label: "College of Law" },
 
-  ];
+  // ];
 
   
 
@@ -78,7 +82,6 @@ function AdminPage() {
   };
 
   const handleCreateSession = async (e) => {
-    // Validate session name first
     if (!session.sessionName.trim()) {
       toast({
         title: "Session title required",
@@ -89,7 +92,6 @@ function AdminPage() {
       });
       return;
     }
-    // Open confirmation modal instead of immediately submitting
     onConfirmOpen();
   };
 
@@ -101,7 +103,6 @@ function AdminPage() {
     onSuccessOpen();
   };
 
-  // 🔍 Watch for updates to diplomas
   useEffect(() => {
     console.log("Diplomas updated:", diplomas);
   }, [diplomas]);
@@ -125,7 +126,6 @@ function AdminPage() {
     setCurrentPage(page);
   };
   
-  // Generate pagination numbers
   const generatePaginationNumbers = () => {
     let pages = [];
     
@@ -200,12 +200,10 @@ function AdminPage() {
 
       {/* Content */}
       <Flex p={6} minH="calc(100vh - 140px)" direction={{ base: "column", md: "row" }} gap={6}>
-      {/* Left Panel (Search Form) */}
         <Box w={{ base: "100%", md: "25%" }} h="fit-content">
           <Box {...cardStyle} mb={2}>
           <Heading size="md" mb={4}>Search Diplomas</Heading>
           <form onSubmit={handleSubmit}>
-            {/* Changed the Enter College to Dropdown */}
             <Text mb={2} fontWeight="medium">College:</Text>
               <Select 
                 value={studentDiploma.department}
@@ -213,11 +211,12 @@ function AdminPage() {
                 mb={4}
                 required
               >
-                {colleges.map((college) => (
-                <option key={college.value} value={college.value} disabled={college.value === ""}>
-                  {college.label}
-                </option>
-                ))}
+                <option value="" disabled hidden>Department</option>
+            {colleges.map((college) => (
+              <option key={college._id} value={college.collegeName}>
+                {college.collegeName}
+              </option>
+            ))}     
               </Select>
             {/*<input
               type="text"
@@ -233,7 +232,7 @@ function AdminPage() {
               <Input
                 type="text"
                 value={studentDiploma.year}
-                placeholder="20xx-20xx"
+                placeholder="20xx"
                 onChange={(e) =>
                 setStudentDiploma({ ...studentDiploma, year: e.target.value })
                 }
@@ -384,36 +383,36 @@ function AdminPage() {
               </Flex>
             )}
           {/* Diplomas List */}
-          {diplomas.length > 0 ? (
-            <Grid templateColumns={{ base: "repeat(1, 1fr)" }} gap={6} p={6}>
-              {paginatedStudents.map((student) => ( //changed to show paginated students
-                  <Box 
-                  key={student._id}
-                  border="1px"
-                  borderColor="gray.200"
-                  borderRadius="md"
-                  overflow="hidden"
-                  transition="transform 0.2s"
-                  _hover={{ transform: "scale(1.02)" }}
+       {diplomas.length > 0 ? (
+              <Grid templateColumns={{ base: "repeat(1, 1fr)" }} gap={6} p={6}>
+                {paginatedStudents.map((student) => (
+                  <Box
+                    key={student._id}
+                    border="1px"
+                    borderColor="gray.200"
+                    borderRadius="md"
+                    overflow="hidden"
+                    transition="transform 0.2s"
+                    _hover={{ transform: "scale(1.02)" }}
                   >
-                    <DiplomaTemplate 
-                    studentName={student.fullName}
-                    studentId={student.idNumber || student.uniqueToken}
-                    department={student.program || student.department}
-                    graduationYear={student.expectedYearToGraduate || student.year}
-                    gwa={student.GWA} // Just add this
-                    uniqueToken={student.uniqueToken}
-
+                    <DiplomaTemplate
+                      studentName={student.fullName}
+                      studentId={student.idNumber || student.uniqueToken}
+                      department={student.program || student.department}
+                      graduationYear={student.expectedYearToGraduate || student.year}
+                      gwa={student.GWA}
+                      uniqueToken={student.uniqueToken}
+                      deanName={deanName}
                     />
-                    {/*{student.fullName} - {student.program} - {student.uniqueToken} - {student.email}*/}
-                </Box>
-              ))}
-            </Grid>
-          ) : (
-            <Text p={6} color="gray.500" textAlign="center">
-              No diplomas found for the selected criteria.
-            </Text>
-          )}
+                  </Box>
+                ))}
+              </Grid>
+            ) : (
+              <Text p={6} color="gray.500" textAlign="center">
+                No diplomas found for the selected criteria.
+              </Text>
+            )}
+
         {filteredDiplomas.length > entriesCount && (
             <Flex justify="center" align="center" p={3} borderTop="1px" borderColor="gray.200" bg="gray.50">
               <ButtonGroup isAttached variant="outline" size="sm">

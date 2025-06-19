@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import { axiosInstances } from "../lib/axios";
 
-// Helper function outside the store
 const isFresh = (timestamp) => {
   return (Date.now() - timestamp) < (5 * 60 * 1000); // 5 minute cache
 };

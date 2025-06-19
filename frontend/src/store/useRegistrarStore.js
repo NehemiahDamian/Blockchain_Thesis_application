@@ -9,47 +9,52 @@ const isFresh = (timestamp) => {
 export const useRegistrarStore = create((set) => ({
   departmentYears: [],
   studentDetails: JSON.parse(sessionStorage.getItem("studentDetails") || "[]"),
+  deanName: "",
+ fetchStudentDetails: async (department, expectedYearToGraduate) => {
+  try {
+    const storageKey = `students-${department}-${expectedYearToGraduate}`;
+    
+    const cachedData = sessionStorage.getItem(storageKey);
+    const cachedTimestamp = sessionStorage.getItem(`${storageKey}-timestamp`);
 
-  fetchStudentDetails: async (department, expectedYearToGraduate) => {
-    try {
-      const storageKey = `students-${department}-${expectedYearToGraduate}`;
-      
-      // Check cache freshness
-      const cachedData = sessionStorage.getItem(storageKey);
-      const cachedTimestamp = sessionStorage.getItem(`${storageKey}-timestamp`);
-
-      // pag fresh keep, pag greater than 5 minutes fetch from the backend      
-      if (cachedData && cachedTimestamp && isFresh(Number(cachedTimestamp))) {
-        set({ studentDetails: JSON.parse(cachedData) });
-        return;
-      }
-
-
-      // Fetch fresh data
-      const response = await axiosInstances.get('/registrar/getSignedDiplomaByDepartment', {
-        params: { department, expectedYearToGraduate }
+    if (cachedData && cachedTimestamp && isFresh(Number(cachedTimestamp))) {
+      const parsed = JSON.parse(cachedData);
+      set({
+        studentDetails: parsed.students || [],
+        deanName: parsed.deanName || "",
       });
-      console.log("the response",response.data)
-
-
-      // Update storage and state
-      const now = Date.now();
-      sessionStorage.setItem(storageKey, JSON.stringify(response.data));
-      sessionStorage.setItem(`${storageKey}-timestamp`, now.toString());
-      set({ studentDetails: response.data });
-      
-    } catch (error) {
-      console.error("Fetch error:", error);
-      set({ studentDetails: [] });
+      return;
     }
-  },
+
+    // Fetch fresh data
+    const response = await axiosInstances.get('/registrar/getSignedDiplomaByDepartment', {
+      params: { department, expectedYearToGraduate }
+    });
+
+    const { students, deanName } = response.data;
+
+    // Cache and set
+    const now = Date.now();
+    sessionStorage.setItem(storageKey, JSON.stringify(response.data));
+    sessionStorage.setItem(`${storageKey}-timestamp`, now.toString());
+
+    set({
+      studentDetails: students || [],
+      deanName: deanName || "",
+    });
+
+  } catch (error) {
+    console.error("Fetch error:", error);
+    set({ studentDetails: [], deanName: "" });
+  }
+},
+
 
   fetchDepartmentYears: async () => {
     try {
       const response = await axiosInstances.get('/registrar/getSignedDiploma');
       const apiData = response.data;
       
-      // Convert to flat array format
       const flatData = [];
       for (const department in apiData) {
         apiData[department].forEach(year => {

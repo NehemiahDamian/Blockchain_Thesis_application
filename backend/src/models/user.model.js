@@ -82,7 +82,12 @@ resetTokenExpiry: {
     type: String,
     required: function () { return this.role === "student"; }
   },  
-
+    status: {
+      type: String,
+      enum: ['active', 'inactive'],
+      default: 'active'
+    },
+   
   privateKey: 
   { type: String, 
     sparse: true, 

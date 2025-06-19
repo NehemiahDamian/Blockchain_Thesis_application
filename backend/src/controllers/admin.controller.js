@@ -6,8 +6,9 @@ import { DiplomaSession } from "../models/diploma.session.model.js";
 import { verificationModel } from "../models/verification.model.js";
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
-import dotenv from 'dotenv'; // Add this at the top of your file
-dotenv.config(); // Load environment variables
+import dotenv from 'dotenv'; 
+import {college} from  "../models/college.department.model.js"
+dotenv.config(); 
 
 
 export const getSignedDiplomaByDepartment = async (req, res) => {
@@ -19,9 +20,15 @@ export const getSignedDiplomaByDepartment = async (req, res) => {
     if (!signedDiplomas || signedDiplomas.length === 0) {
       return res.status(404).json({ message: "No signed diplomas found" });
     }
+    const dean = await User.findOne({ role: "dean", department });
+    const deanName = dean ? dean.fullName : "Dean not found";
+    
 
 
-    return res.status(200).json(signedDiplomas);
+return res.status(200).json({
+  students: signedDiplomas,
+  deanName: deanName,
+});
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Internal server error" });
@@ -119,18 +126,21 @@ export const getDiplomaByDepartment = async (req, res) => {
   const { department, year } = req.query;
 
   try {
-    const treamYear = year.trim()
+    const dean = await User.findOne({ role: "dean", department });
+    const treamYear = year
     const students = await User.find({
       role: "student",
       department:department,
       expectedYearToGraduate:treamYear,
     });
 
+    const deanName = dean ? dean.fullName : "Dean not found";
+
     if (!students.length) {
       return res.status(404).json({ message: "No students found." });
     }
 
-    res.status(200).json({ students });
+    res.status(200).json({ students, deanName });
   } catch (err) {
     console.log(err)
     res.status(500).json({ message: "Server error." });
@@ -237,7 +247,6 @@ export const getStudentforBlockchainUpload = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 }
-//Todo
 
 export const uploadtoArchive = async (req, res) => {
   try {
@@ -250,18 +259,15 @@ export const uploadtoArchive = async (req, res) => {
       department,
     } = req.body;
 
-    // 🛑 Check for missing fields
     if (!fullName || !fileUrl || !uniqueToken || !program || !department || !expectedYearToGraduate) {
       return res.status(400).json({ message: "Please complete the details" });
     }
 
-    // 🔎 Look for existing student by uniqueToken
     const student = await verificationModel.findOne({ uniqueToken });
     if (student) {
       return res.status(409).json({ message: "Student already exists" });
     }
 
-    // ✅ Create a new student record
     const newStudent = await verificationModel.create({
       fileUrl,
       fullName,
@@ -361,9 +367,7 @@ export const getRegisteredDean = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 }
-
-//TODO 
-
+ 
 export const sendcredentialsToEmail = async (req, res) => {
 
   try {
@@ -385,8 +389,11 @@ export const sendcredentialsToEmail = async (req, res) => {
         const mailOptions = {
           from: process.env.EMAIL_USER,
           to: email,
-          subject: 'Your Credentials',
-          text: `Here are your credentials: ${password} and your email address to use is ${email}`
+          subject: 'CertChain Login Credentials',
+          text: `Here are your credentials: Email: ${email} 
+          Temporary Password: is ${password}
+          Please change your password after logging in for security purposes.
+          `
         };
 
         await transporter.sendMail(mailOptions);
@@ -396,3 +403,78 @@ export const sendcredentialsToEmail = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
+export const addCollege = async (req, res) => {
+  const { collegeName, collegeAbv } = req.body;
+
+  try {
+    if (!collegeName || !collegeAbv) {
+      return res.status(400).json({ message: "Fields should not be empty" });
+    }
+
+    const existingCollege = await college.findOne({ collegeName, collegeAbv });
+    if (existingCollege) {
+      return res.status(409).json({ message: "College already exists" });
+    }
+
+    const newCollege = new college({ collegeName, collegeAbv });
+
+    if(newCollege){
+    await newCollege.save();
+
+    res.status(201).json({ collegeName });
+    }
+
+   
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Server error" }); 
+  }
+};
+
+export const getCollege = async(req, res) =>{
+  try {
+    const allColleges = await college.find({});
+    if (!allColleges || allColleges.length === 0) {
+      return res.status(404).json({ message: "No colleges found" });
+    }
+    return res.status(200).json({ colleges: allColleges });
+
+
+
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Server error" });
+  }
+}
+
+
+// // deanController.js
+// export const deanStatusHandler = async (req, res) => {  
+//   try {
+//     const { status } = req.body;
+    
+//     // Validate status
+//     if (!['active', 'inactive'].includes(status)) {
+//       return res.status(400).json({ error: 'Invalid status value' });
+//     }
+
+//     const dean = await User.findByIdAndUpdate(
+//       req.params.id,
+//       { status },
+//       { new: true }
+//     ).select('-password');
+    
+//     if (!dean) {
+//       return res.status(404).json({ error: 'Dean not found' });
+//     }
+
+//     res.json(dean);
+//   } catch (error) {
+//     console.error('Dean status update error:', error);
+//     res.status(500).json({ error: error.message });
+//   }
+
+// };

@@ -9,29 +9,27 @@ import {
 } from "@chakra-ui/react";
 import { FaCheckCircle, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import DiplomaTemplate from "../components/DiplomaTemplate";
+import { useAuthStore } from "../store/useAuthStore";
 
 function ViewDiplomasPage() {
   // const [department, setDepartment] = useState("");
   // const authUser = useAuthStore(state => state.authUser); // Get authUser inside component
 
-  // button states
   const [signatureUploaded, setSignatureUploaded] = useState(false);
   const [showDigitalSignBtn, setShowDigitalSignBtn] = useState(false);
-  // signatures states
   const {  UrlSession, studentDetails, getEsignature, digitalSignature, eSignature, sessionName } = useDeanStore();
   const [esignatures, setEsignature] = useState(null);
   const [handleEsigbtn, setHandleEsigbtn] = useState(false);
-  // Search and filter states
   const [searchTerm, setSearchTerm] = useState("");
   const [entriesCount, setEntriesCount] = useState(10);
   
-  // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
 
   // Modal
   const { isOpen: isConfirmOpen, onOpen: onConfirmOpen, onClose: onConfirmClose } = useDisclosure();
   const { isOpen: isCompletionOpen, onOpen: onCompletionOpen, onClose: onCompletionClose } = useDisclosure();
   const toast = useToast(); // For notifications
+  const {authUser} = useAuthStore();
   
   // useEffect(() => {
   //   const storedSession = sessionStorage.getItem("deanSession");
@@ -344,7 +342,8 @@ const confirmSign = async () => {
                       graduationYear={student.expectedYearToGraduate}
                       signature={signatureUploaded ? esignatures : null}
                       signerRole="dean"
-                        gwa={student.GWA} // Just add this
+                      gwa={student.GWA} // Just add this
+                      deanName = {authUser?.fullName} // Assuming authUser is available
 
                     />
                   </Box>
