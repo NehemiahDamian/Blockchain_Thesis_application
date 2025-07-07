@@ -188,7 +188,7 @@ function DiplomaTemplate({
             )
           )}
           <Text fontSize="13px" color="#000000" mt="5px">
-            {deanName}
+           Dr.{deanName}
           </Text>
           <Text fontSize="12px" color="#000000" mt="-2px" fontStyle="italic">
             College Dean

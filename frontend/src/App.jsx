@@ -28,6 +28,8 @@ import VerifierHomePage from "./pages/VerifierHomePage.jsx";
 import FilteredAdminBchain from "./pages/filteredAdminForBChain.jsx";
 import AdminStudentRequest from "./pages/AdminStudentRequest.jsx"
 import VerifierPage from "./pages/VerifierPage.jsx";
+
+import FilteredByProgram from "./pages/DeanStudenFilteredPage.jsx";
 import AdminArchives from "./pages/Archives.jsx";
 import FilteredArchive from "./pages/FilteredArchive.jsx";
 import ArchiveBydepartment from "./pages/ArchiveByDepartment.jsx";
@@ -131,6 +133,11 @@ function App() {
         path="/dean/view-diplomas" 
         element={authUser?.role=== "dean" ? <ViewDiplomasPage/> : <Navigate to="/dean/login" state={{ from: "/dean/view-diplomas" }} />} 
       />
+
+     <Route
+        path="/dean/:programName"  // Add parameter name
+        element={authUser?.role === "dean" ? <FilteredByProgram /> : <Navigate to="/dean/login" state={{ from: "/dean/view-diplomas"}} />}
+/>
 
       {/* registrar route */}
 

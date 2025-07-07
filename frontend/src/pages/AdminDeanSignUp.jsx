@@ -206,7 +206,6 @@ const [activeStatuses, setActiveStatuses] = useState({});
             </VStack>
           </form>
 
-          {/* Dean List Table Section */}
           <Box mt={10} width="100%" overflowX="auto">
             <Flex justify="space-between" align="center" mb={4}>
               <Heading size="md" color="gray.700">Registered Deans</Heading>
@@ -256,7 +255,6 @@ const [activeStatuses, setActiveStatuses] = useState({});
                     </Thead>
                     <Tbody fontSize="md">
                       {allDean.map((dean, index) => {
-                            //  const isActive = activeStatuses[dean._id] ?? true; // default to active
                              return (
                                 <Tr
                                   key={`${dean.email}-${index}`}
@@ -353,7 +351,6 @@ const [activeStatuses, setActiveStatuses] = useState({});
         </Box>
       </Flex>
 
-      {/* Success Modal */}
       <Modal isOpen={isOpen} onClose={handleCloseModal} isCentered>
         <ModalOverlay />
         <ModalContent borderRadius="lg" maxW="500px">

@@ -76,7 +76,7 @@ const DeanEsig= () => {
       duration: 3000,
       isClosable: true,
     });
-    console.log("Form submitted:", formData, signature);
+    // console.log("Form submitted:", formData, signature);
   };
 
   const handleCancel = () => {

@@ -34,7 +34,6 @@ const StudentSignup = () => {
     role: "student"
   });
 
-  // Password state
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   // Modal
@@ -123,7 +122,6 @@ const StudentSignup = () => {
       </Link>
       <form onSubmit={handleSubmit}>
         <Flex direction="column" gap="4">
-            {/* Full Name & Email Row*/}
           <Flex gap="4" direction={{ base: "column", md: "row" }}>
           <FormControl isRequired>
               <InputGroup>
@@ -174,7 +172,6 @@ const StudentSignup = () => {
               </FormControl>
             </Flex>
 
-            {/* ID number */}
             <FormControl isRequired>
               <InputGroup>
                 <InputLeftElement pointerEvents="none">
@@ -295,7 +292,6 @@ const StudentSignup = () => {
               
             </Flex>
 
-            {/* Expected year to graduate */}
             <FormControl isRequired>
               <InputGroup>
                 <InputLeftElement pointerEvents="none">
