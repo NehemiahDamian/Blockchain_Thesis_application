@@ -12,7 +12,6 @@ function AdminDashboard() {
   const navigate = useNavigate();
   const{ fetchDepartmentYears, departmentYears, fetchStudentDetails } = useAdminStore()
 
-  // for fetching yung mga coleges and years
   useEffect(() => {
     fetchDepartmentYears()
   }, [fetchDepartmentYears]);
@@ -49,7 +48,6 @@ function AdminDashboard() {
     }
   };
   
-  // for the buttons
   const [viewMode, setViewMode] = useState(null); // null, 'view-signed'
   const [filterValue, setFilterValue] = useState('All');
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -69,7 +67,6 @@ function AdminDashboard() {
 
   //tas gawa nlng ng button dito for the filtered pages ng mga isisign
 
-  // Common styles for reuse
   const cardStyles = {
     flex: "1",
     display: "flex",
@@ -152,7 +149,6 @@ function AdminDashboard() {
         }
       }].filter(dept => dept.status === filterValue);
 
-  // Animation styles
   const fadeInAnimation = {
     animation: "fadeIn 0.3s ease-in-out forwards",
     "@keyframes fadeIn": {
@@ -161,7 +157,6 @@ function AdminDashboard() {
     }
   };
 
-  // Scrollable container style
   const scrollableContainerStyle = {
     maxHeight: "300px",
     overflowY: "auto",

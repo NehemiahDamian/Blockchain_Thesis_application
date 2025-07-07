@@ -23,7 +23,6 @@ function DeanHomePage() {
   // eto yung function nayon need den to mahalaga to no 
   // hinde pede tanggalen
   const getDeanDepartment = async (e) => {
-    // need to for not doing the default things ng React medyo magulo hirap iexplain
     e.preventDefault();
   
     console.log("authUser:", authUser);
@@ -101,24 +100,24 @@ function DeanHomePage() {
             borderColor="gray.200"
           >
             <Heading size="md">{authUser?.department} Diplomas</Heading>
-            
+{/*             
             <Flex 
               mt={{ base: 4, md: 0 }}
               w={{ base: "full", md: "auto" }}
               gap={4}
               direction={{ base: "column", md: "row" }}
               align={{ base: "stretch", md: "center" }}
-            >
-              <Input 
+            > */}
+              {/* <Input 
                 placeholder="Search Name:" 
                 size="md" 
                 w={{ base: "full", md: "200px" }}
                 borderRadius="full"
                 onChange={(e) => setSearchTerm(e.target.value)}
                 _focus={{ borderColor: "red.500", boxShadow: "0 0 0 1px rgba(211, 49, 57, 0.1)" }}
-              />
+              /> */}
               
-              <Flex align="center">
+              {/* <Flex align="center">
                 <Text fontSize="sm" mr={2}>Show</Text>
                 <Select 
                   size="sm" 
@@ -130,9 +129,9 @@ function DeanHomePage() {
                   ))}
                 </Select>
                 <Text fontSize="sm" ml={2}>entries</Text>
-              </Flex>
+              </Flex> */}
             </Flex>
-          </Flex>
+          {/* </Flex> */}
 
           {/* Diploma Grid */}
           <Grid templateColumns={{ base: "repeat(1, 1fr)" }} gap={6} p={6}>
