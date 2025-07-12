@@ -22,6 +22,8 @@ const Navbar = () => {
     try {
       // Default redirect path
       let redirectPath = '/dean/login';
+
+      localStorage.removeItem('deanEulaAccepted'); // magcclear yung EULA 
       
       // Call the logout function from the store
       const result = await logout();

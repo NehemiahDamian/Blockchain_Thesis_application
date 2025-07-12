@@ -173,97 +173,128 @@ function ArchiveBydepartment() {
     [filteredData, itemsPerPage]
   );
 
- // Print function
-  const handlePrint = useCallback(() => {
-    if (!tableRef.current) return;
+// Print function
+const handlePrint = useCallback(() => {
+  if (!tableRef.current) return;
+  
+  setIsPrinting(true);
+  
+  // Create a clone of the table to modify for printing
+  const printContent = document.createElement('div');
+
+  const collegeName = filteredData.length > 0 ? filteredData[0].department : '';
+  printContent.innerHTML = `
+    <div style="padding: 2px; position: relative; min-height: 100vh;">
+    <div style="font-size: 13px; text-align: center; margin-bottom: 20px; padding-bottom: -5px; color: #000000;">
+          <h2 style="font-size: 17px; font-weight: bold;">Lyceum of the Philippines University</h2>
+          <p style="font-style: italic;"> Muralla St, Intramuros, Manila, 1002 Metro Manila </p>
+          <h2 style="font-size: 17px; font-weight: bold; margin-top: 10px; ">Diploma Archives - ${collegeName}  </h2>
+    </div>
+    <div id="table-container"></div>
+  `;
+  
+  // Create the archive table
+  const archiveTable = document.createElement('table');
+  archiveTable.style.width = '100%';
+  archiveTable.style.borderCollapse = 'collapse';
+  archiveTable.style.fontSize = '12px';
+  
+  // Create header row
+  const headerRow = document.createElement('tr');
+  
+  // Define columns for archive report
+  const columns = [
+    { label: ' ', key: 'index' },
+    { label: 'Token', key: 'uniqueToken' },
+    { label: 'Full Name', key: 'fullName' },
+    { label: 'Program', key: 'program' },
+    { label: 'Year Graduated', key: 'expectedYearToGraduate' }
+  ];
+  
+  // Create header cells
+  columns.forEach(column => {
+    const th = document.createElement('th');
+    th.textContent = column.label;
+    th.style.border = '1px solid #000';
+    th.style.padding = '5px';
+    th.style.backgroundColor = '#f0f0f0';
+    th.style.textAlign = 'left';
+
+    if (column.key === 'uniqueToken') {
+      th.style.width = '230px';
+    }
+
+    headerRow.appendChild(th);
+  });
+  
+  
+  archiveTable.appendChild(headerRow);
+  
+  // Add data rows
+  filteredData.forEach((student, index) => {
+    const row = document.createElement('tr');
     
-    setIsPrinting(true);
-    
-    // Create a clone of the table to modify for printing
-    const printContent = document.createElement('div');
-    printContent.innerHTML = `
-      <div style="padding: 2px;">
-        <div style="font-size: 14px; text-align: center; margin-bottom: 20px; color: #000000;">
-          <h2 style="margin-bottom: 3px; font-size: 15px;">Diploma Archives Report</h2>
-          <p style="margin: 0; font-size: 14px;">${selectedCollege || ''} - ${selectedYear || 'All Years'} | Generated on: ${new Date().toLocaleString()} ${searchTerm ? `| Filtered by: "${searchTerm}"` : ''}</p>
-        </div>
-        <div id="table-container"></div>
-      </div>
-    `;
-    
-    // Create the archive table
-    const archiveTable = document.createElement('table');
-    archiveTable.style.width = '800px';
-    archiveTable.style.height = '475px';
-    archiveTable.style.borderCollapse = 'collapse';
-    archiveTable.style.fontSize = '12px';
-    
-    // Create header row
-    const headerRow = document.createElement('tr');
-    
-    // Define columns for archive report
-    const columns = [
-      { label: 'Full Name', key: 'fullName' },
-      { label: 'Department', key: 'department' },
-      { label: 'Program', key: 'program' },
-      { label: 'Token', key: 'uniqueToken' },
-      { label: 'Year Graduated', key: 'expectedYearToGraduate' }
-    ];
-    
-    // Create header cells
     columns.forEach(column => {
-      const th = document.createElement('th');
-      th.textContent = column.label;
-      th.style.border = '1px solid #000';
-      th.style.padding = '5px';
-      th.style.backgroundColor = '#f0f0f0';
-      th.style.textAlign = 'left';
-      headerRow.appendChild(th);
-    });
-    
-    archiveTable.appendChild(headerRow);
-    
-    // Add data rows
-    filteredData.forEach(student => {
-      const row = document.createElement('tr');
+      const td = document.createElement('td');
       
-      columns.forEach(column => {
-        const td = document.createElement('td');
+      if (column.key === 'index') {
+        td.textContent = (index + 1).toString();
+      } else {
         td.textContent = student[column.key] || '';
-        td.style.border = '1px solid #000';
-        td.style.padding = '5px';
-        row.appendChild(td);
-      });
+      }
       
-      archiveTable.appendChild(row);
+      td.style.border = '1px solid #000';
+      td.style.padding = '5px';
+      row.appendChild(td);
     });
     
-    // Append the archive table
-    printContent.querySelector('#table-container').appendChild(archiveTable);
+    archiveTable.appendChild(row);
+  });
+  
+  // Append the archive table
+  printContent.querySelector('#table-container').appendChild(archiveTable);
+  
+ 
+  // Configure html2pdf options
+  const opt = {
+    margin: [5, 5, 20, 5], // increased bottom margin for footer: top, right, bottom, left
+    filename: `diploma_archives_report_${new Date().toISOString().slice(0,10)}.pdf`,
+    image: { type: 'jpeg', quality: 0.95 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+    output: 'dataurlnewwindow',
+    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+  };
+  
+  // Generate PDF and open in new window first
+  html2pdf().from(printContent).set(opt).toPdf().get('pdf').then((pdf) => {
+    // Add page numbers to all pages
+    const pageCount = pdf.internal.getNumberOfPages();
     
-    // Configure html2pdf options
-    const opt = {
-      margin: [10, 10, 10, 10],
-      filename: `diploma_archives_${selectedCollege || 'all'}_${selectedYear || 'all'}_${new Date().toISOString().slice(0,10)}.pdf`,
-      image: { type: 'jpeg', quality: 0.95 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
-      output: 'dataurlnewwindow'
-    };
-    
-    // Generate PDF and open in new window
-    html2pdf().from(printContent).set(opt).toPdf().get('pdf').then((pdf) => {
-      // Open PDF in new window
-      const blob = pdf.output('blob');
-      const url = URL.createObjectURL(blob);
-      window.open(url, '_blank');
+    for (let i = 1; i <= pageCount; i++) {
+      pdf.setPage(i);
       
-      setIsPrinting(false);
-    }).catch(err => {
-      console.error("Error generating PDF:", err);
-      setIsPrinting(false);
-    });
-  }, [filteredData, selectedCollege, selectedYear, searchTerm]);
+      // Add footer content for each page
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      
+      pdf.setFontSize(8);
+      pdf.text('Verified by: _________________', 10, pageHeight - 10);
+      pdf.text(`Generated on: ${new Date().toLocaleString()}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+      pdf.text(`Page ${i} of ${pageCount}`, pageWidth - 10, pageHeight - 10, { align: 'right' });
+    }
+    
+    // Open PDF in new window
+    const blob = pdf.output('blob');
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    
+    setIsPrinting(false);
+  }).catch(err => {
+    console.error("Error generating PDF:", err);
+    setIsPrinting(false);
+  });
+}, [searchTerm, selectedYear, filteredData]);
 
   const paginate = useCallback((pageNumber) => {
     setCurrentPage(pageNumber);

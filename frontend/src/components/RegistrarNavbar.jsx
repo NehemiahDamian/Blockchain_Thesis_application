@@ -21,6 +21,7 @@ const Navbar = () => {
   const handleLogout = async () => {
     try {
     let redirectPath = '/registrar/login'; 
+    localStorage.removeItem('registrarEulaAccepted'); // magcclear yung EULA 
 
     {/*
     if (authUser) {
