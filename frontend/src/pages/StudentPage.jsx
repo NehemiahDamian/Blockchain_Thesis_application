@@ -3,8 +3,8 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { Box, Flex, Text, Button, Image, VStack, HStack, useDisclosure, 
     Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton, FormControl, 
     FormLabel, Input, Radio, RadioGroup, useToast, Icon, Grid, GridItem, Heading, Badge, Spinner, Checkbox,
-    CheckboxGroup} from '@chakra-ui/react';
-import { FaHome, FaCog, FaSignOutAlt, FaPlus, FaFileAlt, FaCloudUploadAlt, FaCheckCircle, FaExclamationCircle } from 'react-icons/fa';
+    CheckboxGroup, ModalFooter, Divider} from '@chakra-ui/react';
+import { FaHome, FaCog, FaSignOutAlt, FaPlus, FaFileAlt, FaCloudUploadAlt, FaCheckCircle, FaExclamationCircle, FaFileContract } from 'react-icons/fa';
 import { useAuthStore } from "../store/useAuthStore";
 import { useStudentStore } from '../store/useStudenStore';
 
@@ -29,6 +29,14 @@ function StudentPage() {
     const [otherPurpose, setOtherPurpose] = useState(false);
     const [otherPurposeText, setOtherPurposeText] = useState('');
 
+    //states for EULA
+    const {
+        isOpen: isEulaModalOpen,
+        onOpen: onEulaModalOpen,
+        onClose: onEulaModalClose
+    } = useDisclosure();
+    const [eulaAccepted, setEulaAccepted] = useState(false);
+
     // Max requests modal
     const {
         isOpen: isMaxRequestsModalOpen,
@@ -47,12 +55,46 @@ function StudentPage() {
         }
     }, [authUser, getMyRequest]);
 
+    // EULA checking (nilagay ko nalang muna dito)
+    useEffect(() => {
+        const eulaAcceptedStatus = localStorage.getItem('eulaAccepted');
+        if (!eulaAcceptedStatus) {
+            onEulaModalOpen();
+        }
+    }, [onEulaModalOpen]);
+
     const { 
         isOpen: isDetailsModalOpen, 
         onOpen: onDetailsModalOpen, 
         onClose: onDetailsModalClose 
       } = useDisclosure();
       const [selectedRequest, setSelectedRequest] = useState(null);
+
+    // Handle EULA acceptance
+    const handleEulaAccept = () => {
+        setEulaAccepted(true);
+        localStorage.setItem('eulaAccepted', 'true');
+        onEulaModalClose();
+        toast({
+            title: "Terms Accepted",
+            description: "Thank you for accepting our End User License Agreement.",
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+            position: "bottom-left"
+        });
+    };
+
+    const handleEulaDecline = () => {
+        toast({
+            title: "Terms Declined",
+            description: "You must accept the EULA to use this service.",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+            position: "bottom-left"
+        });
+    };
 
     // Validation of request 
     const checkMaxRequestsReached = () => {
@@ -136,6 +178,7 @@ function StudentPage() {
 
     const handleLogout = () => {
         let redirectPath = '/student/login';
+        localStorage.removeItem('eulaAccepted'); // Clear EULA acceptance on logout
         logout();
         toast({
             title: "Logged out successfully",
@@ -301,6 +344,100 @@ function StudentPage() {
                 </Box>
             </Box>
 
+         {/* EULA MODAL */}
+        <Modal 
+            isOpen={isEulaModalOpen} 
+            onClose={() => {}} 
+            isCentered
+            closeOnOverlayClick={false}
+            closeOnEsc={false}
+            size="lg"
+        >
+            <ModalOverlay />
+            <ModalContent borderRadius="15px" mx={4}>
+                    <ModalHeader color="#8b0e0e" textAlign="center" pb={2}>
+                        <HStack justify="center" spacing={2}>
+                            <Icon as={FaFileContract} boxSize={6} />
+                            <Text fontSize="xl" fontWeight="bold">End User License Agreement</Text>
+                        </HStack>
+                    </ModalHeader>
+                    <Divider />
+                    <ModalBody py={4} maxH="400px" overflowY="auto">
+                        <VStack align="stretch" spacing={4}>
+                            <Text fontSize="sm" color="gray.600" fontWeight="medium">
+                                Please read and accept the following terms to continue using our diploma request service:
+                            </Text>
+                            
+                            <Box bg="gray.50" p={4} borderRadius="md" border="1px solid" borderColor="gray.200">
+                                <VStack align="stretch" spacing={3} fontSize="sm">
+                                    <Text fontWeight="semibold" color="#8b0e0e">1. Service Agreement</Text>
+                                    <Text>
+                                        By using this diploma request service, you agree to provide accurate and truthful information. 
+                                        Any false or misleading information may result in the rejection of your request.
+                                    </Text>
+                                    
+                                    <Text fontWeight="semibold" color="#8b0e0e">2. Request Limitations</Text>
+                                    <Text>
+                                        Each student is limited to a maximum of 2 diploma requests. Once this limit is reached, 
+                                        you must contact the registrar's office directly for any additional requests.
+                                    </Text>
+                                    
+                                    <Text fontWeight="semibold" color="#8b0e0e">3. Processing Time</Text>
+                                    <Text>
+                                        Diploma requests typically take 7-10 working days to process. You will be notified 
+                                        via email about the status of your request.
+                                    </Text>
+                                    
+                                    <Text fontWeight="semibold" color="#8b0e0e">4. Required Documents</Text>
+                                    <Text>
+                                        You must provide valid proof of payment and affidavit of loss. All documents must be 
+                                        clear and legible. Incomplete submissions will be rejected.
+                                    </Text>
+                                    
+                                    <Text fontWeight="semibold" color="#8b0e0e">5. Privacy Policy</Text>
+                                    <Text>
+                                        Your personal information and uploaded documents will be handled in accordance with 
+                                        our privacy policy and used solely for processing your diploma request.
+                                    </Text>
+                                    
+                                    <Text fontWeight="semibold" color="#8b0e0e">6. Contact Information</Text>
+                                    <Text>
+                                        For any concerns or questions regarding your request, please contact the LPU Registrar's Office.
+                                    </Text>
+                                </VStack>
+                            </Box>
+                            
+                            <Text fontSize="xs" color="gray.500" textAlign="center" fontStyle="italic">
+                                By clicking "I Accept", you acknowledge that you have read, understood, and agree to be bound by these terms.
+                            </Text>
+                        </VStack>
+                    </ModalBody>
+                    <ModalFooter pt={2}>
+                        <HStack spacing={3} w="full" justify="center">
+                            <Button
+                                variant="outline"
+                                colorScheme="red"
+                                onClick={handleEulaDecline}
+                                size="md"
+                                px={6}
+                            >
+                                Decline
+                            </Button>
+                            <Button
+                                bg="#8b0e0e"
+                                color="white"
+                                _hover={{ bg: "#6f0b0b" }}
+                                onClick={handleEulaAccept}
+                                size="md"
+                                px={8}
+                            >
+                                I Accept
+                            </Button>
+                        </HStack>
+                    </ModalFooter>
+            </ModalContent>
+        </Modal>
+        
           {/* MAX REQUESTS REACHED MODAL */}
           <Modal isOpen={isMaxRequestsModalOpen} onClose={onMaxRequestsModalClose} isCentered>
                 <ModalOverlay />
